@@ -4,8 +4,8 @@
 # We need two arguments: input geometry and name of the input file
 
 # SETUP #################################
-nproc=1
-charge=0
+nproc=1              # number of processors
+charge=0             # molecular charge
 spin=1               # molecular spin
 mem=500Mb            # memory in G09 job
 g09="#BMK/aug-cc-pVDZ gfinput IOP(6/7=3) nosymm TD=(singlets,nstate=5)"
@@ -23,7 +23,7 @@ $g09
 
 EOF
 
-# It is advisable to use the timestep from the movies as a comment for future reference.
+# Use timestep from the movies as a comment for future reference.
 head -2 $geometry | tail -1 >> $output
 
 echo " " >> $output

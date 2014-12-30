@@ -4,7 +4,7 @@
 # No additional broadening.
 
 
-# REQUIRE FILES:
+# REQUIRED FILES:
 # calc.spectrum
 # extractG09.sh or similar
 
