@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This is a sample script which takes geometries
-# consecutively from xyz trajectory and launches G09 jobs.
+# This is a driver script which takes geometries
+# consecutively from xyz trajectory and launches calculations.
 
 # You should use PickGeoms.sh before running this script.
 
@@ -9,31 +9,24 @@
 # and calculate the rest, set "first=4" and "nsample=0"
 # in this case, "nsample=0" will do the same as "nsample=7"
 
-# If you want to use some other program, you have to modify
-# the part of the script beginning with "G09 STUFF".
-
 #########SETUP########
 name=test            # name of the job
-first=3              # first geometry, will skip (first-1)geometries
-nsample=5            # number of geometries, positive integer or 0 for all geometries from the one set as first
+first=1              # first geometry, will skip (first-1)geometries
+nsample=1            # number of geometries, positive integer or 0 for all geometries from the one set as first
 movie=geoms.xyz      # file with xyz geometries
-g09="#BMK/aug-cc-pVDZ gfinput IOP(6/7=3) nosymm TD=(singlets,nstate=5)"
-spin=1               # molecular spin
-charge=0             # molecular charge
-nproc=1              # how many processors should we use?
-mem=500Mb            # memory in G09 job
-jobs=4               # determines number of jobs to submit to queue
-#submit="qsub -q sq-8-16"  # comment this line if you do not want to submit jobs
+jobs=1               # determines number of jobs to submit
+make_input="calc.G09-UV.sh"  # script to make input files.
+submit_path="/home/hollas/bin/G09"  # script for launching given program
+#submit="qsub -q aq" # comment this line if you do not want to submit jobs
 ######################
 
-g09path="/home/hollas/bin/G09"
 
 if [[ ! -e $movie ]];then
    echo "ERROR: File $movie does not exist."
    exit 1
 fi
 
-natom=$(head -1 $movie )            # number of atoms
+natom=$(head -1 $movie | awk '{print $1}' )  # number of atoms
 let natom2=natom+2
 let natom1=natom+1
 
@@ -69,43 +62,19 @@ let offset=(first-1)*natom2
 i=$first
 
 ########################################################################
-# YOU WILL NEED TO CHANGE THE FOLLOWING IF YOU WANT TO USE OTHER PROGRAM
-
-# G09 STUFF - MODIFY TO YOUR NEEDS
-cat > $name.template.g09 <<EOF
-%Mem=$mem
-%NProcShared=$nproc
-$g09
-
-EOF
 
 while [[ $i -le $last ]]
 do
    let offset=offset+natom2
 
-   cp $name.template.g09 $name.$i.com
+   head -$offset $movie | tail -$natom2 > temp.xyz
 
-# It is advisable to use the timestep from the movies as a comment for future reference.
-#-Put time step in the comment
-   head -$offset $movie | tail -$natom1 | head -1 >> $name.$i.com
+   ./$make_input temp.xyz $name.$i.com
 
-   echo " " >> $name.$i.com
-   echo $charge $spin >> $name.$i.com
-
-   head -$offset $movie | tail -n $natom >> $name.$i.com
-   echo " " >>$name.$i.com
+   echo "$submit_path $name.$i.com" >>r.$name.$j
 
 
-   echo "$g09path $name.$i.com" >>r.$name.$j
-#----END OF G09 STUFF
-
-
-
-########################################################################
-##  THE REST IS GENERAL AND DOES NOT NEED TO BE MODIFIED
-
-
-#--Distribute G09 calculations evenly between jobs for queue
+#--Distribute calculations evenly between jobs for queue
    if [[ $remainder -le 0 ]];then
       let ncalc=injob
    else
@@ -119,6 +88,7 @@ do
    let i++
 
 done
+########################################################################
 
 j=1
 
