@@ -15,6 +15,7 @@ imax=1122	# number of calculations
 grep_function="grep_G09UV"
 # import grepping functions
 source extractG09.sh
+filesuffix="log"
 ##############
 
 
@@ -23,10 +24,13 @@ samples=0
 rm temp.dat -f
 while [ $i -le $imax ]
 do
-   if  [ -f $name.$i.log ];then
+
+   file=$name.$i.$filesuffix
+
+   if  [ -f $file ];then
 
       # functions imported from external file
-      $grep_function $name.$i.log temp.dat $states
+      $grep_function $file temp.dat $states
 
       if [[ $? -eq "0" ]];then
          let samples++
