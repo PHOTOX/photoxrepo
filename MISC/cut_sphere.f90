@@ -22,17 +22,19 @@ program cut_sphere
    integer, parameter :: maxatom=10000
    character(len=2)   :: at(maxatom)
    real*8    :: x(maxatom), y(maxatom), z(maxatom)
+   real*8    :: vx(maxatom), vy(maxatom), vz(maxatom)
    real*8    :: rmin(maxatom),r(maxatom,maxatom), rmolmin(maxatom)
    integer   :: index(maxatom),index_rev(maxatom)
    integer   :: natmol=3, nmol=-1, nsolute=-1, atidx=-1
    integer   :: nmoltotal, natom
    real*8    :: rad=-1
-   logical   :: lcom=.false., ltrans=.false.
+   logical   :: lcom=.false., ltrans=.false., lvel=.false.
    integer   :: i, j, iat, imol, idx
    real*8    :: xt, yt, zt
+   character(len=100) :: chjunk
 
 
-   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans)
+   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel)
 
    read(*,*)natom
    write(*,*)'Total number of atoms:', natom
@@ -182,13 +184,39 @@ end if
 
    close(150)
 
+   ! Now, get the velocities from veloc.in to veloc.out
+   ! To be used with script create_trajectories.sh
+   if(lvel)then
+   open(150,file='veloc.in', action='read', status="old")
+   read(150,'(A23)')chjunk
+   do iat=1,natom
+      read(150,*)vx(iat),vy(iat),vz(iat)
+   end do
+   close(150)
+   
+   open(150,file='veloc.out', action='write')
+   write(150,*)chjunk
+   ! first write solute
+   do idx=1,nsolute
+      write(150,*)vx(idx),vy(idx),vz(idx)
+   end do
+   ! now write ordered solvent molecules
+   do imol=1,nmol
+      do iat=1,natmol
+         idx=nsolute+(index_rev(imol)-1)*natmol+iat
+         write(150,*)vx(idx),vy(idx),vz(idx)
+      enddo
+   enddo
+   close(150)
+   end if
+
 end
 
-subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans)
+subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel)
 implicit none
 real*8,intent(inout)    :: rad
 integer, intent(inout)  :: natmol, nmol, nsolute, atidx
-logical, intent(inout)  :: lcom, ltrans
+logical, intent(inout)  :: lcom, ltrans, lvel
 character(len=100)      :: arg
 integer                 :: i
 
@@ -238,6 +266,8 @@ do while (i < command_argument_count())
     endif
   case ('-com')
     lcom=.true.
+  case ('-vel')
+    lvel=.true.
   case ('-trans')
     ltrans=.true.
   case default
