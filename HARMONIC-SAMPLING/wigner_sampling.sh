@@ -22,8 +22,7 @@ fi
 
 #!DO NOT! EDIT THE FOLLOWING ######
 mkdir -p FMSTRAJS
-m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
-MOLPROEXE=$m12root/bin/molpro
+source SetEnvironment.sh   # MOLPRO ENVIRONMENT
 
 while [ $i -le $ntrajs ]
 do
@@ -42,7 +41,8 @@ do
  zTrajFile=.true.   !write Trajectory file?
  /">> FMSINPOUT/Control.dat
 
-# EDIT THE FOLLOWING IF NEEDED ######
+# EDIT THE FOLLOWING IF YOUD NEED TO DEFINE ATOM MASSES ######
+# The parameter GaussianWidth does not influence the results 
 if [[ $writemass -eq 1 ]];then
 echo '
 2

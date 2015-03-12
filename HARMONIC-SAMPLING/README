@@ -54,7 +54,7 @@ and adding  UNITS=ANG on the first line
 
 -----------------------------------------
 Step 5: Running the FMS
-Files: wigner_sampling.sh, input.com, randsum
+Files: wigner_sampling.sh, input.com, MyIrandom in your $PATH
 -----------------------------------------
 input.com is a generic input for molpro. It does not need to be edited.
 
