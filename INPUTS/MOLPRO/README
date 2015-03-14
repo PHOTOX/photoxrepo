@@ -1,0 +1,22 @@
+This folder contains some sample calculations for Molpro. 
+The files are divided to two categories:
+
+Beginner
+--------
+the most basic calculations
+
+- geometry optimization
+- interpolation between two structures
+- EOM-CCSD excited state calculation
+
+Advanced
+--------
+You know, how to run a very simple calculation, but you need 
+more...
+
+- dynamical weighting using CASSCF
+- excited state optimization
+- conical intersection optimization
+- spin-orbit calculations
+- diabatization
+
