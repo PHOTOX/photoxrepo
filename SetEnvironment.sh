@@ -94,3 +94,8 @@ if [[ "$1" -eq "DFTB" ]];then
    export DFTBEXE=~hollas/bin/dftb+
 fi
 
+if [[ "$1" -eq "MOPAC" ]];then
+   export MOPAC_LICENSE=/home/hollas/programes/MOPAC2012-CENTOS5
+   export MOPACEXE=/home/hollas/programes/MOPAC2012-CENTOS5/MOPAC2012.exe
+fi
+
