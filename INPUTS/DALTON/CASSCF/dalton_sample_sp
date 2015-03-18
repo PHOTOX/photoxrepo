@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# ------------------------------------------------------------
+# This is a sample script to show how to submit >>DALTON 2.0<<
+# job to SGE queueing system for single-processor run.
+# ------------------------------------------------------------
+
+# After modyfying the program call procedure submit the script
+# using the following command:
+#
+# qsub -q <queue> <scriptname>
+# 
+# Replace <queue> with the queue name and <scriptname> with
+# the name of this script.
+
+# ------------------------------------------------------------
+# DO NOT MODIFY THE FOLLOWING LINES!! THE NUMBER OF PROCESSORS
+# WILL BE SET ON THE COMMAND LINE DURING SUBMISSION.
+# ------------------------------------------------------------
+
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+
+source /usr/local/programs/dalton/dalton-2.0/sub/dalton_sp_env.sh
+
+# ------------------------------------------------------------
+# MODIFY HERE - CALL DALTON PROGRAMS (NO NEED TO SPECIFY PATH)
+# ------------------------------------------------------------
+dalton nitrate.dal nitrate.mol 
+# dalton ...
+
+# ------------------------------------------------------------
+

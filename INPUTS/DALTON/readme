@@ -1,0 +1,6 @@
+Both Dirac and in this case Dalton programs use two inputs:
+
+one (xxx.mol) input for geometry definition and 
+another (xxx.dal) input for method definition
+
+Dalton is not particularly efficient and the version installed is old...

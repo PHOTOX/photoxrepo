@@ -1,0 +1,13 @@
+**DALTON INPUT
+.RUN WAVE FUNCTIONS
+**WAVE FUNCTIONS
+.HF
+.CC
+*CC INPUT
+.CC3
+.NSYM
+4
+*CCEXCI
+.NCCEXCI !number of excited states
+1 1 1 1 !2 states in symmetry 1 and 1 state in symmetry 2
+**END OF DALTON INPUT

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# ------------------------------------------------------------
+# This is a sample script to show how to submit >>DALTON 2.0<<
+# job to SGE queueing system for parallel run.
+# ------------------------------------------------------------
+
+# After modyfying the program call procedure submit the script
+# using the following command:
+#
+# qsub -q <queue> -pe mpi <n> <scriptname>
+# 
+# Replace <queue> with the queue name,  <n> with the number of
+# processors, and <scriptname> with the name of this script.
+
+# ------------------------------------------------------------
+# DO NOT MODIFY THE FOLLOWING LINES!! THE NUMBER OF PROCESSORS
+# WILL BE SET ON THE COMMAND LINE DURING SUBMISSION.
+# ------------------------------------------------------------
+
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+
+source /usr/local/programs/dalton/dalton-2.0/sub/dalton_mp_env.sh
+
+# ------------------------------------------------------------
+# MODIFY HERE; CALL DALTON PROGRAM (NO NEED TO SPECIFY PATH)
+# TO SPECIFY THE NUMBER OF PROCESSORS _ALWAYS_ USE ${NSLOTS}
+# VARIABLE - IT WILL BE SUBSTITUTED BY THE NUMBER THAT QUEUE
+# SYSTEM ALLOCATES
+# ------------------------------------------------------------
+
+#dalton -N anilin.dal anilin.mol 
+dalton -N ${NSLOTS} anilin.dal anilin.mol 
+# dalton -N ${NSLOTS}
+# ...
+
+# ------------------------------------------------------------
+
