@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# A simple script, that should set the envirenmont for the specific program
-# fot its most recent version.
+# A simple script that should set the envirenmont for a specific program
+# for its most recent version.
 
 
 if [[ -z $1 ]];then
@@ -12,9 +12,10 @@ if [[ -z $1 ]];then
 fi
 
 node=$(uname -a | awk '{print $2}' )
+whoami=$(basename $0)
 
 # First, determine where we are. 
-# Currently works for as67-1 ans a324 clusters.
+# Currently works for as67-1 and a324 clusters.
 if [[ "$node" =~ s[0-9] ]] || [[ "$node" -eq "as67-1" ]];then
    cluster=as67
 elif [[ "$node" =~ a[0-9] ]] || [[ "$node" -eq "403-a324-01" ]];then
@@ -40,23 +41,28 @@ fi
 # Export only for nodes on a324
 # Not sure about this...The user might get confused.
 if [[ "$1" -eq "TERA" ]];then
-if [[ "$cluster" -ne "as67" ]] && [[ "$node" -ne "403-a324-01" ]] ;then
+   if [[ "$cluster" -ne "as67" ]] && [[ "$node" -ne "403-a324-01" ]] ;then
 
-   if [ $node = "a25" ];then    #tesla node, we use older and faster version of Terachem
-      export TeraChem=/home/hollas/TeraChem/TERACHEM-1.5/
-      export NBOEXE=/home/hollas/TeraChem/TERACHEM-1.5/nbo6.exe
-      export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
+      if [ $node = "a25" ];then    #tesla node, we use older and faster version of Terachem
+         export TeraChem=/home/hollas/TeraChem/TERACHEM-1.5/
+         export NBOEXE=/home/hollas/TeraChem/TERACHEM-1.5/nbo6.exe
+         export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
+ 
+      else    #GTX nody, Kepler version, slower due to software workarounds
+ 
+         export TeraChem=/home/hollas/TeraChem/
+         export NBOEXE=/home/hollas/TeraChem/nbo6.exe
+         export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
+      fi
+ 
+      export TERAEXE=$TeraChem/terachem
 
-   else    #GTX nody, Kepler version, slower due to software workarounds
+   else
 
-      export TeraChem=/home/hollas/TeraChem/
-      export NBOEXE=/home/hollas/TeraChem/nbo6.exe
-      export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
+      echo "$whoami :You do not appear to be on a machine with GPU. I will not export TeraChem variables."
+
    fi
-
-   export TERAEXE=$TeraChem/terachem
-
-fi
+ 
 fi
 #-------------------------------------
 
