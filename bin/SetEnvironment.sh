@@ -69,7 +69,7 @@ fi
 #--Gaussian--
 if [[ "$1" -eq "G09" ]];then
 if [[ $cluster -eq "as67" ]];then
-   export m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+   export g09root="/home/slavicek/G03/gaussian09/a02/g09"
 elif [[ $cluster -eq "a324" ]] ;then
    export g09root="/home/slavicek/G03/gaussian09/d01/arch/x86_64_sse4.2/g09"
 fi

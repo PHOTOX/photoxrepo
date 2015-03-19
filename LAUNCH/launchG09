@@ -1,0 +1,38 @@
+#!/bin/bash
+if [[ $# -lt "1" ]] || [[ "$1" = "-h" ]]; then
+	echo "USAGE: 'launchG09 input.com [queue]' "
+	exit 1
+fi
+
+PWD=$(pwd)
+
+# automatically determine number of processors
+nproc=`grep proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
+ if [[ $nproc == "" ]];then
+	 # we should ideally use regural expression, but NAH
+nproc=`grep Proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
+ fi
+ if [[ $nproc == "" ]];then
+	 echo "Error: Could not determine the number of processors."
+	 echo "Please set Nprocshared=x in Gaussian input file."
+	 exit 1
+ fi
+
+echo ~hollas/bin/G09 $1 > r.$1
+
+echo "Launching G09 job..."
+echo "$nproc proccesors will be used." 
+
+if [[ ! -z $2 ]];then
+
+   echo "qsub -cwd -q $2 -pe shm $nproc r.$1"
+   qsub -cwd -q $2 -pe shm $nproc r.$1
+
+else
+
+   echo "qsub -cwd -pe shm $nproc r.$1"
+   qsub -cwd -pe shm $nproc r.$1
+
+fi
+
+
