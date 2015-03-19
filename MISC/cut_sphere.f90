@@ -31,10 +31,10 @@ program cut_sphere
    logical   :: lcom=.false., ltrans=.false., lvel=.false.
    integer   :: i, j, iat, imol, idx
    real*8    :: xt, yt, zt
-   character(len=100) :: chjunk
+   character(len=100) :: chjunk, chveloc
 
 
-   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel)
+   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel, chveloc)
 
    read(*,*)natom
    write(*,*)'Total number of atoms:', natom
@@ -187,7 +187,7 @@ end if
    ! Now, get the velocities from veloc.in to veloc.out
    ! To be used with script create_trajectories.sh
    if(lvel)then
-   open(150,file='veloc.in', action='read', status="old")
+   open(150,file=chveloc, action='read', status="old")
    read(150,'(A23)')chjunk
    do iat=1,natom
       read(150,*)vx(iat),vy(iat),vz(iat)
@@ -212,12 +212,12 @@ end if
 
 end
 
-subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel)
+subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel, chveloc)
 implicit none
 real*8,intent(inout)    :: rad
 integer, intent(inout)  :: natmol, nmol, nsolute, atidx
 logical, intent(inout)  :: lcom, ltrans, lvel
-character(len=100)      :: arg
+character(len=100)      :: arg, chveloc
 integer                 :: i
 
 i=0
@@ -268,6 +268,10 @@ do while (i < command_argument_count())
     lcom=.true.
   case ('-vel')
     lvel=.true.
+    i=i+1
+    call get_command_argument(i, arg)
+    read(arg,'(A)')chveloc
+    write(*,*)'Using file '//trim(chveloc)//' for velocities.'
   case ('-trans')
     ltrans=.true.
   case default
@@ -319,7 +323,17 @@ implicit none
     print '(a)', 'You may cut either specific number of closest solvent molecules'
     print '(a)', 'or all solvent mocules within given radius.'
     print '(a)', ''
+    print '(a)', 'There are 3 ways how to determine the distance of solvent to solute.'
+    print '(a)', '  1. Closest distance between ANY solvent atom and ANY solute atom.'
+    print '(a)', '     This is the default if we want specific number of solvent molecules.'
+    print '(a)', '  2. Distance is determined relative to the geometrical center of the solute.'
+    print '(a)', '     This is the default if we cut specific radius. (option -com)'
+    print '(a)', '  3. Distance is determined relative to one specific atom of the solute.'
+    print '(a)', '     (option -i idx)'
+    print '(a)', ''
     print '(a)', 'USAGE: ./cut_sphere [OPTIONS] < input.xyz'
+    print '(a)', ''
+    print '(a)', 'The output geometries are written to files cut_qm.xyz and cut_mm.xyz.'
     print '(a)', ''
     print '(a)', 'cmdline options:'
     print '(a)', ''
@@ -333,6 +347,8 @@ implicit none
     print '(a)', '                   This is the default if -r is specified.'
     print '(a)', '  -trans           Translate the molecule so that the &
                   coordinates of geometrical center are (0, 0, 0).'
+    print '(a)', '  -vel <file_name> Cut also velocities from "file_name". '
+    print '(a)', '                   The order of atoms must be the same! Useful for ABIN simulations.'
 end subroutine PrintHelp
 
 subroutine PrintInputError()

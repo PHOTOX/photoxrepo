@@ -1,3 +1,8 @@
 Miscellaneous utilities should be placed here.
 e.g. cut_sphere and the like
 
+==== CUT_SPHERE ====
+A small program for cutting a sphere of solvent around a solut.
+There are a several modes of operation. Try
+      $ cut_sphere -h 
+to get help.
