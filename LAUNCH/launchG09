@@ -1,6 +1,7 @@
 #!/bin/bash
-if [[ $# -lt "1" ]] || [[ "$1" = "-h" ]]; then
-	echo "USAGE: 'launchG09 input.com [queue]' "
+
+if [[ $# -lt "2" ]] || [[ "$1" = "-h" ]]; then
+	echo "USAGE: 'launchG09 input.com queue' "
 	exit 1
 fi
 
@@ -18,21 +19,20 @@ nproc=`grep Proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
 	 exit 1
  fi
 
-echo ~hollas/bin/G09 $1 > r.$1
 
-echo "Launching G09 job..."
+cat > r.$input << EOF
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+
+G09 $input" >> r.$1
+EOF
+
+echo "Launching G09 job."
 echo "$nproc proccesors will be used." 
 
-if [[ ! -z $2 ]];then
 
-   echo "qsub -cwd -q $2 -pe shm $nproc r.$1"
-   qsub -cwd -q $2 -pe shm $nproc r.$1
-
-else
-
-   echo "qsub -cwd -pe shm $nproc r.$1"
-   qsub -cwd -pe shm $nproc r.$1
-
-fi
-
+echo "qsub -cwd -q $2 -pe shm $nproc r.$1"
+qsub -cwd -q $2 -pe shm $nproc r.$1
 
