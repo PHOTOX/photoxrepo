@@ -6,8 +6,8 @@
 
 
 if [[ -z $1 ]];then
-   echo "$0: You did not provide any parameter. Which program you want to use?"
-   echo "Available: G09, QCHEM, TERA, MOLPRO, CP2K, DFTB"
+   echo "$0: You did not provide any parameter. Which program do you want to use?"
+   echo "Available: G09, QCHEM, TERA, MOLPRO, CP2K, DFTB, ORCA"
    echo "Exiting..."
    exit 1
 fi
@@ -104,5 +104,11 @@ fi
 if [[ "$1" = "MOPAC" ]];then
    export MOPAC_LICENSE=/home/hollas/programes/MOPAC2012-CENTOS5
    export MOPACEXE=/home/hollas/programes/MOPAC2012-CENTOS5/MOPAC2012.exe
+fi
+
+
+if [[ "$1" = "ORCA" ]];then
+   export orcaroot=/home/hollas/programes/orca_3_0_2_linux_x86-64/
+   export ORCAEXE=$orcaroot/orca
 fi
 
