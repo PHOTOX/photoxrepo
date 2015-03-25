@@ -1,0 +1,31 @@
+#!/bin/bash
+if [ $# -lt "2" ]; then
+	echo "USAGE: 'vytvorORCA input.com queue' "
+	exit 1
+fi
+
+
+nproc=$(grep 'PAL' $1 | awk -F "[#PAL]" '{print $4}')
+
+if [[ $nproc == "" ]];then
+   nproc=$(grep 'nprocs' $1 | awk -F "[#,nprocs]" '{print $4}')
+fi
+
+if [[ $nproc == "" ]];then
+   nproc=1
+fi
+
+cat >r.$1 << EOF
+#!/bin/bash
+
+#$ -cwd
+#$ -e .
+#$ -o .
+
+ORCA $1
+EOF
+
+echo "$nproc proccesors will be used" 
+echo "qsub -cwd -pe mpi_alt $nproc run.$1"
+qsub -cwd -pe mpi_alt $nproc r.$1
+

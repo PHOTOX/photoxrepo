@@ -1,0 +1,28 @@
+#!/bin/bash
+
+source SetEnvironment ORCA
+source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+
+input=$1
+KDE=$(pwd)
+
+#export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
+export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2/
+export PATH=$PATH:$orcaroot:${MPIDIR}/bin/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/
+
+export SCRDIR="/scratch/$USER/orca_$1_${JOB_ID}"
+
+mkdir -p $SCRDIR
+cp $1 $SCRDIR
+cd $SCRDIR
+echo "Running ORCA job $1"
+uname -n
+date
+$ORCAEXE $1 &> $KDE/$1.out 
+/bin/rm -rf *.tmp*
+cp * $KDE
+cd ../
+/bin/rm -rf $SCRDIR
+
+
