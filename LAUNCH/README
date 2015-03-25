@@ -1,19 +1,37 @@
 This folder should contain all launching scripts for various programes like Gaussian etc.
 It does not contain system-wide scripts from Polach (like M12_SP).
 
-All scripts should work on all clusters in our laboratory,
-i.e. if there are different versions or locations of the program (like G09.A02 on as67 versus G09.D02 on a324),
-the script should automatically handle it.
-
-However, the program paths and settings should come from SetEnvironment.sh global  script.
+All scripts should work on all clusters in our laboratory.
+This should be mainly achieved via script SetEnvironment.sh
 
 =====================================================
 Use the following to get environmental variables from the $USER
 #$ -V
 SetEnvironment.sh MOLPRO   #SetEnvironment.sh must be in $PATH 
 
+Otherwise, the system won't find the scripts.
 
 
+
+=====================================================
+         Architecture of the scripts
+
+Each program should have two separate scripts:
+1) The script that actually executes the program, e.g. G09
+    It should...
+   i)  Set necessary variables such as scratch dirs etc.
+   ii) Run the program using input given from user
+
+2) A launching script, e.g. launchG09
+   This script takes arguments from the user, checks them and creates
+   a very simple auxiliary launching script, which is subsequently submitted.
+
+Such separation has a big advantage if you need to run hundreds of calculations.
+You can then easily pile them up into few jobs, i.e. you can have several G09 calculations in one job.
+This strategy is used e.g. in script RecalcGeometries.sh.
+
+
+=====================================================
 =====================================================
 Use the following code to determine the cluster name:
 
@@ -34,3 +52,4 @@ else if [[ "$cluster" -eq "a324" ]];then
 fi
 
 =====================================================
+
