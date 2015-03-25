@@ -32,6 +32,13 @@ This strategy is used e.g. in script RecalcGeometries.sh.
 
 
 =====================================================
+      SCRATCH directories
+They should look like this (if possible):
+export SCRDIR="/scratch/$USER/orca_$1_${JOB_ID}"
+
+i.e. program_jobname_job_id
+
+=====================================================
 =====================================================
 Use the following code to determine the cluster name:
 

@@ -10,7 +10,7 @@ source SetEnvironment.sh G09
 input=$1
 export scrhome="/scratch/$USER/"
 export GAUSS_EXEDIR="$g09root"
-export GAUSS_SCRDIR="/scratch/$USER/g09_$$"
+export GAUSS_SCRDIR="/scratch/$USER/G09_$1_${JOB_ID}"
 export LD_LIBRARY_PATH=$GAUSS_EXEDIR
 
 if [ -e "$1" ]
