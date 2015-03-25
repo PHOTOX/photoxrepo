@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Script far running QCHEM calculations
+# Serial mode or using parallel OpenMP.
+# For parallel MPI, second parametr must equal "mpi"
+
+if [ "$#" -lt 1 ] ; then
+   echo "Usage: $(/usr/bin/basename $0) <input_file>"
+   echo
+   exit 1
+fi
+
+source SetEnvironment.sh QCHEM
+
+source ${QC}/qcenv.sh
+
+export JOBDIR=$(pwd)
+export INPUT=$1
+
+export QCSCRATCH=${JOBDIR}
+export QCLOCALSCR=/scratch/${USER}
+
+echo ${INPUT}
+echo ${NSLOTS}
+echo ${JOBDIR}
+
+if [[ ${NSLOTS} -eq 1 ]]; then
+
+  qchem ${INPUT} ${INPUT}.out &> ${INPUT}.log
+
+else if [[ $2 = "mpi" ]];then
+
+  source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+  qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
+
+else
+
+  qchem -nt ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
+
+fi
+
+rm -rf TMP core
+
