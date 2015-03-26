@@ -4,7 +4,6 @@ if [ $# -lt "2" ]; then
 	exit 1
 fi
 
-
 nproc=$(grep 'PAL' $1 | awk -F "[#PAL]" '{print $4}')
 
 if [[ $nproc == "" ]];then
@@ -15,17 +14,24 @@ if [[ $nproc == "" ]];then
    nproc=1
 fi
 
+if [[ $nproc -gt 1 ]];then
+   echo "Warning: parallel version of ORCA was no extensively tested."
+   echo "You should first try whether you get the same results both with serial and parallel versions."
+fi
+
+
 cat >r.$1 << EOF
 #!/bin/bash
 
 #$ -cwd
 #$ -e .
 #$ -o .
+#$ -V
 
 ORCA $1
 EOF
 
 echo "$nproc proccesors will be used" 
-echo "qsub -cwd -pe mpi_alt $nproc run.$1"
+echo "qsub -cwd -pe mpi_alt $nproc r.$1"
 qsub -cwd -pe mpi_alt $nproc r.$1
 

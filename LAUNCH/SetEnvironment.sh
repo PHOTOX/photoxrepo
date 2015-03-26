@@ -110,5 +110,10 @@ fi
 if [[ "$1" = "ORCA" ]];then
    export orcaroot=/home/hollas/programes/orca_3_0_2_linux_x86-64/
    export ORCAEXE=$orcaroot/orca
+   if [[ $cluster = "as67" ]];then
+      source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+   elif [[ $cluster = "a324" ]] ;then
+      source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+   fi
 fi
 

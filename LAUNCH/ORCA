@@ -1,15 +1,15 @@
 #!/bin/bash
 
-source SetEnvironment ORCA
-source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+source SetEnvironment.sh ORCA
 
 input=$1
 KDE=$(pwd)
 
-#export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
-export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2/
-export PATH=$PATH:$orcaroot:${MPIDIR}/bin/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/
+export PATH=$PATH:$orcaroot
+
+# DH: I have no idea why this bit was here.
+# Appears to work without it.
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/
 
 export SCRDIR="/scratch/$USER/orca_$1_${JOB_ID}"
 

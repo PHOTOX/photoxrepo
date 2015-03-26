@@ -6,12 +6,13 @@ if [[ $# -lt "2" ]] || [[ "$1" = "-h" ]]; then
 fi
 
 PWD=$(pwd)
+input=$1
 
 # automatically determine number of processors
-nproc=`grep proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
+nproc=`grep proc $input  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
  if [[ $nproc == "" ]];then
 	 # we should ideally use regural expression, but NAH
-nproc=`grep Proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
+nproc=`grep Proc $input  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
  fi
  if [[ $nproc == "" ]];then
 	 echo "Error: Could not determine the number of processors."
@@ -21,18 +22,20 @@ nproc=`grep Proc $1  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
 
 
 cat > r.$input << EOF
+#!/bin/bash
+
 #$ -cwd
 #$ -e .
 #$ -o .
 #$ -V
 
-G09 $input" >> r.$1
+G09 $input
 EOF
 
 echo "Launching G09 job."
 echo "$nproc proccesors will be used." 
 
 
-echo "qsub -cwd -q $2 -pe shm $nproc r.$1"
-qsub -cwd -q $2 -pe shm $nproc r.$1
+echo "qsub -cwd -q $2 -pe shm $nproc r.$input"
+qsub -cwd -q $2 -pe shm $nproc r.$input
 
