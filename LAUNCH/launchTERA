@@ -1,0 +1,128 @@
+#!/bin/bash
+
+
+function PrintHelp {
+        echo " "
+	echo "SYNTAX: vytvorTERA input.com queue [dev]"
+	echo "where queue is \"m2090\",\"gtx690\" or \"titan\"."
+        echo "For development version, use \"dev\" as the third parameter."
+	exit 1
+}
+
+if [[ -z $1 ]];then
+	echo "Input file not specified. Exiting..."
+	PrintHelp
+fi
+
+if [[ ! -e "$1" ]];then
+	echo "Input file $1 does not exist. Exiting..."
+        PrintHelp
+fi
+
+input=$1
+
+if [[ -z $2 ]];then
+	echo "GPU queue not specified."
+        error=1
+fi
+
+queue=$2
+
+if [[ $queue != "m2090" && $queue != "gtx690" && $queue != "titan" ]];then
+   echo "$queue is not a valid GPU queue."
+   error=1
+fi
+
+if [[ ! -z $3 && $3 != "dev" ]];then
+   echo "Incorrect 3rd parameter."
+   echo "Expected \"dev\", got $3."
+   error=1
+fi
+
+
+
+numgpus=$(grep gpus  $1 | grep -v '#' | head -1 |  awk '{printf"%i",$2}')
+
+if [[ -z $numgpus ]];then
+   echo "Number of gpus not specified. Exiting..."
+   echo "Please, set variable \"gpus\" in $1 ."
+   exit 1
+   error=1
+fi
+
+if [[ $numgpus -gt 2 ]] &&  [[ $2 == "m2090" ]];then
+   echo "Maximum number of gpus for m2090 cards is 2."
+   echo "Job not submitted. Exiting..."
+   exit 1
+   error=1
+fi
+
+if [[ $numgpus -gt 4 && $2 == "gtx690"  ]];then
+   echo "Maximum number of gpus for gtx690 cards is 4."
+   echo "Job not submitted. Exiting..."
+   error=1
+fi
+
+if [[ $numgpus -gt 4 && $2 == "titan"  ]];then
+   echo "Maximum number of gpus for titan cards is 4."
+   echo "Job not submitted. Exiting..."
+   error=1
+fi
+
+## Check the presence of the input geometry
+coord=$(grep coordinates $input | grep -v '#' | grep -v 'min_coordinates' | head -1 | awk '{printf"%s", $2}')
+coord_mm=$(grep qmmm $input | grep -v '#' | head -1 |  awk '{print $2}')
+guess1=$(grep guess $input | grep -v '#' | tail -1 | awk '{print $2}' )
+guess2=$(grep guess $input | grep -v '#' | tail -1 | awk '{print $3}' )
+
+# WARNING: this does not work for dos files, i.e. for different linebreaks!
+if [[ ! -e $coord ]];then
+   echo "Geometry not found. Exiting..."
+   echo "Set variable "coordinates" in $input"
+   error=1
+fi
+
+if [[ ! -z $coord_mm ]];then
+   if [[ ! -e $coord_mm ]];then
+      echo "MM geometry not found. Exiting..."
+      echo "Set or unset variable "qmmm" in $1"
+      error=1
+   fi
+fi
+
+if [[ ! -z $guess1 ]];then
+   if [[ ! -e $guess1 ]];then
+      echo "Guess file $guess1 not found. Exiting..."
+      echo "Set or unset variable "guess" in $1"
+      error=1
+   fi
+fi
+
+if [[ ! -z $guess2 ]];then
+   if [[ ! -e $guess2 ]];then
+      echo "Guess file $guess2 not found. Exiting..."
+      echo "Set or unset variable "guess" in $input"
+      error=1
+   fi
+fi
+
+if [[ $error -eq 1 ]];then
+   PrintHelp
+fi
+
+
+cat > r.$input << EOF
+#!/bin/bash
+
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+
+TERA $input $3
+EOF
+
+echo "qsub -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1"
+qsub  -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1
+
+

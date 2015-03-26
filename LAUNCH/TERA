@@ -1,0 +1,120 @@
+#!/bin/bash
+if [ -z $1 ];then
+	echo "No input file specified. Exiting..."
+	echo "Call as: $0 input.com [dev]"
+	exit 1
+fi
+
+if [[ ! -e "$1" ]];then
+	echo "Input file doesn't exists!"
+fi
+
+CUR_DIR=$(pwd)
+numgpus=$(grep gpus $1 | grep -v '#'  | head -1 | awk '{print $2}')
+scrdir=$(grep scrdir $1 | grep -v '#' | head -1 | awk '{print $2}')
+coord=$(grep coordinates $1 | grep -v '#' | grep -v 'min_coordinates' | head -1 |   awk '{print $2}')
+coord_name=$(basename $coord)
+coord_mm=$(grep qmmm $1 | grep -v '#' | head -1 | awk '{print $2}')
+coord_mm_name=$(basename $coord_mm)
+guess1=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $2}' )
+guess2=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $3}' )
+
+if [ -z $numgpus ];then
+	echo "Number of gpus not specified. Exiting..."
+	echo "Set variable "gpus" in $1"
+	exit 1
+fi
+
+if [ ! -e $coord ];then
+	echo "Geometry not found. Exiting..."
+	echo "Set variable "coordinates" in $1"
+	exit 1
+fi
+
+if [[ ! -z $coord_mm ]];then
+if [[ ! -e $coord_mm ]];then
+	echo "MM geometry not found. Exiting..."
+	echo "Set or unset variable "qmmm" in $1"
+	exit 1
+fi
+fi
+
+if [[ ! -z $guess1 ]];then
+if [[ ! -e $guess1 ]];then
+	echo "Guess file $guess1 not found. Exiting..."
+	echo "Set or unset variable "guess" in $1"
+	exit 1
+fi
+fi
+if [[ ! -z $guess2 ]];then
+if [[ ! -e $guess2 ]];then
+	echo "Guess file $guess2 not found. Exiting..."
+	echo "Set or unset variable "guess" in $1"
+	exit 1
+fi
+fi
+
+#- All clear, let's go.
+
+if [[ "$2" == "dev" ]];then
+   source SetEnvironment.sh TERAdev
+else
+   source SetEnvironment.sh TERA
+fi
+
+if [[ -z $scrdir ]];then
+        copyback=true
+	scrdir="/scratch/$USER/SCR-$1_${JOB_ID}"
+	mkdir $scrdir
+	echo "scrdir $scrdir"  > $scrdir/$1
+	echo "scrdir not specified, using : $scrdir"
+        echo "memcheck no" > $scrdir/$1
+	cp $coord $scrdir/$coord_name
+        echo "coordinates $coord_name" > $scrdir/$1
+	if [[ ! -z $coord_mm ]];then
+		cp $coord_mm $scrdir/$coord_mm_name
+                echo "qmmm  $coord_mm_name" >> $scrdir/$1
+	fi
+
+        if [[ ! -z $guess1 ]];then
+           cp $guess1 $scrdir
+           if [[ ! -z $guess2 ]];then
+              cp $guess2 $scrdir
+              echo "guess ca0 cb0" >> $scrdir/$1
+           else
+              echo "guess c0"     >> $scrdir/$1
+           fi
+        fi
+        grep min_coordinates $1 >> $scrdir/$1
+	grep -v -e "coordinates" -e "qmmm " -e "guess " $1 >> $scrdir/$1
+        echo "end" >> $scrdir/$1
+	cd $scrdir
+
+elif [ -e $scrdir ];then
+	echo "WARNING: Scratch directory specified in $1 already exists!"
+	echo "Please, remove it or change its name." 
+	echo "Exiting...." 
+	exit 1
+fi
+
+ export OMP_NUM_THREADS=$numgpus  #setting to number of gpus, used only for MKL library anyway i.e. for diagonalization
+ echo "Running Terachem job $1 using $OMP_NUM_THREADS cpu cores"
+ node=$(uname -n)
+ echo $node
+ date
+
+$TERAEXE $1 > $CUR_DIR/$1.out
+
+if [[ $copyback -eq "true" ]];then
+ cd ../
+ cp -r $scrdir/ $CUR_DIR
+ if [[ $? -ne "0" ]];then
+   echo "Error when copying the data from scratch back to the server."
+   echo "I will keep the directory $SCRDIR on node:"
+   uname -a
+   exit 1
+ fi
+ rm -r $scrdir
+fi
+
+

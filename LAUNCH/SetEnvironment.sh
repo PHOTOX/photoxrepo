@@ -27,6 +27,9 @@ else
    exit 1
 fi
 
+echo $cluster
+echo $node
+
 #--MOLPRO--
 if [[ "$1" = "MOLPRO" ]];then
 if [[ $cluster = "as67" ]];then
@@ -41,10 +44,10 @@ fi
 #--TeraChem--
 # Export only for nodes on a324
 # Not sure about this...The user might get confused.
-if [[ "$1" = "TERA" ]];then
-   if [[ "$cluster" -ne "as67" ]] && [[ "$node" -ne "403-a324-01" ]] ;then
+if [[ "$1" = "TERA"  || "$1" = "TERAdev" ]];then
+   if [[ "$cluster" != "as67" ]] && [[ "$node" != "403-a324-01" ]] ;then
 
-      if [ $node = "a25" ];then    #tesla node, we use older and faster version of Terachem
+      if [[ $node = "a25" ]];then    #tesla node, we use older and faster version of Terachem
          export TeraChem=/home/hollas/TeraChem/TERACHEM-1.5/
          export NBOEXE=/home/hollas/TeraChem/TERACHEM-1.5/nbo6.exe
          export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
@@ -55,8 +58,15 @@ if [[ "$1" = "TERA" ]];then
          export NBOEXE=/home/hollas/TeraChem/nbo6.exe
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
       fi
- 
+
       export TERAEXE=$TeraChem/terachem
+
+      if [[ $1 = "TERAdev" ]];then
+         export TeraChem=/home/hollas/programes/TeraChem-dev/build/
+         export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
+         export TERAEXE=$TeraChem/bin/terachem
+         export NBOEXE=/home/hollas/TeraChem/nbo6.exe
+      fi
 
    else
 
