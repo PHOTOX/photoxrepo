@@ -1,7 +1,21 @@
 #!/bin/bash
-if [ $# -lt "2" ]; then
-	echo "USAGE: 'vytvorORCA input.com queue' "
-	exit 1
+function PrintHelp {
+   echo " "
+   echo "USAGE: 'launchORCA input.com queue' "
+   exit 1
+}
+
+if [[ $# -lt "2" ]]; then
+   echo "Not enough parameters."
+   PrintHelp
+fi
+
+input=$1
+queue=$2
+
+if [[ ! -e "$input" ]];then
+   echo "File $input does not exist. Exiting."
+   PrintHelp
 fi
 
 nproc=$(grep 'PAL' $1 | awk -F "[#PAL]" '{print $4}')
@@ -28,10 +42,10 @@ cat >r.$1 << EOF
 #$ -o .
 #$ -V
 
-ORCA $1
+ORCA $input
 EOF
 
 echo "$nproc proccesors will be used" 
-echo "qsub -cwd -pe mpi_alt $nproc r.$1"
-qsub -cwd -pe mpi_alt $nproc r.$1
+echo "qsub -cwd  -q $queue -pe mpi_alt $nproc r.$input"
+qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
 

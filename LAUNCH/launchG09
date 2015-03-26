@@ -1,14 +1,26 @@
 #!/bin/bash
+function PrintHelp {
+   echo " "
+   echo "USAGE: 'launchG09 input.com queue' "
+   exit 1
+}
 
-if [[ $# -lt "2" ]] || [[ "$1" = "-h" ]]; then
-	echo "USAGE: 'launchG09 input.com queue' "
-	exit 1
+if [[ $# -lt "2" ]]; then
+   echo "Not enough parameters."
+   PrintHelp
+fi
+
+input=$1
+queue=$2
+
+if [[ ! -e "$input" ]];then
+   echo "File $input does not exist. Exiting."
+   PrintHelp
 fi
 
 PWD=$(pwd)
-input=$1
 
-# automatically determine number of processors
+# Automatically determine number of processors
 nproc=`grep proc $input  | head -1 | awk -F "=" '{if($2!=""){printf"%i",$2}}'`
  if [[ $nproc == "" ]];then
 	 # we should ideally use regural expression, but NAH
@@ -36,6 +48,6 @@ echo "Launching G09 job."
 echo "$nproc proccesors will be used." 
 
 
-echo "qsub -cwd -q $2 -pe shm $nproc r.$input"
-qsub -cwd -q $2 -pe shm $nproc r.$input
+echo "qsub -cwd -q $queue -pe shm $nproc r.$input"
+qsub -cwd -q $queue -pe shm $nproc r.$input
 

@@ -27,9 +27,6 @@ else
    exit 1
 fi
 
-echo $cluster
-echo $node
-
 #--MOLPRO--
 if [[ "$1" = "MOLPRO" ]];then
 if [[ $cluster = "as67" ]];then

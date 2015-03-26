@@ -28,7 +28,7 @@ if [[ ${NSLOTS} -eq 1 ]]; then
 
   qchem ${INPUT} ${INPUT}.out &> ${INPUT}.log
 
-else if [[ $2 = "mpi" ]];then
+elif [[ $2 = "mpi" ]];then
 
   source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
   qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
