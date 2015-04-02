@@ -16,7 +16,7 @@ nsample=1            # number of geometries, positive integer or 0 for all geome
 movie=geoms.xyz      # file with xyz geometries
 jobs=1               # determines number of jobs to submit
 make_input="calc.G09UV.sh"  # script to make input files.
-submit_path="/home/hollas/bin/G09"  # script for launching given program
+submit_path="G09"    # script for launching given program
 #submit="qsub -q aq" # comment this line if you do not want to submit jobs
 ######################
 
@@ -96,7 +96,7 @@ j=1
 if [[ ! -z $submit ]];then
    while [[ $j -le $jobs ]]
    do
-      $submit -cwd -pe shm $nproc r.$name.$j
+      $submit -cwd -V -pe shm $nproc r.$name.$j
       let j++
    done
 fi
