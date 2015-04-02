@@ -1,0 +1,39 @@
+#!/bin/bash
+function PrintHelp {
+   echo " "
+   echo "USAGE: 'launchCP2K input.inp queue nproc' "
+   exit 1
+}
+
+#- Check input sanity ------
+
+if [[ $# -lt "3" ]] || [[ "$1" = "-h" ]]; then
+   PrintHelp
+fi
+
+input=$1
+queue=$2
+nproc=$3
+
+if [[ ! -e "$input" ]];then
+   echo "File $input does not exist. Exiting."
+   PrintHelp
+fi
+
+cat > r.$input << EOF
+#!/bin/bash
+
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+
+CP2K $input
+EOF
+
+echo "Launching CP2K job."
+echo "$nproc proccesors will be used." 
+
+echo "qsub -cwd -q $queue -pe mpi $nproc r.$input"
+qsub -cwd -q $queue -pe mpi $nproc r.$input
+
