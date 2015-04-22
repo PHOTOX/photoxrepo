@@ -21,9 +21,12 @@ fi
 
 
 #!DO NOT! EDIT THE FOLLOWING ######
-mkdir -p FMSTRAJS
-source SetEnvironment.sh   # MOLPRO ENVIRONMENT
 
+# In case we run as a job
+#$ -V
+source SetEnvironment.sh MOLPRO  # MOLPRO ENVIRONMENT
+
+mkdir -p FMSTRAJS
 while [ $i -le $ntrajs ]
 do
    echo ' &control'> FMSINPOUT/Control.dat
