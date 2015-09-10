@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#$ -V
+# Molpro 2012 SGE submission script (single- and nulti-processor version)
+source SetEnvironment.sh MOLPRO
+scratch=/scratch/${USER}
+
+export INPFILE=$1
+export LOGFILE=$1.log
+export OUTFILE=$1.out
+
+nproc=$2
+
+export SCRATCH=${scratch}/M12_$1_${JOB_ID}
+export INTGDIR=${scratch}/M12_$1_${JOB_ID}
+export WORKDIR=$(/bin/pwd)
+
+
+export MOLPRO_OPTIONS="--nobackup --no-xml-output -o${OUTFILE} -d${SCRATCH} -I${INTGDIR} -W${WORKDIR} -m8M"
+
+export OMP_NUM_THREADS=1
+
+/bin/uname -a >${LOGFILE}
+/bin/date >>${LOGFILE}
+/bin/echo >>${LOGFILE}
+
+cd ${WORKDIR}
+
+if [[ "$nproc" -gt 1 ]];then
+
+   export PATH=${m12_mpiroot}/bin:$PATH
+   source ${m12_mpiroot}/../libdepends
+   export MPIRUN=${MPIDIR}/bin/mpirun
+# -----------------------------------------------------------------
+# Check the hostfile and create scratches and integral directories.
+# -----------------------------------------------------------------
+   if [ ! -f "${PE_HOSTFILE}" ]; then
+      echo "Error: PE_HOSTFILE (${PE_HOSTFILE}) not found. Terminating."
+      exit 0
+   fi
+
+   for PE_HOST in $(cat ${PE_HOSTFILE} | cut -f 1 -d " "); do
+      ssh ${PE_HOST} "mkdir -p ${SCRATCH}; mkdir -p ${INTGDIR}"
+   done
+
+   /usr/bin/time -a -o ${LOGFILE} ${m12_mpiroot}/bin/molpro --launcher "${MPIRUN} %x" <${INPFILE} >> ${LOGFILE}
+
+   # Cleaning
+   for PE_HOST in $(cat ${PE_HOSTFILE} | cut -f 1 -d " "); do
+      ssh ${PE_HOST} "rm -rf ${SCRATCH}; rm -rf ${INTGDIR}"
+   done
+
+else
+   export PATH=${m12root}/bin:$PATH
+
+   mkdir -p ${SCRATCH}
+   mkdir -p ${INTGDIR}
+
+   /usr/bin/time -a -o ${LOGFILE} $m12root/bin/molpro <${INPFILE} >>${LOGFILE}
+   rm -rf ${SCRATCH}
+   rm -rf ${INTGDIR}
+
+fi
+
+rm -rf core
+

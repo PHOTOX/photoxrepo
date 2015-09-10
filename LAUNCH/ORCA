@@ -6,13 +6,13 @@ source SetEnvironment.sh ORCA
 input=$1
 KDE=$(pwd)
 
-export PATH=$PATH:$orcaroot
+export PATH=$orcaroot:$PATH
 
 # DH: I have no idea why this bit was here.
 # ORCA appears to work without it.
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/
 
-export SCRDIR="/scratch/$USER/orca_$1_${JOB_ID}"
+export SCRDIR="/scratch/$USER/ORCA_$1_${JOB_ID}"
 
 mkdir -p $SCRDIR
 cp $1 $SCRDIR

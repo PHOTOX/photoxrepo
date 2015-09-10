@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# A simple script that should set the environment
-# for a specific program to its most recent version.
-# It should work for all PHOTOX clusters.
+# A simple script that sets the environment for a specific program.
+# It should point to the newest version that is available on our clusters.
+# This script should work for all PHOTOX clusters.
 
 
 if [[ -z $1 ]];then
    echo "$0: You did not provide any parameter. Which program do you want to use?"
-   echo "Available: G09, QCHEM, TERA, MOLPRO, CP2K, DFTB, ORCA"
+   echo "Available: G09, QCHEM, TERA, MOLPRO, CP2K, DFTB, ORCA, TURBO"
    echo "Exiting..."
    exit 1
 fi
@@ -30,9 +30,11 @@ fi
 #--MOLPRO--
 if [[ "$1" = "MOLPRO" ]];then
 if [[ $cluster = "as67" ]];then
-   export  m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+   export m12_mpiroot=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+   export m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
 elif [[ $cluster = "a324" ]] ;then
-   export  m12root=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+   export m12_mpiroot=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+   export m12root=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
 fi
 MOLPROEXE=$m12root/bin/molpro
 fi
@@ -44,7 +46,7 @@ fi
 if [[ "$1" = "TERA"  || "$1" = "TERAdev" ]];then
    if [[ "$cluster" != "as67" ]] && [[ "$node" != "403-a324-01" ]] ;then
 
-      if [[ $node = "a25" ]];then    #tesla node, we use older and faster version of Terachem
+      if [[ $node = "a25" && $2 = "tesla" ]];then    #tesla node, we use older and faster version of Terachem
          export TeraChem=/home/hollas/TeraChem/TERACHEM-1.5/
          export NBOEXE=/home/hollas/TeraChem/TERACHEM-1.5/nbo6.exe
          export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
@@ -67,7 +69,7 @@ if [[ "$1" = "TERA"  || "$1" = "TERAdev" ]];then
 
    else
 
-      echo "$whoami :You do not appear to be on a machine with GPU. I will not export TeraChem variables."
+      echo "$whoami :You do not appear to be on a machine with GPUs. I will not export TeraChem variables."
 
    fi
  
@@ -86,19 +88,28 @@ fi
 
 #--QCHEM
 if [[ "$1" = "QCHEM" ]];then
-   export QC=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
+   if [[ $cluster = "as67" ]];then
+      export qc=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
+      export mpiset=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+   elif [[ $cluster = "a324" ]] ;then
+      export qcroot=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
+      export qc_mpiroot=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
+      export mpiset=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+   fi
+   export QCEXE=$qcroot/bin/qchem
 fi
 
 
 #--CP2K--
 if [[ "$1" = "CP2K" ]];then
-. /home/uhlig/intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
-. /home/uhlig/intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
-. /home/uhlig/build/libint/1.1.4-icc/env.sh
-. /home/uhlig/build/openmpi/1.6.5-icc/env.sh
-. /home/uhlig/build/fftw/3.3.4-icc/env.sh
+   . /home/uhlig/intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
+   . /home/uhlig/intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
+   . /home/uhlig/build/libint/1.1.4-icc/env.sh
+   . /home/uhlig/build/openmpi/1.6.5-icc/env.sh
+   . /home/uhlig/build/fftw/3.3.4-icc/env.sh
 
-export CP2KEXE=/home/uhlig/build/cp2k/2.5_11122014/cp2k.popt
+   export cp2kroot=/home/uhlig/build/cp2k/2.5_11122014/
+   export CP2KEXE=$cp2kroot/cp2k.popt
 fi
 #----------------------------------------------------
 
@@ -121,6 +132,16 @@ if [[ "$1" = "ORCA" ]];then
       source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
    elif [[ $cluster = "a324" ]] ;then
       source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+   fi
+fi
+
+if [[ "$1" = "TURBO" ]];then
+   if [[ $cluster = "as67" ]];then
+      export turboroot=/home/oncakm/TurboMole-6.0
+      export PATH=$turboroot/scripts:$PATH
+      export PATH=$turboroot/bin/x86_64-unknown-linux-gnu:$PATH
+   else
+      echo "SetEnvironment.sh: TurboMole not available on a324."
    fi
 fi
 

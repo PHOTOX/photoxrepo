@@ -64,7 +64,7 @@ fi
 
 if [[ -z $scrdir ]];then
         copyback=true
-	scrdir="/scratch/$USER/SCR-$1_${JOB_ID}"
+	scrdir="/scratch/$USER/TERA-$1_${JOB_ID}"
 	mkdir $scrdir
 	echo "scrdir $scrdir"  > $scrdir/$1
 	echo "scrdir not specified, using : $scrdir"
@@ -80,9 +80,9 @@ if [[ -z $scrdir ]];then
            cp $guess1 $scrdir
            if [[ ! -z $guess2 ]];then
               cp $guess2 $scrdir
-              echo "guess ca0 cb0" >> $scrdir/$1
+              echo "guess $scrdir/ca0 $scrdir/cb0" >> $scrdir/$1
            else
-              echo "guess c0"     >> $scrdir/$1
+              echo "guess ./c0"     >> $scrdir/$1
            fi
         fi
         grep min_coordinates $1 >> $scrdir/$1
@@ -90,11 +90,13 @@ if [[ -z $scrdir ]];then
         echo "end" >> $scrdir/$1
 	cd $scrdir
 
-elif [ -e $scrdir ];then
-	echo "WARNING: Scratch directory specified in $1 already exists!"
-	echo "Please, remove it or change its name." 
-	echo "Exiting...." 
-	exit 1
+#elif [ -e $scrdir ];then
+#	echo "WARNING: Scratch directory specified in $1 already exists!"
+#	echo "Please, remove it or change its name." 
+#	echo "Exiting...." 
+#	exit 1
+else
+   copyback=false
 fi
 
  export OMP_NUM_THREADS=$numgpus  #setting to number of gpus, used only for MKL library anyway i.e. for diagonalization

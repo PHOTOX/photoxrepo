@@ -3,9 +3,11 @@
 
 function PrintHelp {
         echo " "
-	echo "SYNTAX: vytvorTERA input.com queue [dev]"
-	echo "where queue is \"m2090\",\"gtx690\" or \"titan\"."
-        echo "For development version, use \"dev\" as the third parameter."
+        echo "This is the launching script for TeraChem jobs. "
+        echo " "
+	echo "SYNTAX: launchTERA input.com queue [dev]"
+	echo "where queue is \"m2090\",\"gtx690\", gtx970 or \"titan\"."
+        echo "For the development version, use \"dev\" as the third parameter."
 	exit 1
 }
 
@@ -28,7 +30,9 @@ fi
 
 queue=$2
 
-if [[ $queue != "m2090" && $queue != "gtx690" && $queue != "titan" ]];then
+if [[ $queue =~ ^m2090$ || $queue =~ ^gtx690$ || $queue =~ ^titan$ || $queue =~ ^gtx970$ ]];then
+   echo 
+else
    echo "$queue is not a valid GPU queue."
    error=1
 fi
@@ -37,6 +41,13 @@ if [[ ! -z $3 && $3 != "dev" ]];then
    echo "Incorrect 3rd parameter."
    echo "Expected \"dev\", got $3."
    error=1
+fi
+
+if [[ "$queue" =~ gtx970$ && "$3" != "dev" ]];then
+   echo "You need to use development version of TeraChem on GTX970 cards."
+   echo "Provide the "dev" parameter or use differrent queue."
+   echo "Exiting..."
+   exit 1
 fi
 
 
@@ -59,6 +70,12 @@ fi
 
 if [[ $numgpus -gt 4 && $2 == "gtx690"  ]];then
    echo "Maximum number of gpus for gtx690 cards is 4."
+   echo "Job not submitted. Exiting..."
+   error=1
+fi
+
+if [[ $numgpus -gt 2 && $2 == "gtx970"  ]];then
+   echo "Maximum number of gpus for gtx970 nodes is 2."
    echo "Job not submitted. Exiting..."
    error=1
 fi

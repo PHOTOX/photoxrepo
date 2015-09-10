@@ -29,7 +29,7 @@ if [[ $nproc == "" ]];then
 fi
 
 if [[ $nproc -gt 1 ]];then
-   echo "Warning: parallel version of ORCA was no extensively tested."
+   echo "Warning: parallel version of ORCA was not extensively tested."
    echo "You should first try whether you get the same results both with serial and parallel versions."
 fi
 
