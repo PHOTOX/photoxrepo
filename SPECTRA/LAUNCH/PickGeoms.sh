@@ -95,7 +95,7 @@ if [[ -e $output ]];then
    echo "WARNING: file $output already exists."
    echo "Do you want to rewrite it? [yes/no]"
    read answer
-   if [[ $answer -ne "yes" ]];then
+   if [[ "$answer" != "yes" ]];then
       echo "ABORTING."
       exit 1
    else

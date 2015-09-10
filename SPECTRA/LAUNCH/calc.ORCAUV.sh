@@ -3,15 +3,15 @@
 # WARNING: not tested yet
 
 # Script for creating ORCA inputs.
-# Called within script RecalcGeoms.sh
-# We need two arguments: input geometry and name of the input file
-
-nproc=1              # number of processors
+# It is called from script RecalcGeoms.sh
+# Three arguments are passed to this script:
+#     input geometry, name of the input file and number of processors
 charge=0             # molecular charge
 spin=1               # molecular spin
 
 geometry=$1
 output=$2
+nproc=$3              # number of processors
 natom=$(head -1 $1 | awk '{print $1}')
 
 cat > $output <<EOF

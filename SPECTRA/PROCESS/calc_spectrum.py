@@ -1,22 +1,27 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import division
+from optparse import OptionParser
 import math
 import sys
 
 # TODO:
-# 1. command line input
-# 2. Gaussian and Lorentzian broadening
+# 1. Gaussian and Lorentzian broadening
 
-####command line parameters
-# -b    number_in_ev #probably non needed
-# -e    number_in_ev # probably not needed
-# -de   resolution of the spectra
-# -inp  filename with input data
-#  --notrans   no intensities, normalize spectrum to unity
-#  -eps --epsilon    intensities in molar exctinction coef.
-# -nsamp  number of samples
-
+def read_cmd():
+   """Function for reading command line options. Returns tuple options, args."""
+   usage = "usage: %prog [options] input_file"
+   parser = OptionParser(usage)
+   parser.add_option('-n','--nsample',dest='nsample', type='int', default=1, help='Number of samples.')
+   parser.add_option('-d','--de',dest='de', type='float', default=0.02, help='Bin step in eV. Default = 0.02 ')
+#   parser.add_option('-s','--sigma',dest='sigma', default=0.0, help='Parameter for Gaussian broadening.')
+#   parser.add_option('-t','--tau',dest='tau', help='Parameter for Lorentzian broadening.')
+#   parser.add_option('-e','--epsilon',dest='eps', action="store_true",default=False,
+#   help='Print intensity in epsilon instead of a cross section.' )
 #  --smooth (perform runnning average?)
+   parser.add_option('','--notrans',dest='notrans', action="store_true",default=False,
+   help='No transition dipole moments. Spectrum will be normalized to unity. Useful for ionizations.' )
+   return parser.parse_args(sys.argv[1:])
+
 
 # Some constants
 EVtoJ = 1.602e-19
@@ -26,6 +31,7 @@ C = 299792e3
 DEB = 2.5*3.34e-30
 
 class Spectrum(object):
+   """Base class spectrum for reflection principle without broadening"""
 
    def __init__(self, nsample, deltaE, notrans):
       self.trans = []
@@ -39,16 +45,14 @@ class Spectrum(object):
          self.notrans = True
 
    def trans2intensity(self):
-      for j in range(int( self.maxe/self.de )):
-         self.intensity.append(0)
-
+      self.intensity = [ 0 for i in range(self.maxe/self.de)]
       for i in range(len(self.trans)):
 
          index = int( (self.maxe-self.exc[i]) / self.de )
-         self.trans2 = self.trans[i][0]**2 + self.trans[i][1]**2 + self.trans[i][2]**2
-         self.trans2 *= math.pi*self.exc[i]/(3*HPRIME*EPS*C*self.de)
-         self.trans2 *= DEB * DEB * 1e4 / self.nsample
-         self.intensity[index] += self.trans2
+         trans2 = self.trans[i][0]**2 + self.trans[i][1]**2 + self.trans[i][2]**2
+         trans2 *= math.pi*self.exc[i]/(3*HPRIME*EPS*C*self.de)
+         trans2 *= DEB * DEB * 1e4 / self.nsample
+         self.intensity[index] += trans2
 
    def normalize(self):
       for j in range(int( self.maxe/self.de )):
@@ -67,7 +71,7 @@ class Spectrum(object):
             if i % 2 == 1 and self.notrans == False:
                self.trans.append( line.split() )
                if len(self.trans[-1]) != 3:
-                  print("Error: Corrupted line "+str(i+1)+" in file "+filename)
+                  print("Error: Corrupted line "+str(i+1)+" in file "+infile)
                   print("Expected 3 columns of transition dipole moments, got:")
                   print(line)
                   sys.exit(1)
@@ -89,19 +93,19 @@ class Spectrum(object):
       f.close()
 
    def writeout(self, unit, fileout):
-      self.units = {}
-      self.units['nm'] = 1239.8
-      self.units['ev'] = 1.
-      self.units['cm'] = 8065.7
+      units = {}
+      units['nm'] = 1239.8
+      units['ev'] = 1.
+      units['cm'] = 8065.7
       f = open(fileout, "w") 
 
       for i in range(len(self.intensity)):
-         self.energy = (self.maxe-i*de)
+         energy = (self.maxe-i*self.de)
          if unit == "nm":
-            if self.units[unit]/self.energy < 1000:
-              f.write('%f %e \n' % (self.units[unit]/self.energy, self.intensity[i]))
+            if units[unit]/energy < 1000:
+              f.write('%f %e \n' % (units[unit]/energy, self.intensity[i]))
          else:
-            f.write('%f %e \n' % (self.energy*self.units[unit], self.intensity[i]))
+            f.write('%f %e \n' % (energy*units[unit], self.intensity[i]))
 
       f.close()
 
@@ -111,8 +115,9 @@ class Spectrum(object):
 
 
 class SpectrumBroad(Spectrum):
+   """Derived class for spectra with empirial gaussian and/or lorentzian broadening"""
 
-   def __init__(self, nsample, de, sigma, tau):
+   def __init__(self, nsample, deltaE, sigma, tau):
       self.trans = []
       self.exc = []
       self.epsilon = epsilon
@@ -131,27 +136,40 @@ class SpectrumBroad(Spectrum):
 
 
 
-def read_cmd(nsample, de, sigma, tau, eps, notrans, filename):
-   pass
 
 
-tau = 0
-sigma = 0
-de = 0.02 #energy resolution in eV
-nsample = 2
-#filename = "specdata.dat"
-filename = "ion.dat"
-notrans = True
-eps = False
+options, args = read_cmd()
+try:
+   infile = args[0]
+except:
+   print("You did not specified input file. Type -h for help."); sys.exit(1)
 
-if tau > 0 or sigma > 0:
-   spectrum = SpectrumBroad(nsample, de, sigma, tau, notrans)
-else:
-   spectrum = Spectrum(nsample, de, notrans)
 
-spectrum.read_data(filename)
+"""
+if options.tau != None or options.sigma != None:
+   spectrum = SpectrumBroad(options.nsample, options.de, options.sigma, options.tau, options.notrans)
+else:"""
+spectrum = Spectrum(options.nsample, options.de, options.notrans)
 
-spectrum.writeout("nm", "spectrum.nm."+str(nsample)+".dat") 
-spectrum.writeout("ev", "spectrum.ev."+str(nsample)+".dat") 
-spectrum.writeout("cm", "spectrum.cm."+str(nsample)+".dat") 
+spectrum.read_data(infile)
+
+"""
+if options.eps:
+   yunits="cm^2*molecule^-1"
+else:"""
+
+yunits="cm^2*molecule^-1"
+outfile="spectrum.nm."+str(options.nsample)+".dat"
+
+print("Printing spectrum in units [ nm, "+yunits+"] to "+outfile )
+spectrum.writeout("nm", outfile) 
+
+outfile="spectrum.ev."+str(options.nsample)+".dat"
+print("Printing spectrum in units [ eV, "+yunits+"] to "+outfile )
+spectrum.writeout("ev", outfile) 
+
+outfile="spectrum.cm."+str(options.nsample)+".dat"
+print("Printing spectrum in units [ eV, "+yunits+"] to "+outfile )
+spectrum.writeout("cm", outfile) 
+
 

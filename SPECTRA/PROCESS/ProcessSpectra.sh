@@ -1,16 +1,16 @@
 #!/bin/bash
-# Driver script for spectra simulation using reflection principle.
-# Configurational broadening accounted for via RP.
-# No additional broadening.
 
+# Driver script for spectra simulation using reflection principle.
+# No additional broadening (yet, comming soon).
 
 # REQUIRED FILES:
-# calc.spectrum
+# calc_spectrum.py
 # extractG09.sh or similar
 
 ########## SETUP #####
 name=anisol
 states=1	# number of excited states 
+istart=1        # Starting index
 imax=1122	# number of calculations
 grep_function="grep_G09UV"
 # import grepping functions
@@ -18,10 +18,9 @@ source extractG09.sh
 filesuffix="log"
 ##############
 
-
-i=1
+i=$istart
 samples=0
-rm temp.dat -f
+rm -f spectrum_rawdata
 while [ $i -le $imax ]
 do
 
@@ -30,7 +29,7 @@ do
    if  [ -f $file ];then
 
       # functions imported from external file
-      $grep_function $file temp.dat $states
+      $grep_function $file spectrum_rawdata $states
 
       if [[ $? -eq "0" ]];then
          let samples++
@@ -47,10 +46,9 @@ if [ $samples == 0 ];then
 	exit 1
 fi
 
-echo $samples > all.dat
-echo $states >> all.dat
-cat temp.dat >> all.dat
 
-./calc.spectrum < all.dat > spectrum.$samples.dat
-echo "Spectrum in units  \(nm, cm^2\) in file spectrum.$samples.dat"
+./calc_spectrum.py -n $nsamples --de 0.02 spectrum_rawdata 
+# For ionizations, use the following
+#./calc_spectrum.py -n $nsamples --de 0.02 --notrans spectrum_rawdata 
+
 

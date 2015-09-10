@@ -10,6 +10,15 @@ else
 fi
 }
 
+function checkG09ioniz {
+local check=$( grep -c "Normal termination" $1 )
+if [[ $check -eq 2 ]];then
+   return 0
+else
+   return 1
+fi
+}
+
 function grep_G09UV {
    local in=$1
    local numstates=$3
@@ -43,6 +52,22 @@ function grep_G09UV {
 		print dx[i],dy[i],dz[i]
 	}
 	}' >> $out	
+   return 0
+}
+
+function grep_G09ioniz {
+   local in=$1
+   local numstates=$3
+   local out=$2
+
+   checkG09ioniz $in
+   if [[ "$?" -ne "0" ]];then
+      return 1
+   fi
+
+   en1=$(grep "SCF Done" $in | tail -1| awk '{print $5}')
+   en2=$(grep "SCF Done" $in | head -1| awk '{print $5}')
+   awk -v en1=$en1 -v en2=$en2 'BEGIN{print 27.2114*(en1-en2);exit 0 }' >> $out
    return 0
 }
 
