@@ -49,9 +49,10 @@ Geometry.dat and geometry.xyz contain the minimum geometry of the molecule.
 You can use the molgeom.sh script to extract the xyz geometry in angstroms from freq.com.out as:
 ./molgeom.sh freq.com.out > FMSINPOUT/geometry.xyz
 You should then edit geometry.xyz so that there is only one geometry. (there will probably be 2 same geometries)
-Then you can copy geometry.xyz into Geometry.dat and exchange first two lines
-and adding  UNITS=ANG on the first line
-
+Then you can copy geometry.xyz into Geometry.dat and modify the first two lines:
+UNITS=ANG    
+<number_of_atoms>
+-----------------------------------------
 -----------------------------------------
 Step 5: Running the FMS
 Files: wigner_sampling.sh, input.com, MyIrandom in your $PATH
@@ -70,10 +71,7 @@ Step 6: Processing the trajectories
 Files: make_restart
 -----------------------------------------
 
--The Traj.x can be converted into restart.xyz and mini.dat using "make_restart.f90". 
-This code needs the file "atoms.dat", which contains the list of atom names.
-It than automatically assigns correct mass to common atoms of periodic table (including deuterium as D).
-If you need some other atoms or different isotopes, you have to manually adjust the subroutine "mass_init". 
+-The Traj.x can be converted into restart.xyz and mini.dat using "make_restart.f90" available in ABIN package.. 
 
 -----------------------------------------
 Step 7: Running multiple MD runs 
@@ -83,7 +81,6 @@ files:  create_wignertrajectories,make_restart, Abin files
 -it uses "make_restart"
 -in the directory, one needs to have abin executable file, MOLPRO directory,input.in,r.abin
 Note that the first line of input.in must be "&general"!!!!!
-See README in folder ABIN-MULTIPLE-TRAJS for more details
 
 -----------------------------------------
 Note1: Analyzing distributions from wigner sampling
