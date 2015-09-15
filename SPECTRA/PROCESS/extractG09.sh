@@ -2,24 +2,12 @@
 # BASH function definitions for extracting excitation energies
 # and transition dipole moments from G09 output files.
 
-function checkG09 {
-if [[ $( grep "Normal termination" $1 ) ]];then
-   return 0
-else
-   return 1
-fi
-}
+# Available public functions are:
+# grep_G09_TDDFT
+# grep_G09_G09
+# grep_G09_ioniz
 
-function checkG09ioniz {
-local check=$( grep -c "Normal termination" $1 )
-if [[ $check -eq 2 ]];then
-   return 0
-else
-   return 1
-fi
-}
-
-function grep_G09UV {
+function grep_G09_TDDFT {
    local in=$1
    local numstates=$3
    local out=$2
@@ -40,9 +28,7 @@ function grep_G09UV {
 	if ($1 == "state") {
 		for (k=1;k<=numstates;k++) {
 			getline
-	       		dx[k]=$2
-			dy[k]=$3
-			dz[k]=$4
+	       		dx[k]=$2; dy[k]=$3; dz[k]=$4
 		}
 	}
 	}
@@ -55,7 +41,44 @@ function grep_G09UV {
    return 0
 }
 
-function grep_G09ioniz {
+function grep_G09_EOM {
+   local in=$1
+   local numstates=$3
+   local out=$2
+   local nst4
+   let nst4=numstates+4
+
+   checkG09 $in
+   if [[ "$?" -ne "0" ]];then
+      return 1
+   fi
+
+   grep -A $nst4 -e 'EOM-CCSD transition properties' -e 'Root       Hartree' $in | \
+   awk -v numstates=$numstates '{
+	if ($1 == "Root") {
+		for (k=1; k<=numstates; k++) {
+			getline
+	       		en[k]=$3
+		}
+	}
+	if ($1 == "state") {
+		for (k=1;k<=numstates;k++) {
+			getline
+	       		dx[k]=$2; dy[k]=$3; dz[k]=$4
+		}
+	}
+	}
+	END{
+	for (i=1; i<=numstates; i++) {
+		print en[i]
+		print dx[i],dy[i],dz[i]
+	}
+	}' >> $out	
+
+   return 0
+}
+
+function grep_G09_ioniz {
    local in=$1
    local numstates=$3
    local out=$2
@@ -71,3 +94,22 @@ function grep_G09ioniz {
    return 0
 }
 
+
+# Private functions, should not be called from outside
+
+function checkG09 {
+if [[ $( grep "Normal termination" $1 ) ]];then
+   return 0
+else
+   return 1
+fi
+}
+
+function checkG09ioniz {
+local check=$( grep -c "Normal termination" $1 )
+if [[ $check -eq 2 ]];then
+   return 0
+else
+   return 1
+fi
+}
