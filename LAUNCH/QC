@@ -20,9 +20,6 @@ export INPUT=$1
 export QCSCRATCH=${JOBDIR}
 export QCLOCALSCR=/scratch/${USER}
 
-echo ${NSLOTS}
-echo ${JOBDIR}
-
 if [[ ${NSLOTS} -eq 1 ]]; then
   source ${qcroot}/qcenv.sh
 

@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 from __future__ import division
+# NOTE: optparse deprecated in python3, but still supported
 from optparse import OptionParser
 import math
 import sys
 
-# TODO:
-# 1. Gaussian and Lorentzian broadening
-# (initial implementation done, but I am not sure about the intensities)
 
 def read_cmd():
    """Function for reading command line options. Returns tuple options, args."""
@@ -15,7 +13,7 @@ def read_cmd():
    parser.add_option('-n','--nsample',dest='nsample', type='int', default=1, help='Number of samples.')
    parser.add_option('-d','--de',dest='de', type='float', default=0.02, help='Bin step in eV. Default = 0.02 ')
    parser.add_option('-s','--sigma',dest='sigma', type='float', default=0.0, help='Parameter for Gaussian broadening.')
-   parser.add_option('-t','--tau',dest='tau', type='float', default=0.0, help='Parameter for Lorentzian broadening.(not yet implemented)')
+   parser.add_option('-t','--tau',dest='tau', type='float', default=0.0, help='Parameter for Lorentzian broadening.')
    parser.add_option('-e','--epsilon',dest='eps', action="store_true",default=False,
    help='Print intensity in epsilon instead of a cross section.' )
 #  --smooth (perform runnning average?)
@@ -58,6 +56,8 @@ class Spectrum(object):
          self.intensity[index] += trans2
 
    def normalize(self):
+#     self.intensity = [ 0.0 for i in range(int( self.maxe/self.de )) ]
+#     self.intensity = [0] * int( self.maxe/self.de )
       for j in range(int( self.maxe/self.de )):
          self.intensity.append(0.0)
 
@@ -65,9 +65,12 @@ class Spectrum(object):
          index = int( (self.maxe-self.exc[i]) / self.de )
          self.intensity[index] += 1.0 / self.nsample / self.de
 
-   def cross2eps(self):
-      for int in self.intensity:
-         int *= 6.022140**20 / math.log(10)
+   def cross2eps(self): 
+      for i in range(len(self.intensity)):
+         self.intensity[i] *= 6.022140e20 / math.log(10)
+      # TODO not sure how this works
+#      for int in self.intensity:
+#         int *= 6.022140e20 / math.log(10)
 
    def read_data(self, infile):
       f = open(infile, "r") 
@@ -97,7 +100,7 @@ class Spectrum(object):
             i += 1
 
 #      assert(len(self.exc)==len(self.trans))
-      if len(self.exc) != len(self.trans):
+      if len(self.exc) != len(self.trans) and not self.notrans:
          print("Error: Number of excitations does not match number of transition dipole moments.")
          sys.exit(1)
 
@@ -159,6 +162,14 @@ class SpectrumBroad(Spectrum):
             self.int_sigma[i] /= 2
             self.int_tau[i] /= 2
 
+   def cross2eps(self):
+      if self.sigma > 0.0:
+         for i in range(len(self.int_sigma)):
+            self.int_sigma[i] *= 6.022140e20 / math.log(10)
+      if self.tau > 0.0:
+         for int in int_tau:
+            int *= 6.022140e20 / math.log(10)
+
    def normalize(self):
       if self.sigma > 0:
          self.int_sigma = [ 1.0 / self.sigma / math.sqrt(2*PI) / self.nsample for i in range(len(self.exc))]
@@ -176,9 +187,6 @@ class SpectrumBroad(Spectrum):
       units['cm'] = 8065.7
       f = open(fileout, "w") 
 
-      if xunit == "nm" or xunit == "cm":
-         print("The nm and cm units are not yet supported with broadening.")
-
       for i in range(int( self.maxe/self.de )-1, -1, -1):
          total = 0.0
          energy = (self.maxe-i*self.de)
@@ -188,7 +196,11 @@ class SpectrumBroad(Spectrum):
             if self.tau > 0.0:
                total += self.int_tau[j] / ( (energy-self.exc[j])**2 +(self.tau**2)/4 )
 
-         f.write('%f %e \n' % (energy*units[xunit], total ))
+         if xunit == "nm":
+            if units[xunit]/energy < 1000:
+              f.write('%f %e \n' % (units[xunit]/energy, total ))
+         else:
+            f.write('%f %e \n' % (energy*units[xunit], total ))
 
       f.close()
 
@@ -218,23 +230,16 @@ if options.eps:
 but yet you still want to convert to molar absorption coefficient.\n\
 Make up your mind and try again.")
       sys.exit(1)
-   print("Converting intensity to epsilon.")
+   print("Converting cross section to molar absorption coefficient.")
    spectrum.cross2eps()
-   yunits="dm^3*mol^-1*cm"
+   yunits="dm^3*mol^-1*cm^-1"
 else:
    yunits="cm^2*molecule^-1"
 
-outfile="spectrum.nm."+str(options.nsample)+".dat"
-
-print("Printing spectrum in units [ nm, "+yunits+"] to "+outfile )
-spectrum.writeout("nm", outfile) 
-
-outfile="spectrum.ev."+str(options.nsample)+".dat"
-print("Printing spectrum in units [ eV, "+yunits+"] to "+outfile )
-spectrum.writeout("ev", outfile) 
-
-outfile="spectrum.cm."+str(options.nsample)+".dat"
-print("Printing spectrum in units [ eV, "+yunits+"] to "+outfile )
-spectrum.writeout("cm", outfile) 
-
+units = [ "ev", "nm", "cm"] 
+name = infile.split(".")[0] # take the first part of the input file, before first dot
+for un in units:
+   outfile="spec."+name+"."+un+"."+str(options.nsample)+".dat"
+   print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
+   spectrum.writeout(un, outfile) 
 

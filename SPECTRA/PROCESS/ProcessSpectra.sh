@@ -29,10 +29,13 @@ fi
 if [[ -f extractORCA.sh ]];then
    source extractORCA.sh 
 fi
+if [[ -f extractQC.sh ]];then
+   source extractQC.sh 
+fi
 
 i=$istart
 samples=0
-rm -f spectrum_rawdata
+rm -f $name.rawdata.dat
 while [[ $i -le $imax ]]
 do
 
@@ -40,7 +43,7 @@ do
 
    if  [[ -f $file ]];then
 
-      $grep_function $file spectrum_rawdata $states
+      $grep_function $file $name.rawdata.dat $states
 
       if [[ $? -eq "0" ]];then
          let samples++
@@ -59,8 +62,14 @@ if [[ $samples == 0 ]];then
 fi
 
 
-./calc_spectrum.py -n $samples --de 0.02 spectrum_rawdata 
+./calc_spectrum.py -n $samples --de 0.02 $name.rawdata.dat
+# If you need molar absorption coefficient, use:
+#./calc_spectrum.py -n $samples --de 0.02 --epsilon $name.rawdata.dat
+
 # For ionizations, use the following
 #./calc_spectrum.py -n $nsamples --de 0.02 --notrans spectrum_rawdata 
+
+# for Gaussian and lorentzian broadening, use:
+#./calc_spectrum.py -n $nsamples --de 0.02 -s 0.3 -t 0.3 spectrum_rawdata 
 
 

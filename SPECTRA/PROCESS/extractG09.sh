@@ -1,10 +1,11 @@
 #!/bin/bash
+
 # BASH function definitions for extracting excitation energies
 # and transition dipole moments from G09 output files.
 
 # Available public functions are:
 # grep_G09_TDDFT
-# grep_G09_G09
+# grep_G09_EOM
 # grep_G09_ioniz
 
 function grep_G09_TDDFT {

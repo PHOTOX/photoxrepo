@@ -10,16 +10,19 @@
 # In this case, "lastgeom=0" will do the same as "lastgeom=10"
 
 #########SETUP########
-name=cytidine        # name of the job
+name=your_molecule        # name of the job
 firstgeom=1          # first geometry, will skip (first-1)geometries
 lastgeom=10          # last geometry, positive integer or 0 for all geometries up to the end of file
-movie=fmsmovie.xyz   # file with xyz geometries
-make_input="calc.G09UV.sh nproc"  # script to make input files.
-submit_path="G09"    # script for launching given program
-jobs=3                  # determines number of jobs to submit
+movie=geometries.xyz      # file with xyz geometries
+program=G09          # one of G09, M12, QC, ORCA
+jobs=1                  # determines number of jobs to submit
                         # the calculations will be distributed accordingly
 nproc=1                 # number of processors per job
+                        # Be carefull, some programs (QCHEM) are a bit trickier to launch in parallel
+                        # You might need to modify line "$submit_path..."
 #submit="qsub -V -q aq -pe shm $nproc " # comment this line if you do not want to submit jobs automatically
+make_input="calc.$program.sh"  # script to make input files.
+submit_path="$program"    # script for launching a given program
 ######################
 
 
@@ -83,7 +86,8 @@ do
 
    ./$make_input temp.xyz $name.$i.com $nproc
 
-   echo "$submit_path $name.$i.com" >>r.$name.$firstgeom.$j
+   #DH warning, we are asuming here, that the second parameter is nproc
+   echo "$submit_path $name.$i.com $nproc " >>r.$name.$firstgeom.$j
 
 
 #--Distribute calculations evenly between jobs for queue

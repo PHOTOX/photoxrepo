@@ -83,6 +83,7 @@ function grep_MOLPRO_GENERIC {
 #---Comments about regular expression stuff--------------------------------
    # The "2\?" weirdness is because we need to match RSPT2
    # We are passing only RSPT because otherwise we don't get trans. dip. moments
+   # TODO: use extended regex, i.e. grep -E
 
    # Older versions of MOLPRO used ENERGY instead of Energy, using -i switch to ignore case
    # "STATE *" is needed to handle states above 9, where the space dissappears 

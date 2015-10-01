@@ -89,7 +89,8 @@ fi
 #--QCHEM
 if [[ "$1" = "QCHEM" ]];then
    if [[ $cluster = "as67" ]];then
-      export qc=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
+      export qcroot=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
+      export qc_mpiroot=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
       export mpiset=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
    elif [[ $cluster = "a324" ]] ;then
       export qcroot=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
