@@ -4,6 +4,9 @@
 # It should point to the newest version that is available on our clusters.
 # This script should work for all PHOTOX clusters.
 
+# TODO: Make the $2 parameter to determine the specific version of a program
+# without this parameter, use the most up to date version
+
 
 if [[ -z $1 ]];then
    echo "$0: You did not provide any parameter. Which program do you want to use?"
@@ -29,14 +32,14 @@ fi
 
 #--MOLPRO--
 if [[ "$1" = "MOLPRO" ]];then
-if [[ $cluster = "as67" ]];then
-   export m12_mpiroot=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
-   export m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
-elif [[ $cluster = "a324" ]] ;then
-   export m12_mpiroot=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
-   export m12root=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
-fi
-MOLPROEXE=$m12root/bin/molpro
+   if [[ $cluster = "as67" ]];then
+      export m12_mpiroot=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+      export m12root=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+   elif [[ $cluster = "a324" ]] ;then
+      export m12_mpiroot=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+      export m12root=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+   fi
+   MOLPROEXE=$m12root/bin/molpro
 fi
 #----------------------------
 
@@ -46,7 +49,7 @@ fi
 if [[ "$1" = "TERA"  || "$1" = "TERAdev" ]];then
    if [[ "$cluster" != "as67" ]] && [[ "$node" != "403-a324-01" ]] ;then
 
-      if [[ $node = "a25" && $2 = "tesla" ]];then    #tesla node, we use older and faster version of Terachem
+      if [[ $node = "a25" && $2 = "1.5" ]];then    #tesla node, we use older and faster version of Terachem
          export TeraChem=/home/hollas/TeraChem/TERACHEM-1.5/
          export NBOEXE=/home/hollas/TeraChem/TERACHEM-1.5/nbo6.exe
          export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
@@ -78,11 +81,12 @@ fi
 
 #--Gaussian--
 if [[ "$1" = "G09" ]];then
-if [[ $cluster = "as67" ]];then
-   export g09root="/home/slavicek/G03/gaussian09/a02/g09"
-elif [[ $cluster = "a324" ]] ;then
-   export g09root="/home/slavicek/G03/gaussian09/d01/arch/x86_64_sse4.2/g09"
-fi
+   if [[ $cluster = "as67" ]];then
+      export g09root="/home/slavicek/G03/gaussian09/a02/g09"
+   elif [[ $cluster = "a324" ]] ;then
+      export g09root="/home/slavicek/G03/gaussian09/d01/arch/x86_64_sse4.2/g09"
+   fi
+   GAUSSEXE=$g09root/bin/g09
 fi
 
 
@@ -145,4 +149,18 @@ if [[ "$1" = "TURBO" ]];then
       echo "SetEnvironment.sh: TurboMole not available on a324."
    fi
 fi
+
+if [[ "$1" = "SHARC" ]];then
+   if [[ $cluster = "as67" ]];then
+      export MOLPRO=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8/bin)
+   elif [[ $cluster = "a324" ]] ;then
+      export MOLPRO=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8/bin)
+   fi
+   export SHARC=/home/hollas/programes/src/sharc/bin/
+   export SCRADIR=/scratch/$USER/scr-sharc-generic
+   echo "Don't forget to set your own unique SCRADIR"
+   echo "export SCRADIR=/scratch/$USER/scr-sharc-yourjob/"
+fi
+
+
 

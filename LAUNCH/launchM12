@@ -47,7 +47,7 @@ cat > r.$input << EOF
 
 export MPIRUN=\${MPIDIR}/bin/mpirun
 
-M12 $input $nproc
+M12 $input 
 EOF
 
 if [[ "nproc" -gt 1 ]];then

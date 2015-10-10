@@ -9,7 +9,7 @@ export INPFILE=$1
 export LOGFILE=$1.log
 export OUTFILE=$1.out
 
-nproc=$2
+nproc=${NSLOTS}
 
 export SCRATCH=${scratch}/M12_$1_${JOB_ID}
 export INTGDIR=${scratch}/M12_$1_${JOB_ID}

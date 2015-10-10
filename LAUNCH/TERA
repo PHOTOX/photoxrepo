@@ -11,14 +11,7 @@ fi
 
 CUR_DIR=$(pwd)
 numgpus=$(grep gpus $1 | grep -v '#'  | head -1 | awk '{print $2}')
-scrdir=$(grep scrdir $1 | grep -v '#' | head -1 | awk '{print $2}')
 coord=$(grep coordinates $1 | grep -v '#' | grep -v 'min_coordinates' | head -1 |   awk '{print $2}')
-coord_name=$(basename $coord)
-coord_mm=$(grep qmmm $1 | grep -v '#' | head -1 | awk '{print $2}')
-coord_mm_name=$(basename $coord_mm)
-guess1=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $2}' )
-guess2=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $3}' )
-
 if [ -z $numgpus ];then
 	echo "Number of gpus not specified. Exiting..."
 	echo "Set variable "gpus" in $1"
@@ -31,29 +24,45 @@ if [ ! -e $coord ];then
 	exit 1
 fi
 
+coord_name=$(basename $coord)
+coord_mm=$(grep qmmm $1 | grep -v '#' | head -1 | awk '{print $2}')
 if [[ ! -z $coord_mm ]];then
-if [[ ! -e $coord_mm ]];then
-	echo "MM geometry not found. Exiting..."
-	echo "Set or unset variable "qmmm" in $1"
-	exit 1
+   coord_mm_name=$(basename $coord_mm)
+   if [[ ! -e $coord_mm ]];then
+      echo "MM geometry not found. Exiting..."
+      echo "Set or unset variable "qmmm" in $1"
+      exit 1
+   fi
 fi
-fi
+guess1=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $2}' )
+guess2=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $3}' )
+plumed=$(grep plumedfile $1 | grep -v '#' | tail -1 | awk '{print $2}' )
 
-if [[ ! -z $guess1 ]];then
-if [[ ! -e $guess1 ]];then
+
+if [[ ! -z "$guess1" ]];then
+   if [[ ! -e "$guess1" ]];then
 	echo "Guess file $guess1 not found. Exiting..."
 	echo "Set or unset variable "guess" in $1"
 	exit 1
+   fi
 fi
-fi
-if [[ ! -z $guess2 ]];then
-if [[ ! -e $guess2 ]];then
-	echo "Guess file $guess2 not found. Exiting..."
-	echo "Set or unset variable "guess" in $1"
-	exit 1
-fi
+if [[ ! -z "$guess2" ]];then
+   if [[ ! -e "$guess2" ]];then
+      echo "Guess file $guess2 not found. Exiting..."
+      echo "Set or unset variable "guess" in $1"
+      exit 1
+   fi
 fi
 
+if [[ ! -z "$plumed" ]];then
+   plumed_name=$(basename $plumed)
+   if [[ ! -e "$plumed" ]];then
+      echo "PLUMED input file $plumed not found. Exiting..."
+      exit 1
+   fi
+fi
+
+scrdir=$(grep scrdir $1 | grep -v '#' | head -1 | awk '{print $2}')
 #- All clear, let's go.
 
 if [[ "$2" == "dev" ]];then
@@ -63,32 +72,36 @@ else
 fi
 
 if [[ -z $scrdir ]];then
-        copyback=true
-	scrdir="/scratch/$USER/TERA-$1_${JOB_ID}"
-	mkdir $scrdir
-	echo "scrdir $scrdir"  > $scrdir/$1
-	echo "scrdir not specified, using : $scrdir"
-        echo "memcheck no" > $scrdir/$1
-	cp $coord $scrdir/$coord_name
-        echo "coordinates $coord_name" > $scrdir/$1
-	if [[ ! -z $coord_mm ]];then
-		cp $coord_mm $scrdir/$coord_mm_name
-                echo "qmmm  $coord_mm_name" >> $scrdir/$1
-	fi
-
-        if [[ ! -z $guess1 ]];then
-           cp $guess1 $scrdir
-           if [[ ! -z $guess2 ]];then
-              cp $guess2 $scrdir
-              echo "guess $scrdir/ca0 $scrdir/cb0" >> $scrdir/$1
-           else
-              echo "guess ./c0"     >> $scrdir/$1
-           fi
-        fi
-        grep min_coordinates $1 >> $scrdir/$1
-	grep -v -e "coordinates" -e "qmmm " -e "guess " $1 >> $scrdir/$1
-        echo "end" >> $scrdir/$1
-	cd $scrdir
+   copyback=true
+   scrdir="/scratch/$USER/TERA-$1_${JOB_ID}"
+   mkdir $scrdir
+#	echo "scrdir $scrdir"  > $scrdir/$1
+   echo "scrdir not specified, using : $scrdir"
+   echo "memcheck no" > $scrdir/$1
+   cp $coord $scrdir/$coord_name
+   echo "coordinates $coord_name" >> $scrdir/$1
+   if [[ ! -z "$coord_mm" ]];then
+       cp $coord_mm $scrdir/$coord_mm_name
+       echo "qmmm  $coord_mm_name" >> $scrdir/$1
+   fi
+   if [[ ! -z "$plumed" ]];then
+       cp $plumed $scrdir/$plumed
+       echo "plumedfile  $plumed_name" >> $scrdir/$1
+   fi
+   
+   if [[ ! -z "$guess1" ]];then
+      cp $guess1 $scrdir
+      if [[ ! -z "$guess2" ]];then
+         cp $guess2 $scrdir
+         echo "guess $scrdir/ca $scrdir/cb" >> $scrdir/$1
+      else
+         echo "guess $scrdir/c0"     >> $scrdir/$1
+      fi
+   fi
+   grep min_coordinates $1 >> $scrdir/$1
+   grep -v -e "coordinates" -e "qmmm " -e "guess " $1 >> $scrdir/$1
+   echo "end" >> $scrdir/$1
+   cd $scrdir
 
 #elif [ -e $scrdir ];then
 #	echo "WARNING: Scratch directory specified in $1 already exists!"
@@ -107,7 +120,7 @@ fi
 
 $TERAEXE $1 > $CUR_DIR/$1.out
 
-if [[ $copyback -eq "true" ]];then
+if [[ $copyback = "true" ]];then
  cd ../
  cp -r $scrdir/ $CUR_DIR
  if [[ $? -ne "0" ]];then

@@ -1,16 +1,17 @@
-This folder should contain all launching scripts for various programes like Gaussian etc.
+This folder contains all launching scripts for various programs like Gaussian etc.
 It does not contain system-wide scripts from Polach (like M12_SP).
 
 All scripts should work on all clusters in our laboratory.
-This should be mainly achieved via script SetEnvironment.sh
+This is achieved via script SetEnvironment.sh,
+which determines the cluster and exports correct PATHs and such.
 
 =====================================================
-Use the following to get environmental variables from the $USER
+In your scripts, that you submit to queue,
+use the following to get environmental variables from the $USER
 #$ -V
 SetEnvironment.sh MOLPRO   #SetEnvironment.sh must be in $PATH 
 
 Otherwise, the system won't find the scripts.
-
 
 
 =====================================================
@@ -28,7 +29,7 @@ Each program should have two separate scripts:
 
 Such separation has a big advantage if you need to run hundreds of calculations.
 You can then easily pile them up into few jobs, i.e. you can have several G09 calculations in one job.
-This strategy is used e.g. in script RecalcGeometries.sh.
+This strategy is used e.g. in script ../SPECTRA/LAUNCH/RecalcGeometries.sh.
 
 
 =====================================================
