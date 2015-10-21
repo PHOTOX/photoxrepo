@@ -1,2 +1,5 @@
 Various scripts for spectra simulations.
-Scripts for reflection principle and Gaussian broadening should be here.
+Scripts for reflection principle and gaussian/lorentzian broadening should be here.
+
+Folder LAUNCH contains script for launching multiple excited state calculations from the set of input geometries.
+Folder PROCESS contains proccessing scripts that create the spectra.

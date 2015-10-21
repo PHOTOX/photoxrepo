@@ -1,0 +1,71 @@
+
+# Part of the CI-SEARCH program
+# Performs Molpro calculation 
+
+# Number of atoms
+NATOM=6
+
+# Type of SCF calculation and basis 
+SCF=HF
+BASIS=6-31g\*
+
+# CASSCF params
+OCCUPIED=9
+CLOSED=7
+STATES=2
+
+# Intesecting states to be calculated 
+STATE1=1.1
+STATE2=2.1
+
+
+# --------------------------------------
+# Following lines need not to be editted
+# --------------------------------------
+
+NUM=1
+while test -f WORKING/input.$NUM.com
+do
+NUM=`expr $NUM + 1`
+done
+
+echo "
+gprint,orbital,civector
+memory, 80,m; 
+geometry={ nosymm,noorient,angstrom; " > WORKING/input.$NUM.com
+cat geom.last >> WORKING/input.$NUM.com
+
+echo " }
+
+ basis=$BASIS
+ $SCF 
+ multi;
+ occ,$OCCUPIED;close,$CLOSED;
+ state,$STATES;
+ cpmcscf,NACM,$STATE1,$STATE2, accu=1.0d-6,record=5100.1;
+ cpmcscf,GRAD,$STATE1, accu=1.0d-6,record=5101.1;
+ cpmcscf,GRAD,$STATE2, accu=1.0d-6,record=5102.1; 
+
+   Force
+   SAMC,5100.1
+
+   Force
+   samc,5101.1
+
+   Force
+   samc, 5102.1 "  >> WORKING/input.$NUM.com
+
+cd WORKING
+~oncakm/bin/runM06 input.$NUM.com
+
+# Reading file
+NATOM3=`expr $NATOM + 3`
+grep "MCSCF STATE $STATE1 ENERGY" input.$NUM.com.out | awk -F" " '{print $5}' > ../data.vectors
+grep "MCSCF STATE $STATE2 ENERGY" input.$NUM.com.out | awk -F" " '{print $5}' >> ../data.vectors
+grep 'NACME FOR STATES' -A$NATOM3 input.$NUM.com.out|tail -$NATOM >> ../data.vectors
+grep "SA-MC GRADIENT FOR STATE $STATE1" -A$NATOM3 input.$NUM.com.out|tail -$NATOM >> ../data.vectors
+grep "SA-MC GRADIENT FOR STATE $STATE2" -A$NATOM3 input.$NUM.com.out|tail -$NATOM >> ../data.vectors
+
+~oncakm/UTIL/b2a.molpro input.$NUM.com.out $NATOM >> ../movie
+
+cd ..

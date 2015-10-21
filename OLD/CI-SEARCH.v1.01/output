@@ -1,0 +1,10 @@
+ ** CI-SEARCH program output **
+
+ Convergence criteria:
+ Gap threshold (eV)              :  0.00000100
+ Energy change threshold (eV)    :  0.00000100
+
+ Maximum number of iterations    :         100
+ Maximum CI splitting (eV)       :  1.00000000
+
+ Step No.     E1 (a.u.)       E2 (a.u.)       Gap (eV)      Gap conv.    En. conv.

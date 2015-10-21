@@ -6,10 +6,12 @@
 #     input geometry, name of the input file and number of processors
 
 # In the case of MOLPRO, number of processors is determined during submission
+# and is not used here
+
+# Tested with MOLPRO version 2012
 
 geometry=$1
 output=$2
-nproc=$3              # number of processors
 natom=$(head -1 $1 | awk '{print $1}')
 
 cat > $output <<EOF

@@ -10,11 +10,11 @@
 # In this case, "lastgeom=0" will do the same as "lastgeom=10"
 
 #########SETUP########
-name=your_molecule        # name of the job
-firstgeom=1          # first geometry, will skip (first-1)geometries
-lastgeom=10          # last geometry, positive integer or 0 for all geometries up to the end of file
-movie=geometries.xyz      # file with xyz geometries
-program=G09          # one of G09, M12, QC, ORCA
+name=your_molecule      # name of the job
+firstgeom=1             # first geometry, will skip (first-1)geometries
+lastgeom=10             # last geometry, positive integer or 0 for all geometries up to the end of file
+movie=geometries.xyz    # file with xyz geometries
+program=GAUSS           # one of GAUSS, MOLPRO, QCHEM, ORCA
 jobs=1                  # determines number of jobs to submit
                         # the calculations will be distributed accordingly
 nproc=1                 # number of processors per job
