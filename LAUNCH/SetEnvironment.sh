@@ -105,7 +105,7 @@ case "$program" in
    "MOLPRO" )
       VERSIONS=( 2012 )
       if [[ $cluster = "as67" ]];then
-         MOLPRO[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+         MOLPRO[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
          MOLPRO_MPI[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
          export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
       else
@@ -117,7 +117,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export m12root=${MOLPRO[$version]}
       export m12_mpiroot=${MOLPRO_MPI[$version]}
       export MOLPROEXE=$m12root/bin/molpro
@@ -137,7 +136,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export gaussroot=${GAUSS[$version]}
       GAUSSEXE=$gaussroot/g09
       ;;
@@ -149,7 +147,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export DFTBEXE=${DFTB[$version]}
       ;;
 
@@ -160,7 +157,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export turboroot=${TURBO[$version]}
       export PATH=$turboroot/scripts:$PATH
       export PATH=$turboroot/bin/x86_64-unknown-linux-gnu:$PATH
@@ -178,7 +174,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       TERA[dev]=/home/hollas/programes/TeraChem-dev/build_mpich
       TERA[1.5]=/home/hollas/TeraChem/TERACHEM-1.5/
       TERA[1.5K]=/home/hollas/TeraChem/
@@ -211,7 +206,7 @@ case "$program" in
          . /home/uhlig/build/fftw/3.3.4-icc/env.sh
          MPIRUN=mpirun
       fi
-      if [[ $cluster = "as67-1" ]];then
+      if [[ $cluster = "as67" ]];then
          CP2K[2.5]=/home/uhlig/build/cp2k/2_5_12172014/
       elif [[ $cluster = "a324" ]];then
          CP2K[2.5]=/home/uhlig/build/cp2k/2.5_11122014/
@@ -365,5 +360,6 @@ EOF
       ;;
 esac
 #----------------------------
+#echo "Exporting variables for $program version $version "
 
 
