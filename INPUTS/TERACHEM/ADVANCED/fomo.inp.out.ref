@@ -1,0 +1,493 @@
+Startfile from command line: tera_fomo.inp
+
+
+       ***********************************************************
+       *                    TeraChem vDEV                        *
+       *                 Hg Version: 33b05ff5ccce+               *
+       *                Compiled without textures                *
+       *           Chemistry at the Speed of Graphics!           *
+       ***********************************************************
+       * This program may only be used in connection with        *
+       * a valid license from PetaChem, LLC. Use of this program *
+       * or results thereof indicates acceptance of all terms    *
+       * and conditions stated in the license and that a valid   *
+       * license agreement between the user and PetaChem, LLC    *
+       * exists. PetaChem, LLC does not warrant the correctness  *
+       * of results or their suitability for any purpose.        *
+       * Please email bugs, suggestions, and comments to         *
+       *                  help@petachem.com                      *
+       *                                                         *
+       ***********************************************************
+
+
+       ***********************************************************
+       *  Compiled by hollas       Wed Oct 14 13:14:24 CEST 2015  *
+       *  Supported architectures: sm_20 sm_30 sm_35 sm_52       *
+       *  Cuda compilation tools, release 7.0, V7.0.27           *
+       ***********************************************************
+
+
+ Job started   Tue Oct 20 01:14:38 2015
+ On a31 (available memory: 16182 MB)
+
+######################################### RUNTIME INFO ##########################################
+/home/hollas/programes/TeraChem-dev/build_mpich/bin/terachem tera_fomo.inp 
+
+NVRM version: NVIDIA UNIX x86_64 Kernel Module  346.72  Tue May  5 22:03:13 PDT 2015
+GCC version:  gcc version 4.4.5 (Debian 4.4.5-8) 
+
+	linux-vdso.so.1 =>  (0x00007fff9c4c8000)
+	libmpi.so.12 => /home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/libmpi.so.12 (0x00002aaaaaccb000)
+	libintbox.so.1 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libintbox.so.1 (0x00002aaaab1c4000)
+	libthcbox.so.1 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libthcbox.so.1 (0x00002aaacd20f000)
+	libcuda.so.1 => /usr/local/programs/cuda/driver-346.72/usr/lib/libcuda.so.1 (0x00002aaaceb69000)
+	libcudart.so.7.0 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcudart.so.7.0 (0x00002aaacf9f3000)
+	libcublas.so.7.0 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcublas.so.7.0 (0x00002aaacfc50000)
+	libcufft.so.7.0 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcufft.so.7.0 (0x00002aaad1c12000)
+	libm.so.6 => /lib/libm.so.6 (0x00002aaad5aca000)
+	libcilkrts.so.5 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcilkrts.so.5 (0x00002aaad5d4c000)
+	libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0x00002aaad5f8d000)
+	libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x00002aaad62a1000)
+	libpthread.so.0 => /lib/libpthread.so.0 (0x00002aaad64b7000)
+	libc.so.6 => /lib/libc.so.6 (0x00002aaad66d3000)
+	/lib64/ld-linux-x86-64.so.2 (0x00002aaaaaaab000)
+	libdl.so.2 => /lib/libdl.so.2 (0x00002aaad6a35000)
+	librt.so.1 => /lib/librt.so.1 (0x00002aaad6c39000)
+	libifport.so.5 => /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/libifport.so.5 (0x00002aaaaaade000)
+	libifcore.so.5 => /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/libifcore.so.5 (0x00002aaad6e41000)
+	libimf.so => /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/libimf.so (0x00002aaad70a2000)
+	libsvml.so => /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/libsvml.so (0x00002aaad7487000)
+	libintlc.so.5 => /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/libintlc.so.5 (0x00002aaad7b3b000)
+#################################################################################################
+
+Scratch directory: ./scr
+Random number seed: 1445296478
+
+XYZ coordinates methaniminium.xyz
+Molden File Output: ./scr/methaniminium.molden
+Using basis set: 6-31g
+Spin multiplicity: 1
+DIIS will use up to 10 vectors.
+WF convergence threshold: 3.00e-05
+Using DIIS algorithm to converge WF
+Maximum number of SCF iterations: 100
+Incremental fock with rebuild ever 8 iterations
+Will switch to conventional Fock if diffuse functions are detected
+X-matrix tolerance: 1.00e-04
+PRECISION: DYNAMIC
+Using fractional orbital occupations
+Fractional occupations determined by gaussian broadening
+2 occupied orbitals will have integer occupation
+8 occupied orbitals will have fractional occupation
+kT is set to  0.200 a.u.
+DFT Functional requested: hf
+Method: Hartree-Fock 
+Wavefunction: RESTRICTED
+Initial guess generated by maximum overlap
+
+*******************************************
+***** SINGLE POINT ENERGY CALCULATIONS *****
+********************************************
+
+using 1 out of 1 CUDA devices
+   Device 0:    GeForce GTX TITAN, 6143MB, CC 3.5 -- CPU THREAD 0
+-------------------------------------------------------------------
+Compiled with MAGMA support.  MAGMA parameters:
+    Matrices larger than 5000 square will be treated with MAGMA
+       (Change by setting the MagmaMinN environment variable)
+    Magma will use 1 out of 1 GPUs
+       (Change by setting the MagmaNGPUs environment variable)
+-------------------------------------------------------------------
+ CPU Memory Available: 8058.25 MegaWords 
+ GPU Memory Available: 767.98 MegaWords 
+ Maximum recommended basis set size: 19400 basis functions
+ (limited by GPU memory)
+-------------------------------------------------------------------
+Not using d-functions. Configuring GPUs accordingly. 
+0: CUBLAS initialized, available GPU memory: 4836MB
+
+****** QM coordinates ******
+C        -0.6148752540        -0.5349254610         0.2925972970  
+N         0.1785247490         0.3835425300         0.6426719530  
+H        -0.4193087700        -0.9088925300        -0.8021088630  
+H        -1.4431575200        -0.8212074070         0.7511104800  
+H         0.0950220590         0.7502886770         1.5886044970  
+H         1.0786425110         0.4888301450         0.0844794190  
+
+Basis set:       6-31g
+Total atoms:     6
+Total charge:    1
+Total electrons: 16 (8-alpha, 8-beta)
+Number electrons modeled by ECPs: 0
+Total orbitals:  26
+Total AO shells: 18 (14 S-shells; 4 P-shells; 0 D-shells; 0 F-shells; 0 G-shells)
+Spin multiplicity: 1
+Nuclear repulsion energy (QM atoms): 38.902043697951 a.u.
+
+
+                      *** Start SCF Iterations ***
+
+ Iter     DIIS Error       Energy change    J    K   LA  DFT          Energy        Time(s)
+---------------------------------------------------------------------------------------------
+         >>> Purifying P... IDMP = 7.99e-15 <<<
+THRESPDP set to 1.00e+00
+   1     0.5574462397     -93.3046147377  0.00 0.01 0.00 0.00     -93.3046147377     0.02  
+   2     0.3348265795      -0.6531369096  0.00 0.01 0.00 0.00     -93.9577516472     0.01  
+   3     0.0911358463      -0.2080894374  0.00 0.01 0.00 0.00     -94.1658410847     0.01  
+   4     0.0303856847      -0.0172219773  0.00 0.01 0.00 0.00     -94.1830630619     0.01  
+   5     0.0054550436      -0.0042984266  0.00 0.01 0.00 0.00     -94.1873614885     0.01  
+   6     0.0024468991      -0.0007719965  0.00 0.01 0.00 0.00     -94.1881334850     0.01  
+   7     0.0003475054      -0.0001257326  0.00 0.01 0.00 0.00     -94.1882592176     0.01  
+   8     0.0000586667      -0.0000144768  0.00 0.01 0.00 0.00     -94.1882736944     0.01  
+THRESPDP set to 6.62e-02
+   9     0.0000061733      -0.0000061852  0.00 0.01 0.00 0.00     -94.1882798796     0.01  
+---------------------------------------------------------------------------------------------
+FINAL ENERGY: -94.1882798796 a.u.
+CENTER OF MASS: {-0.185547, -0.051380, 0.470971} ANGS
+DIPOLE MOMENT: {0.357905, -0.321890, 0.130529} (|D| = 0.498746) DEBYE
+Writing out molden info
+
+Running Mulliken population analysis...
+
+
+  Active Space Parameters
+--------------------------------------------
+Number of closed orbitals:               2
+Number of active orbitals:               8
+Number of virtual orbitals:             16
+Number of molecular orbitals:           26
+Number of basis functions:              26
+Number of active electrons:             12
+Number of alpha electrons:               6
+Number of beta electrons:                6
+
+  Orbital      Energy        Occupation
+-----------------------------------------
+      1      -15.929871        1.000000
+      2      -11.606227        1.000000
+      3       -1.576967        1.000000
+      4       -1.177106        0.999840
+      5       -1.051329        0.998513
+      6       -0.975382        0.995210
+      7       -0.816850        0.963910
+      8       -0.772898        0.942742
+      9       -0.176910        0.080499
+     10       -0.043508        0.019286
+     11        0.011066        0.000000
+     12        0.048730        0.000000
+
+  CAS Parameters
+--------------------------------------------
+Number of determinants:                784
+Number of singlet CSFs:                784
+Number of doublet CSFs:                  0
+Number of triplet CSFs:                  0
+Number of quartet CSFs:                  0
+Number of quintet CSFs:                  0
+Number of sextet CSFs:                   0
+Number of septet CSFs:                   0
+Number of singlet states:                5
+Number of doublet states:                0
+Number of triplet states:                0
+Number of quartet states:                0
+Number of quintet states:                0
+Number of sextet states:                 0
+Number of septet states:                 0
+
+      Davidson Diagonalization Parameters
+-----------------------------------------------
+Number of roots to find:                    5
+Number of guess vectors:                    5
+Maximum subspace size:                     50
+Number of vectors to save:                  5
+Collapse vectors per root:                  2
+Number of CSFs:                           784
+Maximum Davidson iterations:               20
+Residual convergence:                 1.0e-04
+Orthogonality tolerance:              1.0e-12
+
+  Nonsymmetric Davidson Dynamic Precision Parameters
+------------------------------------------------------
+SP Residual convergence:              1.0e-04
+Sigma vector THRESPDP:                5.2e-04
+
+Davidson memory usage: 714.27 kB
+
+
+Vec: 1  
+Vec: 2  
+Vec: 3  
+Vec: 4  
+Vec: 5  
+
+      Guess Formation
+----------------------------
+ Total Time:       0.01 sec
+----------------------------
+
+  Root           Eigenvalue       Energy Change        Residual
+-------------------------------------------------------------------
+Iteration:    0   Subspace Size:    5
+Root: 1:       -40.79880106       -40.79880106         0.16182371  
+Root: 2:       -40.48117194       -40.48117194         0.13355014  
+Root: 3:       -40.36906403       -40.36906403         0.20215741  
+Root: 4:       -40.34161991       -40.34161991         0.14276519  
+Root: 5:       -40.25949660       -40.25949660         0.20838997  
+Total Iteration Time:       0.01 sec
+
+Iteration:    1   Subspace Size:   10
+Root: 1:       -40.81652649        -0.01772544         0.08613132  
+Root: 2:       -40.50041626        -0.01924433         0.03897564  
+Root: 3:       -40.38282398        -0.01375995         0.17062883  
+Root: 4:       -40.36176518        -0.02014527         0.04490525  
+Root: 5:       -40.34329980        -0.08380319         0.19603217  
+Total Iteration Time:       0.01 sec
+
+Iteration:    2   Subspace Size:   15
+Root: 1:       -40.82260654        -0.00608004         0.04432093  
+Root: 2:       -40.50218599        -0.00176972         0.01128214  
+Root: 3:       -40.41703433        -0.03421035         0.11908142  
+Root: 4:       -40.38003540        -0.01827022         0.04089299  
+Root: 5:       -40.36158869        -0.01828889         0.01239357  
+Total Iteration Time:       0.01 sec
+
+Iteration:    3   Subspace Size:   20
+Root: 1:       -40.82391511        -0.00130858         0.01643879  
+Root: 2:       -40.50229935        -0.00011337         0.00695788  
+Root: 3:       -40.42952671        -0.01249238         0.06276129  
+Root: 4:       -40.38164993        -0.00161453         0.01157888  
+Root: 5:       -40.36171782        -0.00012913         0.00476392  
+Total Iteration Time:       0.01 sec
+
+Iteration:    4   Subspace Size:   25
+Root: 1:       -40.82406715        -0.00015204         0.00377283  
+Root: 2:       -40.50236238        -0.00006303         0.00507592  
+Root: 3:       -40.43305777        -0.00353106         0.02207138  
+Root: 4:       -40.38179982        -0.00014989         0.00592608  
+Root: 5:       -40.36173779        -0.00001997         0.00270112  
+Total Iteration Time:       0.01 sec
+
+Iteration:    5   Subspace Size:   30
+Root: 1:       -40.82407420        -0.00000704         0.00096471  
+Root: 2:       -40.50239056        -0.00002818         0.00195875  
+Root: 3:       -40.43338399        -0.00032622         0.00705164  
+Root: 4:       -40.38184071        -0.00004089         0.00309052  
+Root: 5:       -40.36174472        -0.00000693         0.00135716  
+Total Iteration Time:       0.01 sec
+
+Iteration:    6   Subspace Size:   35
+Root: 1:       -40.82407461        -0.00000041         0.00029002  
+Root: 2:       -40.50239341        -0.00000285         0.00085206  
+Root: 3:       -40.43341713        -0.00003313         0.00240120  
+Root: 4:       -40.38184995        -0.00000924         0.00171484  
+Root: 5:       -40.36174634        -0.00000162         0.00058165  
+Total Iteration Time:       0.01 sec
+
+Iteration:    7   Subspace Size:   40
+Root: 1:       -40.82407465        -0.00000004         0.00008974  Converged
+Root: 2:       -40.50239403        -0.00000062         0.00036715  
+Root: 3:       -40.43342093        -0.00000380         0.00101451  
+Root: 4:       -40.38185265        -0.00000270         0.00085308  
+Root: 5:       -40.36174666        -0.00000031         0.00024505  
+Total Iteration Time:       0.01 sec
+
+Iteration:    8   Subspace Size:   44
+Root: 1:       -40.82407465        -0.00000000         0.00005277  Converged
+Root: 2:       -40.50239412        -0.00000009         0.00010302  
+Root: 3:       -40.43342158        -0.00000066         0.00041968  
+Root: 4:       -40.38185327        -0.00000063         0.00031375  
+Root: 5:       -40.36174670        -0.00000005         0.00008066  Converged
+Total Iteration Time:       0.01 sec
+
+Iteration:    9   Subspace Size:   47
+Root: 1:       -40.82407465        -0.00000000         0.00004489  Converged
+Root: 2:       -40.50239412        -0.00000001         0.00003035  Converged
+Root: 3:       -40.43342169        -0.00000011         0.00013372  
+Root: 4:       -40.38185335        -0.00000007         0.00007640  Converged
+Root: 5:       -40.36174670        -0.00000000         0.00005377  Converged
+Total Iteration Time:       0.00 sec
+
+Iteration:   10   Subspace Size:   48
+Root: 1:       -40.82407465        -0.00000000         0.00004484  Converged
+Root: 2:       -40.50239412        -0.00000000         0.00002801  Converged
+Root: 3:       -40.43342170        -0.00000001         0.00004881  Converged
+Root: 4:       -40.38185335        -0.00000000         0.00007381  Converged
+Root: 5:       -40.36174670        -0.00000000         0.00005358  Converged
+Total Iteration Time:       0.00 sec
+
+Davidson has converged in single precision
+Collapsing subspace to 5 vectors
+Rebuilding sigma vectors in mixed precision
+Vec: 1  
+Vec: 2  
+Vec: 3  
+Vec: 4  
+Vec: 5  
+Total Iteration Time:       0.01 sec
+
+Iteration:   11   Subspace Size:    5
+Root: 1:       -40.82407465         0.00000000         0.00004484  Converged
+Root: 2:       -40.50239412         0.00000000         0.00002801  Converged
+Root: 3:       -40.43342170         0.00000000         0.00004881  Converged
+Root: 4:       -40.38185335         0.00000000         0.00007381  Converged
+Root: 5:       -40.36174670         0.00000000         0.00005358  Converged
+Total Iteration Time:       0.00 sec
+
+Davidson converged in 11 iterations
+53 sigma vectors were formed
+48 sigma vectors were formed in single precision
+5 sigma vectors were formed in mixed precision
+
+    Total Davidson Time
+----------------------------
+ Total Time:       0.11 sec
+----------------------------
+
+
+Direct CI elapsed time = 0.11568 s
+
+Singlet state  1 energy:        -94.34710078786549
+
+        0.98423116153509  X3 X4 X5 X6 X7 X8
+       -0.14805564187612  X3 X4 X5 X6 X7 X9
+        0.04243810733201  X3 X4 X5 X6 X7 A8 B9
+        0.04243810232446  X3 X4 X5 X6 X7 B8 A9
+       -0.02920275734282  X3 X5 X6 X7 X8 X9
+        0.02076369758481  X3 B4 X5 X6 X7 A8 B9 A10
+        0.02076369755011  X3 A4 X5 X6 X7 B8 A9 B10
+
+Singlet state  2 energy:        -94.02542026118590
+
+        0.68389994497581  X3 X4 X5 X6 B7 X8 A9
+        0.68389993962646  X3 X4 X5 X6 A7 X8 B9
+       -0.12116470693387  X3 X4 X5 X6 X7 A8 B9
+       -0.12116467102747  X3 X4 X5 X6 X7 B8 A9
+       -0.09658410027117  X3 X4 A5 X6 X7 B8 X9
+       -0.09658410024109  X3 X4 B5 X6 X7 A8 X9
+        0.05215222995940  X3 X4 X5 X6 A7 B8 X9
+        0.05215222991431  X3 X4 X5 X6 B7 A8 X9
+       -0.02532233294864  X3 X4 X5 X6 B7 X8 A10
+       -0.02532233283018  X3 X4 X5 X6 A7 X8 B10
+        0.02496168988142  X3 X4 X5 X6 X8 X9
+       -0.02211071291083  X3 B4 X5 X6 X7 X8 A9
+       -0.02211071279478  X3 A4 X5 X6 X7 X8 B9
+
+Singlet state  3 energy:        -93.95644784024243
+
+        0.64408062581354  X3 X4 X5 X6 X7 B8 A9
+        0.64408061682721  X3 X4 X5 X6 X7 A8 B9
+       -0.31316439966820  X3 X4 X5 X6 X7 X9
+        0.11764121246923  X3 X4 X5 X6 B7 X8 A9
+        0.11764121236014  X3 X4 X5 X6 A7 X8 B9
+       -0.10369199509372  X3 X4 X5 X6 X7 X8
+        0.06610978279759  X3 B4 X5 X6 X7 X8 A10
+        0.06610978267786  X3 A4 X5 X6 X7 X8 B10
+        0.05962657708814  X3 X4 X5 X6 B7 X8 A10
+        0.05962657683097  X3 X4 X5 X6 A7 X8 B10
+        0.05718667104475  X3 X4 X5 B6 X7 X8 A9
+        0.05718667096005  X3 X4 X5 A6 X7 X8 B9
+       -0.03051914574782  A3 B4 X5 X6 X7 X8 X9
+       -0.03051914564290  B3 A4 X5 X6 X7 X8 X9
+        0.02615393598677  X3 X5 X6 X7 X8 X9
+        0.02462516877598  B3 X4 X5 X6 X7 X8 A10
+        0.02462516869439  A3 X4 X5 X6 X7 X8 B10
+       -0.02325302359788  X3 X4 X5 X6 A7 B8 X9
+       -0.02325302352093  X3 X4 X5 X6 B7 A8 X9
+        0.02177698763854  X3 B4 X5 X6 X7 X8 A9
+        0.02177698747408  X3 A4 X5 X6 X7 X8 B9
+
+Singlet state  4 energy:        -93.90487948422957
+
+        0.68195765897086  X3 X4 X5 A6 X7 X8 B9
+        0.68195765166701  X3 X4 X5 B6 X7 X8 A9
+        0.09435075386200  X3 A4 X5 X6 X7 B8 X9
+        0.09435075352456  X3 B4 X5 X6 X7 A8 X9
+       -0.08895361066098  X3 X4 X5 X6 X7 A8 B10
+       -0.08895361039667  X3 X4 X5 X6 X7 B8 A10
+       -0.06220716425910  X3 B4 X5 X6 X7 X8 A9
+       -0.06220716420941  X3 A4 X5 X6 X7 X8 B9
+       -0.05003386137679  X3 X4 X5 X6 X7 B8 A9
+       -0.05003385737516  X3 X4 X5 X6 X7 A8 B9
+       -0.04838901596698  X3 X4 X5 A6 X7 B8 X9
+       -0.04838901570959  X3 X4 X5 B6 X7 A8 X9
+        0.04660020191201  A3 X4 X5 X6 X7 X8 B9
+        0.04660020174235  B3 X4 X5 X6 X7 X8 A9
+        0.04008520973566  X3 X4 A5 X6 X7 X8 B9
+        0.04008520935952  X3 X4 B5 X6 X7 X8 A9
+       -0.03425682041897  X3 X4 X5 A6 X7 X8 B10
+       -0.03425682033066  X3 X4 X5 B6 X7 X8 A10
+        0.02755725153373  X3 X4 A5 X6 X7 B8 X9
+        0.02755725142943  X3 X4 B5 X6 X7 A8 X9
+        0.02307682039599  X3 X4 X5 X6 A7 B8 X9
+        0.02307682028672  X3 X4 X5 X6 B7 A8 X9
+       -0.02095591485986  X3 X5 X6 X7 X8 B9 A10
+       -0.02095591477975  X3 X5 X6 X7 X8 A9 B10
+
+Singlet state  5 energy:        -93.88477284014996
+
+       -0.69084426127195  X3 X4 X5 X6 X7 A8 B10
+       -0.69084426109260  X3 X4 X5 X6 X7 B8 A10
+       -0.09037155065204  X3 X4 X5 A6 X7 X8 B9
+       -0.09037155032256  X3 X4 X5 B6 X7 X8 A9
+        0.05933658062011  X3 X4 X5 X6 X7 B9 A10
+        0.05933658060642  X3 X4 X5 X6 X7 A9 B10
+        0.04229583657915  X3 X4 X5 A6 X7 B8 X10
+        0.04229583656932  X3 X4 X5 B6 X7 A8 X10
+       -0.02708749432112  X3 X4 A5 X6 X7 B8 X10
+       -0.02708749431500  X3 X4 B5 X6 X7 A8 X10
+        0.02568821323170  X3 X4 X5 X6 B7 A8 B9 A10
+        0.02568821320546  X3 X4 X5 X6 A7 B8 A9 B10
+       -0.02559092674143  A3 X4 X5 X6 X7 B8 X10
+       -0.02559092673685  B3 X4 X5 X6 X7 A8 X10
+       -0.02514132983025  X3 A4 X5 X6 X7 B8 X10
+       -0.02514132982719  X3 B4 X5 X6 X7 A8 X10
+       -0.02380025396502  X3 A4 X5 X6 X7 X8 B9
+       -0.02380025392341  X3 B4 X5 X6 X7 X8 A9
+       -0.02379123333313  X3 X5 X6 X7 B8 X9 A10
+       -0.02379123333016  X3 X5 X6 X7 A8 X9 B10
+        0.02085722183742  B3 A4 X5 X6 X7 X8 B9 A10
+        0.02085722183231  A3 B4 X5 X6 X7 X8 A9 B10
+
+  Root   Mult.   Total Energy (a.u.)   Ex. Energy (a.u.)     Ex. Energy (eV)     Ex. Energy (nm)
+-------------------------------------------------------------------------------------------------
+     1  singlet        -94.34710079
+     2  singlet        -94.02542026          0.32168053          8.75337105        141.64168295
+     3  singlet        -93.95644784          0.39065295         10.63020581        116.63388552
+     4  singlet        -93.90487948          0.44222130         12.03345194        103.03296290
+     5  singlet        -93.88477284          0.46232795         12.58058147         98.55205898
+
+Singlet state dipole moments:
+
+  Root       Dx         Dy         Dz         |D|  (Debye)
+------------------------------------------------------------
+     1     0.6003    -0.0460     0.2496     0.6518
+     2     0.5214    -0.5116    -0.8325     1.1075
+     3     0.2728    -0.4332     0.1758     0.5413
+     4     1.1629     0.4036     0.2801     1.2625
+     5    -2.7895    -1.0785     1.5389     3.3634
+
+Singlet state electronic transitions:
+
+ Transition      Tx        Ty        Tz       |T|    Osc. (a.u.) 
+-----------------------------------------------------------------
+   1 ->  2     0.1075   -0.2486    0.1361    0.3031    0.0197
+   1 ->  3     1.8689    2.4015    0.7841    3.1424    2.5717
+   1 ->  4    -0.0276   -0.4104    0.0789    0.4188    0.0517
+   1 ->  5     0.0066    0.5004   -0.0741    0.5059    0.0789
+   2 ->  3    -0.0904   -0.1161   -0.1066    0.1817    0.0000
+   2 ->  4    -0.0563   -0.1806   -0.2042    0.2784    0.0036
+   2 ->  5    -0.0107   -0.2593   -0.4964    0.5601    0.0252
+   3 ->  4     0.0301    0.1699    0.0936    0.1963   -0.0018
+   3 ->  5    -0.1881   -0.0853    0.2901    0.3561    0.0000
+   4 ->  5     0.0961    0.0656   -0.0047    0.1164   -0.0011
+
+
+Total CASCI Time
+----------------------------
+ Total Time:       0.24 sec
+----------------------------
+
+Total processing time: 0.33 sec 
+
+ Job finished: Tue Oct 20 01:14:40 2015
+

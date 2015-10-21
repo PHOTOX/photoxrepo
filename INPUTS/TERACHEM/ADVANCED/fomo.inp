@@ -1,0 +1,17 @@
+basis 		6-31g
+charge   	1	
+spinmult	1
+method 		rhf
+timings         yes
+fon            yes
+fon_method     gaussian
+fon_temperature 0.2
+closed         2
+active         8
+casci          yes
+cassinglets    5
+coordinates	methaniminium.xyz
+units 		angstrom
+gpus		1  0
+run 		energy
+end

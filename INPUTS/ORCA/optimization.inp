@@ -1,0 +1,30 @@
+# COMMENTED TEMPLATE FOR ORCA JOBS
+# KEYWORDS START WITH !
+
+# BP86 : DFT functional
+# def2-SVP: basis set
+# RI : Resolution of identity approximation, speeds up DFT calculations with pure functionals
+# D3 : Grimme's dispersion correction
+# TightSCF: strict convergence criteria for SCF
+! BP86 def2-SVP RI D3 TightSCF 
+
+
+
+# geometry optimization with strict convergence criteria
+! TightOpt
+
+# analytical frequencies
+! Anfreq
+
+# number of processors (up to 8)
+# ! PAL2
+
+# GEOMETRY XYZ input
+# first line: * xyz charge multiplicity
+
+* xyz 0 1
+ O         -0.0000218309       -0.0660220264       -1.5099793198
+ H          0.0000841166        0.8300419659       -1.8585417882
+ H         -0.0001501717        0.0314438609       -0.4476371681
+*
+

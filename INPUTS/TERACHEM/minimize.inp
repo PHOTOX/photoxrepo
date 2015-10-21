@@ -1,0 +1,18 @@
+basis		6-31g*
+# coordinates file (XYZ or PDB)
+coordinates	water.xyz
+charge         0
+# spin multiplicity - 1=singlet etc.
+spinmult       1
+# SCF method (rhf/blyp/b3lyp/ or uhf,ublyp etc for open shell)
+method		rhf
+# add Grimme D3 dispersion correction
+dftd		yes
+# Uncomment the following if you have SCF convergence difficulties
+#scf            diis+a
+#number of gpus...must be here
+gpus		1
+# type of the job (energy/gradient/md/minimize/ts): 
+run		minimize
+end
+

@@ -1,0 +1,703 @@
+
+ Primary working directories    : /scratch/hollas/M12_eomccsd.com_385473
+ Secondary working directories  : /scratch/hollas/M12_eomccsd.com_385473
+ Wavefunction directory         : /home/hollas/PHOTOX/INPUTS/MOLPRO/BEGINNER/
+ Main file repository           : /scratch/hollas/M12_eomccsd.com_385473/
+
+ SHA1      : 9a5d268be97265f18c756e65aa7d05a68209a29b
+ NAME      : 2012.1.11
+ ARCHNAME  : Linux/x86_64
+ FC        : /usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/bin/intel64/ifort
+ FCVERSION : 12.0.5
+ BLASLIB   : -L/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/mkl/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core
+ id        : vscht
+
+ Nodes     nprocs
+ a25          1
+
+ Using customized tuning parameters: mindgm=12; mindgv=20; mindgc=4; mindgr=1; noblas=0; minvec=7
+ default implementation of scratch files=df  
+
+ gprint,orbital,civector
+ memory,100,m;
+ orient,noorient
+ angstrom
+ symmetry,nosym
+ 
+ geometry={
+  O     0.000000     0.000000     0.000000
+  H     0.000000     0.000000     0.950000
+  H     0.895670     0.000000    -0.316663
+ }
+ 
+ basis
+ default=6-31g*
+ end
+ 
+ {hf
+ wf,10,0,0}
+ {ccsd                                                                           ! do CCSD calculation, try to restart
+ wf,10,0,0
+ eom,-5.1,trans=1}
+                                                                                 ! do EOM-CCSD calculation for 5 excited states
+                                                                 ! if trans = 1, compute transition dipole moments (much slower!!!)
+                                                                                 ! default is trans = 0
+ 
+
+ Variables initialized (774), CPU time= 0.00 sec
+ Commands  initialized (547), CPU time= 0.02 sec, 516 directives.
+ Default parameters read. Elapsed time= 0.07 sec
+
+ Checking input...
+ Passed
+1
+
+
+                                         ***  PROGRAM SYSTEM MOLPRO  ***
+                         Copyright, University College Cardiff Consultants Limited, 2008
+
+                                    Version 2012.1 linked Feb 27 2014 15:24:15
+
+
+ **********************************************************************************************************************************
+ LABEL *                                                                                 
+ Linux-3.8.10-client/a25(x86_64) 64 bit serial version                                   DATE: 20-Oct-15          TIME: 01:24:38  
+ **********************************************************************************************************************************
+
+ SHA1:             9a5d268be97265f18c756e65aa7d05a68209a29b
+ **********************************************************************************************************************************
+
+
+ Variable memory set to  100000000 words,  buffer space   230000 words
+
+ ZSYMEL=NOSYM
+ ZUNIT=ANG
+ 
+
+Geometry recognized as XYZ
+
+ SETTING BASIS          =    6-31G*
+
+
+ Recomputing integrals since basis changed
+
+
+ Using spherical harmonics
+
+ Library entry O      S 6-31G                selected for orbital group  1
+ Library entry O      P 6-31G                selected for orbital group  1
+ Library entry O      D 6-31G*               selected for orbital group  1
+ Library entry H      S 6-31G                selected for orbital group  2
+
+1PROGRAM * SEWARD (Integral evaluation for generally contracted gaussian basis sets)     Author: Roland Lindh, 1990
+
+ Geometry written to block  1 of record 700
+
+
+ Point group  C1  
+
+
+
+ ATOMIC COORDINATES
+
+ NR  ATOM    CHARGE       X              Y              Z
+
+   1  O       8.00    0.000000000    0.000000000    0.000000000
+   2  H       1.00    0.000000000    0.000000000    1.795239825
+   3  H       1.00    1.692571004    0.000000000   -0.598406346
+
+ Bond lengths in Bohr (Angstrom)
+
+ 1-2  1.795239825  1-3  1.795240028
+     ( 0.950000000)     ( 0.950000108)
+
+ Bond angles
+
+  2-1-3  109.47098378
+
+ NUCLEAR CHARGE:                   10
+ NUMBER OF PRIMITIVE AOS:          36
+ NUMBER OF SYMMETRY AOS:           35
+ NUMBER OF CONTRACTIONS:           18   (  18A   )
+ NUMBER OF CORE ORBITALS:           1   (   1A   )
+ NUMBER OF VALENCE ORBITALS:        6   (   6A   )
+
+
+ NUCLEAR REPULSION ENERGY    9.25356722
+
+ EXTRA SYMMETRY OF AOS IN SYMMETRY 1:   1 1 1 1 2 1 1 2 1 1   2 1 1 2 1 1 1 1
+
+ Eigenvalues of metric
+
+         1 0.627E-01 0.109E+00 0.187E+00 0.255E+00 0.428E+00 0.498E+00 0.656E+00 0.676E+00
+
+
+ Contracted 2-electron integrals neglected if value below      1.0D-11
+ AO integral compression algorithm  1   Integral accuracy      1.0D-11
+
+     0.262 MB (compressed) written to integral file ( 67.7%)
+
+
+ NUMBER OF SORTED TWO-ELECTRON INTEGRALS:      14706.     BUFFER LENGTH:  32768
+ NUMBER OF SEGMENTS:   1  SEGMENT LENGTH:      14706      RECORD LENGTH: 524288
+
+ Memory used in sort:       0.57 MW
+
+ SORT1 READ       19246. AND WROTE        4997. INTEGRALS IN      1 RECORDS. CPU TIME:     0.01 SEC, REAL TIME:     0.00 SEC
+ SORT2 READ        4997. AND WROTE       14706. INTEGRALS IN      1 RECORDS. CPU TIME:     0.00 SEC, REAL TIME:     0.01 SEC
+
+ FILE SIZES:   FILE 1:     6.3 MBYTE,  FILE 4:     4.2 MBYTE,   TOTAL:     10.6 MBYTE
+
+ OPERATOR DM      FOR CENTER  0  COORDINATES:    0.000000    0.000000    0.000000
+
+
+ **********************************************************************************************************************************
+ DATASETS  * FILE   NREC   LENGTH (MB)   RECORD NAMES
+              1      19        6.12       500      610      700      900      950      970     1000      129      960     1100   
+                                          VAR    BASINP    GEOM    SYMINP    ZMAT    AOBASIS   BASIS     P2S    ABASIS      S 
+                                         1400     1410     1200     1210     1080     1600     1650     1300     1700   
+                                           T        V       H0       H01     AOSYM     SMH    MOLCAS    ERIS     OPER   
+
+ PROGRAMS   *        TOTAL       INT
+ CPU TIMES  *         0.16      0.05
+ REAL TIME  *         0.30 SEC
+ DISK USED  *        10.86 MB      
+ **********************************************************************************************************************************
+
+1PROGRAM * RHF-SCF (CLOSED SHELL)       Authors: W. Meyer, H.-J. Werner
+
+
+ NUMBER OF ELECTRONS:       5+    5-    SPACE SYMMETRY=1    SPIN SYMMETRY: Singlet 
+ CONVERGENCE THRESHOLDS:    1.00E-05 (Density)    1.00E-07 (Energy)
+ MAX. NUMBER OF ITERATIONS:       60
+ INTERPOLATION TYPE:            DIIS
+ INTERPOLATION STEPS:              2 (START)      1 (STEP)
+ LEVEL SHIFTS:                  0.00 (CLOSED)  0.00 (OPEN) 
+
+
+
+ Orbital guess generated from atomic densities. Full valence occupancy:    5
+
+ Molecular orbital dump at record        2100.2
+
+ ITERATION    DDIFF          GRAD             ENERGY        2-EL.EN.            DIPOLE MOMENTS         DIIS   ORB.
+    1      0.000D+00      0.000D+00       -75.97038608     77.917714    0.92688    0.00000    0.65540    0    start
+    2      0.000D+00      0.265D-01       -76.00009151     74.584783    0.64597    0.00000    0.45677    1    diag
+    3      0.263D-01      0.138D-01       -76.00866576     75.935788    0.69529    0.00000    0.49165    2    diag
+    4      0.972D-02      0.154D-02       -76.00886668     75.837871    0.68587    0.00000    0.48499    3    diag
+    5      0.133D-02      0.362D-03       -76.00887965     75.847987    0.68263    0.00000    0.48270    4    diag
+    6      0.434D-03      0.613D-04       -76.00888016     75.848158    0.68194    0.00000    0.48221    5    diag
+    7      0.110D-03      0.905D-05       -76.00888017     75.848155    0.68182    0.00000    0.48212    6    diag
+    8      0.188D-04      0.133D-05       -76.00888017     75.848143    0.68181    0.00000    0.48212    7    diag
+    9      0.241D-05      0.302D-06       -76.00888017     75.848144    0.68181    0.00000    0.48211    0    orth
+
+ Final occupancy:   5
+
+ !RHF STATE 1.1 Energy                -76.008880174596
+ Nuclear energy                         9.25356722
+ One-electron energy                 -123.18651917
+ Two-electron energy                   37.92407178
+ Virial quotient                       -1.00009131
+ !RHF STATE 1.1 Dipole moment           0.68181060     0.00000000     0.48211497
+ Dipole moment /Debye                   1.73287619     0.00000000     1.22533377
+
+ ELECTRON ORBITALS
+ =================
+
+
+   Orb  Occ    Energy  Couls-En    Coefficients
+
+                                   1 1s      1 1s      1 1s      1 2px     1 2py     1 2pz     1 2px     1 2py     1 2pz     1 3d0  
+                                   1 3d2-    1 3d1+    1 3d2+    1 3d1-    2 1s      2 1s      3 1s      3 1s   
+
+   1.1   2   -20.5504  -53.5847  0.995778  0.022023 -0.008136  0.001304  0.000000  0.000922 -0.001397  0.000000 -0.000988 -0.000154
+                                 0.000000  0.000124 -0.000179  0.000000  0.000210  0.001961  0.000210  0.001961
+
+   2.1   2    -1.3409   -9.1862 -0.214392  0.469082  0.492805  0.072586  0.000000  0.051326  0.043930  0.000000  0.031063  0.010063
+                                 0.000000 -0.005185  0.013764  0.000000  0.131526 -0.008592  0.131526 -0.008592
+
+   3.1   2    -0.7198   -7.4228  0.000000  0.000000  0.000000 -0.292378  0.000000  0.413483 -0.174438  0.000000  0.246692  0.040337
+                                 0.000000  0.016467 -0.023288  0.000000  0.233785  0.103484 -0.233785 -0.103484
+
+   4.1   2    -0.5621   -7.4767  0.067319 -0.163770 -0.275288  0.458587  0.000000  0.324272  0.340735  0.000000  0.240937  0.003873
+                                 0.000000  0.024253  0.023858  0.000000  0.136896  0.073936  0.136896  0.073936
+
+   5.1   2    -0.4961   -7.5920  0.000000  0.000000  0.000000  0.000000  0.638279  0.000000  0.000000  0.512948  0.000000  0.000000
+                                 0.026881  0.000000  0.000000  0.019008  0.000000  0.000000  0.000000  0.000000
+
+ HOMO      5.1    -0.496071 =     -13.4988eV
+ LUMO      6.1     0.216962 =       5.9038eV
+ LUMO-HOMO         0.713033 =      19.4026eV
+
+
+ **********************************************************************************************************************************
+ DATASETS  * FILE   NREC   LENGTH (MB)   RECORD NAMES
+              1      19        6.12       500      610      700      900      950      970     1000      129      960     1100   
+                                          VAR    BASINP    GEOM    SYMINP    ZMAT    AOBASIS   BASIS     P2S    ABASIS      S 
+                                         1400     1410     1200     1210     1080     1600     1650     1300     1700   
+                                           T        V       H0       H01     AOSYM     SMH    MOLCAS    ERIS     OPER   
+
+              2       4        0.33       700     1000      520     2100   
+                                         GEOM     BASIS   MCVARS     RHF  
+
+ PROGRAMS   *        TOTAL        HF       INT
+ CPU TIMES  *         0.17      0.01      0.05
+ REAL TIME  *         0.43 SEC
+ DISK USED  *        10.86 MB      
+ **********************************************************************************************************************************
+
+
+1PROGRAM * CCSD (Closed-shell coupled cluster)     Authors: C. Hampel, H.-J. Werner, 1991, M. Deegan, P.J. Knowles, 1992
+
+
+ States requested for EOM calculation: 2.1 3.1 4.1 5.1
+
+ Convergence thresholds:  THRVAR = 1.00D-10  THRDEN = 1.00D-06
+
+ Number of core orbitals:           1 (   1 )
+ Number of closed-shell orbitals:   4 (   4 )
+ Number of external orbitals:      13 (  13 )
+
+ Molecular orbitals read from record     2100.2  Type=RHF/CANONICAL (state 1.1)
+
+ Number of N-1 electron functions:               4
+ Number of N-2 electron functions:              10
+ Number of singly external CSFs:                52
+ Number of doubly external CSFs:              1378
+ Total number of CSFs:                        1431
+
+ Length of J-op  integral file:               0.00 MB
+ Length of K-op  integral file:               0.05 MB
+ Length of 3-ext integral record:             0.00 MB
+
+ Integral transformation finished. Total CPU:   0.00 sec, npass=  1  Memory used:   0.09 MW
+
+ Reference energy:                    -76.00888017
+
+ MP2 singlet pair energy:              -0.11307518
+ MP2 triplet pair energy:              -0.07073378
+ MP2 correlation energy:               -0.18380896
+ MP2 total energy:                    -76.19268914
+
+ SCS-MP2 correlation energy:           -0.17970235   (PS=  1.200000  PT=  0.333333)
+ SCS-MP2 total energy:                -76.18858252
+
+ ITER.      SQ.NORM     CORR.ENERGY   TOTAL ENERGY   ENERGY CHANGE        DEN1      VAR(S)    VAR(P)  DIIS     TIME
+   1      1.05136033    -0.19194903   -76.20082920    -0.00814006    -0.00485206  0.24D-03  0.68D-03  1  1     0.00
+   2      1.05456173    -0.19293228   -76.20181245    -0.00098325    -0.00377943  0.52D-05  0.48D-04  2  2     0.01
+   3      1.05520963    -0.19301883   -76.20189900    -0.00008655    -0.00049057  0.20D-05  0.20D-05  3  3     0.01
+   4      1.05533845    -0.19301669   -76.20189687     0.00000213    -0.00007300  0.86D-07  0.10D-06  4  4     0.02
+   5      1.05536393    -0.19301559   -76.20189577     0.00000110    -0.00001141  0.28D-07  0.50D-08  5  5     0.02
+   6      1.05536716    -0.19301538   -76.20189555     0.00000022     0.00000051  0.25D-08  0.66D-09  6  6     0.02
+   7      1.05536943    -0.19301529   -76.20189546     0.00000009    -0.00000022  0.90D-10  0.46D-10  6  1     0.03
+   8      1.05536980    -0.19301526   -76.20189543     0.00000003    -0.00000004  0.11D-11  0.29D-11  6  2     0.03
+
+ Norm of t1 vector:      0.02203810      S-energy:    -0.00000002      T1 diagnostic:  0.00550952
+                                                                       D1 diagnostic:  0.00982173
+
+
+ RESULTS
+ =======
+
+  Reference energy                    -76.008880174596
+  CCSD singlet pair energy             -0.130381459335
+  CCSD triplet pair energy             -0.062633778753
+  CCSD correlation energy              -0.193015258408
+
+ !CCSD total energy                   -76.201895433004
+
+ Timing summary (sec):
+
+ STEP                 CPU(USER)    SYS     CPU(TOT)    WALL
+ CCSD iterations         0.03      0.01      0.04      0.03
+
+ Program statistics:
+
+ Available memory in ccsd:                99999836
+ Min. memory needed in ccsd:                  9177
+ Max. memory used in ccsd:                    9551
+ Max. memory used in cckext:                 42182 ( 8 integral passes)
+
+ Start left-hand EOM-CCSD program.    Author: T. Korona (2001)
+
+ Record  5555.2 for saving EOM-CCSD vectors of length   2531009 reserved
+
+
+ Record  4500.8 for saving EOM-CCSD vectors of length   2531009 reserved
+
+
+ First produce intermediates, this can take some time ...
+
+ 
+ Solve a set of linear equations for Lambda
+ <Lambda|[e-T H eT,exc.] = -<0|[e-T H eT,exc.]
+
+ Iteration   Residuum      time/iteration   time/total
+
+    1       0.22E+00            0.0            0.0                
+    2       0.29E-01            0.0            0.0                
+    3       0.92E-02            0.0            0.0 liis           
+    4       0.18E-02            0.0            0.0 liis           
+    5       0.44E-03            0.0            0.0 liis           
+    6       0.13E-03            0.0            0.0 liis           
+    7       0.41E-04            0.0            0.0 liis           
+    8       0.13E-04            0.0            0.0 liis           
+
+ Convergence achieved in   8 iterations, norm of residuum    0.13E-04
+
+ Saving Lambda vector on record 4499.8
+
+ Final output for nonrelaxed part
+
+ Dipole moment SCF               :      0.68181060     0.00000000     0.48211497
+ Dipole moment - correlation part:     -0.01582157     0.00000000    -0.01118758
+ !CCSD_nonrel dipole moment      :      0.66598904     0.00000000     0.47092739
+ 
+ CPU-time for  right-hand side  :                      0.00 sec
+ CPU-time for  Lambda vector    :                      0.02 sec
+ CPU-time for  density matrix   :                      0.00 sec
+ 
+
+ EOM-CCSD FOR    4 EXCITED STATES OF SYMMETRY 1    STATES:   1  2  3  4
+ 
+
+ Iter. Vector     |HC-EC|         E_new-E_old   Excitation energy    Total energy
+ 
+   0     1      0.517025E+00      0.430418E+00     0.4304178237    -75.7714776093            
+   0     2      0.496299E+00      0.500088E+00     0.5000876748    -75.7018077582            
+   0     3      0.510924E+00      0.519756E+00     0.5197564874    -75.6821389456            
+   0     4      0.491102E+00      0.597758E+00     0.5977580027    -75.6041374303            
+ 
+   1     1      0.980943E-01     -0.102970E+00     0.3274474427    -75.8744479903            
+   1     2      0.730510E-01     -0.929350E-01     0.4071526257    -75.7947428073            
+   1     3      0.106267E+00     -0.999335E-01     0.4198229982    -75.7820724348            
+   1     4      0.905789E-01     -0.932481E-01     0.5045099124    -75.6973855206            
+ 
+   2     1      0.355206E-01     -0.451888E-02     0.3229285623    -75.8789668707            
+   2     2      0.345637E-01     -0.306684E-02     0.4040857860    -75.7978096470            
+   2     3      0.442860E-01     -0.520665E-02     0.4146163508    -75.7872790822            
+   2     4      0.435304E-01     -0.442719E-02     0.5000827210    -75.7018127120            
+ 
+   3     1      0.106839E-01     -0.956441E-03     0.3219721212    -75.8799233118            
+   3     2      0.128162E-01     -0.806793E-03     0.4032789929    -75.7986164401            
+   3     3      0.189886E-01     -0.107815E-02     0.4135382035    -75.7883572295            
+   3     4      0.144861E-01     -0.141863E-02     0.4986640892    -75.7032313438            
+ 
+   4     1      0.444202E-02     -0.853572E-04     0.3218867641    -75.8800086689            
+   4     2      0.380125E-02     -0.144252E-03     0.4031347406    -75.7987606924            
+   4     3      0.669623E-02     -0.293912E-03     0.4132442916    -75.7886511414            
+   4     4      0.489471E-02     -0.148214E-03     0.4985158748    -75.7033795582            
+ 
+   5     1      0.122491E-02     -0.407504E-04     0.3218460136    -75.8800494194            
+   5     2      0.108308E-02     -0.133795E-04     0.4031213611    -75.7987740719            
+   5     3      0.197517E-02     -0.472063E-04     0.4131970852    -75.7886983478            
+   5     4      0.215249E-02     -0.220963E-04     0.4984937785    -75.7034016545            
+ 
+   6     1      0.412105E-03      0.178130E-07     0.3218460315    -75.8800494015            
+   6     2      0.283571E-03     -0.159970E-05     0.4031197614    -75.7987756716            
+   6     3      0.794909E-03      0.317500E-05     0.4132002602    -75.7886951728            
+   6     4      0.699898E-03      0.234135E-06     0.4984940126    -75.7034014204            
+ 
+   7     1      0.153132E-03     -0.111036E-05     0.3218449211    -75.8800505119            
+   7     2      0.104176E-03      0.149752E-06     0.4031199112    -75.7987755218            
+   7     3      0.281022E-03     -0.345873E-05     0.4131968015    -75.7886986315            
+   7     4      0.266354E-03      0.458649E-06     0.4984944712    -75.7034009618            
+ 
+   8     1      0.356853E-04      0.358639E-08     0.3218449247    -75.8800505083  Converged 
+   8     2      0.293330E-04     -0.116372E-06     0.4031197948    -75.7987756382  Converged 
+   8     3      0.111299E-03      0.529392E-06     0.4131973309    -75.7886981021            
+   8     4      0.134471E-03     -0.471933E-06     0.4984939993    -75.7034014337            
+ 
+   9     3      0.415444E-04      0.515523E-07     0.4131973824    -75.7886980506  Converged 
+   9     4      0.615861E-04      0.440807E-06     0.4984944401    -75.7034009929  Converged 
+
+  Results for state  2.1: Excitation energy         0.32184492 au        8.758 eV       70636.80 cm-1                                        
+
+  Coefficient     Excitation
+    -0.96608      5.1 ->  6.1
+     0.14102      5.1 ->  6.1     3.1 ->  7.1
+
+  Results for state  3.1: Excitation energy         0.40311979 au       10.969 eV       88474.57 cm-1                                        
+
+  Coefficient     Excitation
+    -0.96484      5.1 ->  7.1
+     0.10459      5.1 ->  7.1     3.1 ->  7.1
+
+  Results for state  4.1: Excitation energy         0.41319738 au       11.244 eV       90686.34 cm-1                                        
+
+  Coefficient     Excitation
+    -0.96130      4.1 ->  6.1
+     0.13153      4.1 ->  6.1     3.1 ->  7.1
+
+  Results for state  5.1: Excitation energy         0.49849444 au       13.565 eV      109406.88 cm-1                                        
+
+  Coefficient     Excitation
+     0.96273      4.1 ->  7.1
+    -0.10035      4.1 ->  7.1     4.1 ->  6.1
+
+
+  Final Results:
+  ==============
+
+  State    Exc. Energy    Total Energy     Weight(S)     Weight(D)      Delta E    Conv   Max. Coef.     Excitation
+   1.1     0.00000000     -76.20189543     0.460E-03     0.520E-01     0.279E-07     Y
+   2.1     0.32184492     -75.88005051     0.939E+00     0.608E-01     0.359E-08     Y    -0.96608      5.1 ->  6.1
+   3.1     0.40311979     -75.79877564     0.943E+00     0.565E-01    -0.116E-06     Y    -0.96484      5.1 ->  7.1
+   4.1     0.41319738     -75.78869805     0.937E+00     0.626E-01     0.516E-07     Y    -0.96130      4.1 ->  6.1
+   5.1     0.49849444     -75.70340099     0.942E+00     0.579E-01     0.441E-06     Y     0.96273      4.1 ->  7.1
+
+********************************************************************************
+            END OF LEFT-EOM PROGRAM
+********************************************************************************
+
+
+ Starting EOM-CCSD program.     Author: T. Korona (1999)
+
+
+ Record  4501.8 for saving EOM-CCSD vectors of length   2531009 reserved
+
+ 
+
+ EOM-CCSD FOR    4 EXCITED STATES OF SYMMETRY 1    STATE(S)  1  2  3  4
+ 
+
+ Number of N-1 electron functions:               4
+ Number of N-2 electron functions:              10
+ Number of singly external CSFs:                52
+ Number of doubly external CSFs:              1378
+ Total number of CSFs:                        1431
+
+ Iter. Vector     |HC-EC|         E_new-E_old   Excitation energy    Total energy
+ 
+   0     1      0.458363E+00      0.430418E+00     0.4304179615    -75.7714774715                        
+   0     2      0.440991E+00      0.500087E+00     0.5000874613    -75.7018079717                        
+   0     3      0.450060E+00      0.516900E+00     0.5169004269    -75.6849950061                        
+   0     4      0.437210E+00      0.597758E+00     0.5977583955    -75.6041370375                        
+ 
+   1     1      0.985954E-01     -0.101810E+00     0.3286079858    -75.8732874472                        
+   1     2      0.741186E-01     -0.932864E-01     0.4068011099    -75.7950943231                        
+   1     3      0.105889E+00     -0.960041E-01     0.4208963090    -75.7809991240                        
+   1     4      0.918775E-01     -0.930487E-01     0.5047096980    -75.6971857350                        
+ 
+   2     1      0.365839E-01     -0.623871E-02     0.3223692781    -75.8795261549                        
+   2     2      0.354509E-01     -0.290492E-02     0.4038961872    -75.7979992458                        
+   2     3      0.432943E-01     -0.685003E-02     0.4140462830    -75.7878491500                        
+   2     4      0.437331E-01     -0.521693E-02     0.4994927648    -75.7024026682                        
+ 
+   3     1      0.111135E-01     -0.516188E-03     0.3218530898    -75.8800423432                        
+   3     2      0.127894E-01     -0.801822E-03     0.4030943654    -75.7988010676                        
+   3     3      0.189189E-01     -0.726726E-03     0.4133195572    -75.7885758758                        
+   3     4      0.142733E-01     -0.955367E-03     0.4985373977    -75.7033580353                        
+ 
+   4     1      0.446213E-02     -0.290234E-04     0.3218240664    -75.8800713666                        
+   4     2      0.389533E-02      0.234716E-04     0.4031178371    -75.7987775959                        
+   4     3      0.640425E-02     -0.124917E-03     0.4131946403    -75.7887007927                        
+   4     4      0.460995E-02     -0.298538E-04     0.4985075438    -75.7033878892                        
+ 
+   5     1      0.123437E-02      0.231114E-04     0.3218471778    -75.8800482552                        
+   5     2      0.107963E-02      0.116493E-05     0.4031190020    -75.7987764310                        
+   5     3      0.187243E-02      0.920137E-05     0.4132038416    -75.7886915914                        
+   5     4      0.207230E-02     -0.720442E-05     0.4985003394    -75.7033950936                        
+ 
+   6     1      0.435452E-03     -0.261143E-05     0.3218445664    -75.8800508666                        
+   6     2      0.295617E-03      0.607378E-06     0.4031196094    -75.7987758236                        
+   6     3      0.690241E-03     -0.799957E-05     0.4131958421    -75.7886995909                        
+   6     4      0.723272E-03     -0.459476E-05     0.4984957447    -75.7033996883                        
+ 
+   7     1      0.159433E-03      0.756341E-06     0.3218453227    -75.8800501103                        
+   7     2      0.114040E-03     -0.285711E-06     0.4031193237    -75.7987761093                        
+   7     3      0.219809E-03      0.224337E-05     0.4131980854    -75.7886973476                        
+   7     4      0.353085E-03     -0.786033E-06     0.4984949586    -75.7034004744                        
+ 
+   8     1      0.362275E-04     -0.773927E-07     0.3218452453    -75.8800501877  Converged             
+   8     2      0.327807E-04      0.145258E-06     0.4031194689    -75.7987759641  Converged             
+   8     3      0.807346E-04     -0.409896E-06     0.4131976755    -75.7886977575  Converged             
+   8     4      0.173523E-03     -0.162839E-06     0.4984947958    -75.7034006372                        
+ 
+   9     4      0.654966E-04     -0.223765E-06     0.4984945720    -75.7034008610  Converged             
+
+  Results for state  2.1: Excitation energy         0.32184525 au        8.758 eV       70636.87 cm-1                                        
+
+  Coefficient     Excitation
+     0.97209      5.1 ->  6.1
+    -0.12426      5.1 ->  6.1     3.1 ->  7.1
+
+  Contribution of reference determinant      0.00000
+
+  Results for state  3.1: Excitation energy         0.40311947 au       10.969 eV       88474.50 cm-1                                        
+
+  Coefficient     Excitation
+    -0.96977      5.1 ->  7.1
+
+  Contribution of reference determinant      0.00000
+
+  Results for state  4.1: Excitation energy         0.41319768 au       11.244 eV       90686.41 cm-1                                        
+
+  Coefficient     Excitation
+    -0.96681      4.1 ->  6.1
+     0.11591      4.1 ->  6.1     3.1 ->  7.1
+
+  Contribution of reference determinant      0.01260
+
+  Results for state  5.1: Excitation energy         0.49849457 au       13.565 eV      109406.91 cm-1                                        
+
+  Coefficient     Excitation
+     0.96706      4.1 ->  7.1
+
+  Contribution of reference determinant      0.00000
+
+
+  Final Results:
+  ==============
+
+  State    Exc. Energy    Total Energy     Weight(S)     Weight(D)      Delta E    Conv   Max. Coef.     Excitation
+   1.1     0.00000000     -76.20189543     0.460E-03     0.520E-01     0.279E-07     Y
+   2.1     0.32184525     -75.88005019     0.951E+00     0.486E-01    -0.774E-07     Y     0.97209      5.1 ->  6.1
+   3.1     0.40311947     -75.79877596     0.954E+00     0.461E-01     0.145E-06     Y    -0.96977      5.1 ->  7.1
+   4.1     0.41319768     -75.78869776     0.949E+00     0.507E-01    -0.410E-06     Y    -0.96681      4.1 ->  6.1
+   5.1     0.49849457     -75.70340086     0.952E+00     0.484E-01    -0.224E-06     Y     0.96706      4.1 ->  7.1
+
+********************************************************************************
+
+ EOM-CCSD properties program.                 Author: T. Korona (2003)
+
+********************************************************************************
+
+
+ Bra <   1.1|,       Ket |  1.1>
+
+ Dipole moment SCF                :     0.68181060     0.00000000     0.48211497
+ Dipole moment - correlation part :    -0.01582157     0.00000000    -0.01118758
+ CCSD dipole moment tot. exp.:          0.66598904     0.00000000     0.47092739   <  1.1|  1.1>
+
+
+ Bra <   1.1|,       Ket |  2.1>
+
+ EOM-CCSD trans. dipole moment          0.00000000    -0.29634013     0.00000000   <  1.1|  2.1>
+
+
+ Bra <   1.1|,       Ket |  3.1>
+
+ EOM-CCSD trans. dipole moment          0.00000000     0.00000012     0.00000000   <  1.1|  3.1>
+
+
+ Bra <   1.1|,       Ket |  4.1>
+
+ EOM-CCSD trans. dipole moment          0.48436631     0.00000000     0.34249998   <  1.1|  4.1>
+
+
+ Bra <   1.1|,       Ket |  5.1>
+
+ EOM-CCSD trans. dipole moment          0.31096407     0.00000000    -0.43976787   <  1.1|  5.1>
+
+
+ Bra <   2.1|,       Ket |  1.1>
+
+ EOM-CCSD trans. dipole moment          0.00000000    -0.30288039     0.00000000   <  2.1|  1.1>
+
+
+ Bra <   2.1|,       Ket |  2.1>
+
+ EOM-CCSD expec. dipole moment         -0.14142539     0.00000000    -0.10000244   <  2.1|  2.1>
+
+
+ Bra <   3.1|,       Ket |  1.1>
+
+ EOM-CCSD trans. dipole moment          0.00000000     0.00000013     0.00000000   <  3.1|  1.1>
+
+
+ Bra <   3.1|,       Ket |  3.1>
+
+ EOM-CCSD expec. dipole moment         -0.14414003     0.00000000    -0.10192395   <  3.1|  3.1>
+
+
+ Bra <   4.1|,       Ket |  1.1>
+
+ EOM-CCSD trans. dipole moment          0.49713626     0.00000000     0.35152973   <  4.1|  1.1>
+
+
+ Bra <   4.1|,       Ket |  4.1>
+
+ EOM-CCSD expec. dipole moment         -0.21287402     0.00000000    -0.15052467   <  4.1|  4.1>
+
+
+ Bra <   5.1|,       Ket |  1.1>
+
+ EOM-CCSD trans. dipole moment          0.32224192     0.00000000    -0.45571709   <  5.1|  1.1>
+
+
+ Bra <   5.1|,       Ket |  5.1>
+
+ EOM-CCSD expec. dipole moment         -0.25520069     0.00000000    -0.18045590   <  5.1|  5.1>
+
+ 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+                        Final Results for EOM-CCSD
+                             (moments in a.u.)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  State    Exc. Energy (eV)            X              Y              Z
+   2.1          8.758
+
+ Right transition moment           0.00000000    -0.29634013     0.00000000
+ Left  transition moment           0.00000000    -0.30288039     0.00000000
+ Dipole strength                   0.08975561
+ Oscillator strength               0.01925828
+   2.1          8.758     0.01925828 spectrum data (repeated)
+ Dipole moment                    -0.14142539     0.00000000    -0.10000244   Norm:     0.17320978
+ 
+
+  State    Exc. Energy (eV)            X              Y              Z
+   3.1         10.969
+
+ Right transition moment           0.00000000     0.00000012     0.00000000
+ Left  transition moment           0.00000000     0.00000013     0.00000000
+ Dipole strength                   0.00000000
+ Oscillator strength               0.00000000
+   3.1         10.969     0.00000000 spectrum data (repeated)
+ Dipole moment                    -0.14414003     0.00000000    -0.10192395   Norm:     0.17653566
+ 
+
+  State    Exc. Energy (eV)            X              Y              Z
+   4.1         11.244
+
+ Right transition moment           0.48436631     0.00000000     0.34249998
+ Left  transition moment           0.49713626     0.00000000     0.35152973
+ Dipole strength                   0.36119498
+ Oscillator strength               0.09949662
+   4.1         11.244     0.09949662 spectrum data (repeated)
+ Dipole moment                    -0.21287402     0.00000000    -0.15052467   Norm:     0.26071637
+ 
+
+  State    Exc. Energy (eV)            X              Y              Z
+   5.1         13.565
+
+ Right transition moment           0.31096407     0.00000000    -0.43976787
+ Left  transition moment           0.32224192     0.00000000    -0.45571709
+ Dipole strength                   0.30061539
+ Oscillator strength               0.09990343
+   5.1         13.565     0.09990343 spectrum data (repeated)
+ Dipole moment                    -0.25520069     0.00000000    -0.18045590   Norm:     0.31255676
+ 
+
+
+ **********************************************************************************************************************************
+ DATASETS  * FILE   NREC   LENGTH (MB)   RECORD NAMES
+              1      20        6.21       500      610      700      900      950      970     1000      129      960     1100   
+                                          VAR    BASINP    GEOM    SYMINP    ZMAT    AOBASIS   BASIS     P2S    ABASIS      S 
+                                         1400     1410     1200     1210     1080     1600     1650     1300     1700     1380   
+                                           T        V       H0       H01     AOSYM     SMH    MOLCAS    ERIS     OPER     JKOP   
+
+              2       6       20.59       700     1000      520     2100     5555     5040   
+                                         GEOM     BASIS   MCVARS     RHF  
+
+ PROGRAMS   *        TOTAL      CCSD        HF       INT
+ CPU TIMES  *         0.51      0.33      0.01      0.05
+ REAL TIME  *         1.04 SEC
+ DISK USED  *        69.96 MB      
+ **********************************************************************************************************************************
+
+        CCSD            HF-SCF  
+    -76.20189543    -76.00888017
+ **********************************************************************************************************************************
+ Variable memory released

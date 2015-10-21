@@ -1,0 +1,89 @@
+&GLOBAL
+	PROJECT minimization
+	PREFERRED_FFT_LIBRARY FFTW
+	FFTW_PLAN_TYPE MEASURE
+	RUN_TYPE GEO_OPT
+	PRINT_LEVEL LOW
+&END GLOBAL
+
+&FORCE_EVAL
+
+    &DFT
+        CHARGE 0
+        BASIS_SET_FILE_NAME BASIS_MOLOPT
+        POTENTIAL_FILE_NAME GTH_POTENTIALS
+
+        &MGRID
+            CUTOFF 300
+            REL_CUTOFF 50
+            NGRIDS 4
+        &END MGRID
+
+        &QS
+            EPS_DEFAULT 1.E-9
+        &END QS
+
+        &SCF
+
+            SCF_GUESS RESTART
+            MAX_SCF 20
+            EPS_SCF 1.0E-5
+
+            &OT
+                MINIMIZER DIIS
+                PRECONDITIONER FULL_SINGLE_INVERSE
+            &END OT
+
+            &OUTER_SCF
+                MAX_SCF 100
+                EPS_SCF 1.0E-5
+            &END OUTER_SCF
+
+            &PRINT
+
+                &RESTART
+                    ADD_LAST NUMERIC
+                    &EACH
+                        QS_SCF 0
+                    &END EACH
+                &END RESTART
+
+            &END PRINT
+
+        &END SCF
+
+        &XC
+            &XC_FUNCTIONAL BLYP
+            &END XC_FUNCTIONAL
+            &XC_GRID
+               XC_SMOOTH_RHO NN10
+               XC_DERIV NN10_SMOOTH
+            &END XC_GRID
+
+        &END XC
+
+    &END DFT
+
+    &SUBSYS
+        &TOPOLOGY
+            COORD_FILE_NAME water.xyz
+            COORD_FILE_FORMAT XYZ
+        &END TOPOLOGY
+        &CELL
+            ABC 12.43 12.43 12.43
+        &END CELL
+        &KIND H
+            BASIS_SET DZVP-MOLOPT-GTH
+            POTENTIAL GTH-BLYP-q1
+        &END KIND
+        &KIND O
+            BASIS_SET DZVP-MOLOPT-GTH
+            POTENTIAL GTH-BLYP-q6
+        &END KIND
+        &KIND N
+            BASIS_SET DZVP-MOLOPT-GTH
+            POTENTIAL GTH-BLYP-q5
+        &END KIND
+    &END SUBSYS
+
+&END FORCE_EVAL
