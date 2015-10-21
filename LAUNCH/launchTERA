@@ -1,15 +1,41 @@
 #!/bin/bash
 
+# First, determine where we are. 
+node=$(uname -a | awk '{print $2}' )
+if [[ "$node" =~ ^s[0-9]+$|as67-1 ]];then
+   echo "This cluster does not have any GPUs! Exiting..."
+   exit 1
+elif [[ "$node" =~ ^a[0-9]+$|403-a324-01 ]];then
+   cluster=a324
+elif [[ "$node" =~ ^n[0-9]+$|403-as67-01  ]];then
+   cluster=as67gpu
+else
+   echo "I did not recognize any of the GPU PHOTOX clusters."
+   echo "Exiting..."
+   exit 1
+fi
+
 
 function PrintHelp {
-        echo " "
-        echo "This is the launching script for TeraChem jobs. "
-        echo " "
-	echo "SYNTAX: launchTERA input.com queue [dev]"
-	echo "where queue is \"m2090\",\"gtx690\", gtx970 or \"titan\"."
-        echo "For the development version, use \"dev\" as the third parameter."
-	exit 1
+   echo " "
+   echo "This is the launching script for TeraChem jobs on PHOTOX clusters. "
+   echo " "
+   echo "SYNTAX: launchTERA input.com queue [dev]"
+   echo "where queue is:"
+   if [[ $cluster = "a324" ]];then
+      echo " \"m2090\",\"gtx690\", gtx970 or \"titan\"."
+      echo "For the development version, use \"dev\" as the third parameter."
+   elif [[ $cluster = "as67gpu" ]];then
+      echo "nq-gpu"
+      echo "Only development version is available on this cluster,"
+      echo "so please specify \"dev\" as a third parameter."
+   fi
+   exit 1
 }
+
+if [[ $1 =~ -h ]];then
+   PrintHelp
+fi
 
 if [[ -z $1 ]];then
 	echo "Input file not specified. Exiting..."

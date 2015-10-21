@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#$ -V
+# Molpro 2012 SGE submission script (single- and nulti-processor version)
+source SetEnvironment.sh NWCHEM
+scratch=/scratch/${USER}
+
+export INPFILE=$1
+export LOGFILE=$1.log
+export OUTFILE=$1.out
+
+nproc=$2
+
+export SCRATCH=${scratch}/NWCHEM_$1_${JOB_ID}
+export WORKDIR=$PWD
+mkdir -p ${SCRATCH}
+
+cd ${WORKDIR}
+
+if [[ "$nproc" -gt 1 ]];then
+
+   $MPIRUN -np $nproc $NWCHEMEXE $INPFILE 2>&1 > $INPFILE.out 
+
+else
+
+   $NWCHEMEXE $INPFILE 2>&1 > $INPFILE.out 
+
+fi
+
+rm -rf $SCRATCH
+rm -rf core
+
