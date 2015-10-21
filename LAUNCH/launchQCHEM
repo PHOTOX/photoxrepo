@@ -57,7 +57,7 @@ cat > r.$input << EOF
 #$ -o .
 #$ -V
 
-QC $input $para_type
+QCHEM $input $para_type
 EOF
 
 

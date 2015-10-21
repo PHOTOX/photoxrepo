@@ -1,12 +1,17 @@
 #!/bin/bash
 
 input=$1
+version=$2
 nproc=${NSLOTS}
 
 #######LAUNCHING PROGRAM###########
 
 
-source SetEnvironment.sh CP2K
+source SetEnvironment.sh CP2K $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting CP2K parameters in SetEnvironment.sh"
+   exit 1
+fi
 
 DIR=$(pwd)
 SCRDIR=/scratch/$USER/CP2K_$input_${JOB_ID}
@@ -20,7 +25,11 @@ mkdir $SCRDIR
 cp $DIR/* $SCRDIR
 cd $SCRDIR
 
-mpirun -np $nproc $CP2KEXE $input > $DIR/$input.out
+if [[ $proc -gt 1 ]];then
+   $MPIRUN -np $nproc $CP2KEXE_MPI $input > $DIR/$input.out
+else
+   $CP2KEXE $input > $DIR/$input.out
+fi
 
 cp -up * $DIR
 

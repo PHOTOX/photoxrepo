@@ -11,11 +11,17 @@ if [ "$#" -lt 1 ] ; then
    exit 1
 fi
 
-source SetEnvironment.sh QCHEM
+version=$3
+parall=$2
+INPUT=$1
 
+source SetEnvironment.sh QCHEM $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting QCHEM parameters in SetEnvironment.sh"
+   exit 1
+fi
 
 export JOBDIR=$(pwd)
-export INPUT=$1
 
 export QCSCRATCH=${JOBDIR}
 export QCLOCALSCR=/scratch/${USER}
@@ -25,9 +31,8 @@ if [[ ${NSLOTS} -eq 1 ]]; then
 
   qchem ${INPUT} ${INPUT}.out &> ${INPUT}.log
 
-elif [[ $2 = "mpi" ]];then
+elif [[ $parall = "mpi" ]];then
 
-  source $mpiset
   source ${qc_mpiroot}/qcenv.sh
   qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
 

@@ -30,16 +30,16 @@ fi
 
 queue=$2
 
-if [[ $queue =~ ^m2090$ || $queue =~ ^gtx690$ || $queue =~ ^titan$ || $queue =~ ^gtx970$ ]];then
+if [[ $queue =~ ^m2090|^gtx690|^titan|^nq-gpu|^gtx970 ]];then
    echo 
 else
    echo "$queue is not a valid GPU queue."
    error=1
 fi
 
-if [[ ! -z $3 && $3 != "dev" ]];then
-   echo "Incorrect 3rd parameter."
-   echo "Expected \"dev\", got $3."
+if [[ ! -z $3 && $3 != "dev" && $3 != "1.5K" && $3 != "1.5" ]];then
+   echo "Incorrect version specified."
+   echo "Expected \"dev\", 1.5K or 1.5, got $3."
    error=1
 fi
 
@@ -139,7 +139,16 @@ cat > r.$input << EOF
 TERA $input $3
 EOF
 
-echo "qsub -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1"
-qsub  -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1
 
+if [[ $HOSTNAME = "403-as67-01" ]];then
+
+   echo "qsub -V -cwd -q nq-gpu -l num_gpu=1 -pe shm $numgpus r.$1"
+   qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
+
+else
+
+   echo "qsub -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1"
+   qsub  -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1
+
+fi
 

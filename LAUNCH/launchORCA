@@ -18,15 +18,18 @@ if [[ ! -e "$input" ]];then
    PrintHelp
 fi
 
-nproc=$(grep 'PAL' $1 | awk -F "[#PAL]" '{print $4}')
+# Assuming the comment is not closed by second #
+#nproc=$(awk -F [#] '{print $1}' | egrep '! *PAL[2-8]' | awk -F "PAL" '{print $2}'  )
+nproc=$(awk -F "#" '{print $1}'  $input | egrep -i '! *PAL[2-8]' | awk -F "PAL" '{print $2}' | awk '{print $1}')
 
-if [[ $nproc == "" ]];then
-   nproc=$(grep 'nprocs' $1 | awk -F "[#,nprocs]" '{print $4}')
+# There is also the second possible syntax
+if [[ $nproc = "" ]];then
+   nproc=$(awk -F "#" '{print $1}'  $input | egrep -i 'nprocs' | awk -F "nprocs *=* *" '{print $2}' | awk '{print $1}')
 fi
-
-if [[ $nproc == "" ]];then
+if [[ $nproc = "" ]];then
    nproc=1
 fi
+
 
 if [[ $nproc -gt 1 ]];then
    echo "Warning: parallel version of ORCA was not extensively tested."
@@ -46,6 +49,11 @@ ORCA $input
 EOF
 
 echo "$nproc proccesors will be used" 
-echo "qsub -cwd  -q $queue -pe mpi_alt $nproc r.$input"
-qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
+if [[ "$nproc" -eq 1 ]];then
+   echo "qsub -cwd -q $queue r.$input"
+   qsub -cwd -q $queue r.$input
+else
+   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$input"
+   qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
+fi
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 if [ -z $1 ];then
 	echo "No input file specified. Exiting..."
-	echo "Call as: $0 input.com [dev]"
+	echo "Call as: $0 input.com [version]"
+        echo "where version is 1.5K or dev."
 	exit 1
 fi
 
@@ -65,10 +66,11 @@ fi
 scrdir=$(grep scrdir $1 | grep -v '#' | head -1 | awk '{print $2}')
 #- All clear, let's go.
 
-if [[ "$2" == "dev" ]];then
-   source SetEnvironment.sh TERAdev
-else
-   source SetEnvironment.sh TERA
+version=$2
+source SetEnvironment.sh TERACHEM $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting TeraChem parameters in SetEnvironment.sh"
+   exit 1
 fi
 
 if [[ -z $scrdir ]];then

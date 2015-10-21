@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# Also sets the MPI environment
-source SetEnvironment.sh ORCA
-
 input=$1
+version=$2
+# Also sets the MPI environment
+source SetEnvironment.sh ORCA $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting ORCA parameters in SetEnvironment.sh"
+   exit 1
+fi
+
 KDE=$(pwd)
 
 export PATH=$orcaroot:$PATH

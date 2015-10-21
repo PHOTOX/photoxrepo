@@ -1,20 +1,23 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchCP2K your_input.inp queue nproc' "
+   echo "USAGE: 'launchCP2K your_input.inp queue [nproc]' "
    echo " "
    exit 1
 }
 
 #- Check input sanity ------
 
-if [[ $# -lt "3" ]] || [[ "$1" = "-h" ]]; then
+if [[ $# -lt "2" ]] || [[ "$1" =~ -h ]]; then
    PrintHelp
 fi
 
 input=$1
 queue=$2
 nproc=$3
+if [[ -z $3 ]];then
+   nproc=1
+fi
 
 if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
     echo "Error: number_of_cpus parameter is not a number!"
