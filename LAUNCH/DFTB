@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export OMP_NUM_THREAD=$1
+version=$2
+source SetEnvironment.sh DFTB $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting DFTB parameters in SetEnvironment.sh"
+   exit 1
+fi
+
+KDE=$(pwd)
+
+echo "Running DFTB+ job $1"
+uname -n
+date
+$DFTBEXE &> $KDE/dftb_${JOB_ID}.out 
+

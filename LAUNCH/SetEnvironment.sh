@@ -167,7 +167,8 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" || $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( dev )
+         VERSIONS=( dev debug )
+         source  ~/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       elif [[ $node = "a25" ]];then
          VERSIONS=( 1.5K 1.5 dev )
       else
@@ -178,8 +179,12 @@ case "$program" in
          return 1
       fi
       TERA[dev]=/home/hollas/programes/TeraChem-dev/build_mpich
+      TERA[debug]=/home/hollas/programes/TeraChem-dev/build_debug
       TERA[1.5]=/home/hollas/TeraChem/TERACHEM-1.5/
       TERA[1.5K]=/home/hollas/TeraChem/
+      if [[ $version =~ de ]];then
+         source  ~/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
+      fi
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export NBOEXE=/home/hollas/TeraChem/nbo6.exe
@@ -196,13 +201,17 @@ case "$program" in
 
    "CP2K" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 2.6.2 )
+         VERSIONS=( 2.7-trunk 2.6.2 2.5 )
+         base=/home/hollas/build-fromfrank/
+         CP2K[2.5]=$base/cp2k/2_5_12172014/
       elif [[ $cluster = "a324" ]];then
-         VERSIONS=( 2.5 2.6.2 )
-         CP2K[2.5]=/home/uhlig/build/cp2k/2.5_11122014/
+         base=/home/uhlig/build/
+         VERSIONS=( 2.5 )
+         CP2K[2.5]=$base/cp2k/2.5_11122014/
       elif [[ $cluster = "as67" ]];then
          VERSIONS=( 2.5 )
-         CP2K[2.5]=/home/uhlig/build/cp2k/2_5_12172014/
+         base=/home/uhlig/build/
+         CP2K[2.5]=$base/cp2k/2_5_12172014/
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -210,16 +219,17 @@ case "$program" in
       fi
 
       if [[ $version = "2.5" ]];then
-         . /home/uhlig/intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
-         . /home/uhlig/intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
-         . /home/uhlig/build/libint/1.1.4-icc/env.sh
-         . /home/uhlig/build/libxc/2.1.2-icc/env.sh
-         . /home/uhlig/build/openmpi/1.6.5-icc/env.sh
-         . /home/uhlig/build/fftw/3.3.4-icc/env.sh
+         . $base/../intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
+         . $base/../intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
+         . $base/libint/1.1.4-icc/env.sh
+         . $base/libxc/2.1.2-icc/env.sh
+         . $base/openmpi/1.6.5-icc/env.sh
+         . $base/fftw/3.3.4-icc/env.sh
          MPIRUN=mpirun
-      elif [[ $version = "2.6.2" ]];then
+      else
          MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
          CP2K[2.6.2]=/home/hollas/programes/src/cp2k-2.6.2/exe/Linux-x86-64-gfortran-mkl/
+         CP2K[2.7-trunk]=/home/hollas/programes/src/cp2k-trunk/cp2k/exe/Linux-x86-64-gfortran-mkl-noplumed/
       fi
 
       export cp2kroot=${CP2K[$version]}

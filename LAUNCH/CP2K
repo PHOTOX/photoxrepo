@@ -25,7 +25,7 @@ mkdir $SCRDIR
 cp $DIR/* $SCRDIR
 cd $SCRDIR
 
-if [[ $proc -gt 1 ]];then
+if [[ $nproc -gt 1 ]];then
    $MPIRUN -np $nproc $CP2KEXE_MPI $input > $DIR/$input.out
 else
    $CP2KEXE $input > $DIR/$input.out

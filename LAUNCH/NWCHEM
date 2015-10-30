@@ -5,7 +5,8 @@
 source SetEnvironment.sh NWCHEM
 scratch=/scratch/${USER}
 
-export INPFILE=$1
+input=$1
+export INPFILE=$input.$JOB_ID
 export LOGFILE=$1.log
 export OUTFILE=$1.out
 
@@ -16,6 +17,8 @@ export WORKDIR=$PWD
 mkdir -p ${SCRATCH}
 
 cd ${WORKDIR}
+echo "scratch_dir $SCRATCH" > $INPFILE
+grep -v "scratch_dir" $input >> $INPFILE
 
 if [[ "$nproc" -gt 1 ]];then
 

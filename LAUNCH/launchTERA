@@ -63,7 +63,7 @@ else
    error=1
 fi
 
-if [[ ! -z $3 && $3 != "dev" && $3 != "1.5K" && $3 != "1.5" ]];then
+if [[ ! -z $3 && $3 != "dev" && $3 != "1.5K" && $3 != "1.5" && $3 != "debug" ]];then
    echo "Incorrect version specified."
    echo "Expected \"dev\", 1.5K or 1.5, got $3."
    error=1

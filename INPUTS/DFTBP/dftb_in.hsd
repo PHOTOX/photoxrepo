@@ -1,0 +1,45 @@
+# This is a simple example of geometry optimization
+# dftb+ input file must always be names "dftb_in.hsd"
+# Input geometry is in a weird format, see the manual
+# It can be either in the external file or right here.
+
+# You must provide MaxAngularMomentum for all elements
+# that appear in your geometry, but no more!!!
+# When in doubt, you can check the SlaterKloster file to see the max Ang. moment.
+# (I have no idea why all this is necessary...)
+
+# You also have to specify the charge of the molecule.
+
+
+Geometry = GenFormat {
+ <<< "geom_in.gen"
+}
+
+# This activates the optimization
+Driver = ConjugateGradient{
+AppendGeometries = yes
+OutputPrefix = cytosin_opt
+}
+
+Hamiltonian = DFTB {
+  SCC = Yes
+  charge = 0.0
+  ReadInitialCharges = no
+  Eigensolver=RelativelyRobust{}
+  SlaterKosterFiles = Type2FileNames {
+   Prefix = "/home/hollas/3ob-2-1/"
+   Separator = "-"
+   Suffix = ".skf"
+  }
+  MaxAngularMomentum {
+    O = "p"
+    N = "p"
+    C = "p"
+    H = "s"
+  }
+}
+
+ParserOptions {
+  ParserVersion = 4
+}
+
