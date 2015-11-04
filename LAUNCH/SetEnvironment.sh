@@ -15,7 +15,7 @@ fi
 node=$(uname -a | awk '{print $2}' )
 
  function print_help {
-   echo "USAGE: . SetEnvironment.sh PROGRAM [VERSION]"
+   echo "USAGE: source SetEnvironment.sh PROGRAM [VERSION]"
    echo ""
    echo "Available programs are:"
    echo " " 

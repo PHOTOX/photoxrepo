@@ -2,11 +2,11 @@
 
 # This is not an actual running calculation, it is a starting script for that.
 # However it should make the concepts about diabetization clear.
-# you need to have a wavefunction for the reference geometry (reference.6.wfu)
-# diabetization is being done using the DDR procedure 
+# You need to have a wavefunction for the reference geometry (reference.6.wfu).
+# Diabatization is being done using the DDR procedure.
 
 # if you want to run diabatization:
-# 1) decide, what is your reference, calculate single point and save the wavefunction
+# 1) decide what is your reference, calculate single point and save the wavefunction
 # 2) once you have the reference wavefunction, you can start the calculation.
 # ATTENTION: be careful with using record files to clearly distinguish which record
            # belongs to the reference and which belongs to the current calculation

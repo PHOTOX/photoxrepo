@@ -9,7 +9,7 @@
 # and calculate the rest, set "firstgeom=4" and "lastgeom=0".
 # In this case, "lastgeom=0" will do the same as "lastgeom=10"
 
-#########SETUP########
+######## SETUP ##########
 name=your_molecule      # name of the job
 firstgeom=1             # first geometry, will skip (first-1)geometries
 lastgeom=10             # last geometry, positive integer or 0 for all geometries up to the end of file
@@ -22,7 +22,10 @@ nproc=1                 # number of processors per job
                         # You might need to modify line "$submit_path..."
 #submit="qsub -V -q aq -pe shm $nproc " # comment this line if you do not want to submit jobs automatically
 make_input="calc.$program.sh"  # script to make input files.
-submit_path="$program"    # script for launching a given program
+submit_path="$program"    # script for launching a given program (GAUSS,TERA etc.)
+# Leave $version blank if you want the default version of a given program
+version=
+# Use script SetEnvironment.sh to determine available versions.
 ######################
 
 
@@ -87,7 +90,7 @@ do
    ./$make_input temp.xyz $name.$i.com $nproc
 
    #DH warning, we are asuming here, that the second parameter is nproc
-   echo "$submit_path $name.$i.com $nproc " >>r.$name.$firstgeom.$j
+   echo "$submit_path $name.$i.com $version " >>r.$name.$firstgeom.$j
 
 
 #--Distribute calculations evenly between jobs for queue

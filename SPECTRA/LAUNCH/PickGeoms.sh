@@ -79,8 +79,9 @@ if [[ $geoms3 -lt $nsample ]] && [[ $random -eq 1 ]];then
 fi
 
 #Generate random numbers
+source SetEnvironment.sh PHOTOX
 if [[ $random -eq 1 ]];then
-   MyIRandom $seed $nsample $geoms  > irans.dat
+   abin-randomint $seed $nsample $geoms  > irans.dat
    if [[ $? -ne 0 ]];then
       echo "Problems when generating random integers."
       exit 1
