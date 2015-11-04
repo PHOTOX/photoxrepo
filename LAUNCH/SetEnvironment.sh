@@ -168,11 +168,11 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" || $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( dev )
+         VERSIONS=( dev debug )
       elif [[ $node = "a25" ]];then
-         VERSIONS=( 1.5K 1.5 dev )
+         VERSIONS=( 1.5K 1.5 dev debug)
       else
-         VERSIONS=( 1.5K dev )
+         VERSIONS=( 1.5K dev debug )
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -180,12 +180,13 @@ case "$program" in
       fi
       echo "Exporting variables for $program version $version "
       TERA[dev]=/home/hollas/programes/TeraChem-dev/build_mpich
+      TERA[debug]=/home/hollas/programes/TeraChem-dev/build_debug
       TERA[1.5]=/home/hollas/TeraChem/TERACHEM-1.5/
       TERA[1.5K]=/home/hollas/TeraChem/
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export NBOEXE=/home/hollas/TeraChem/nbo6.exe
-      if [[ $version -eq "dev" ]];then
+      if [[ $version -eq "dev" || $version -eq "debug" ]];then
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
          export LD_LIBRARY_PATH=/home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export TERAEXE=$TeraChem/bin/terachem
