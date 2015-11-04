@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Driver script for spectra simulation using reflection principle.
-# No additional broadening (yet, comming soon).
+# Driver script for spectra simulation using the reflection principle.
+# One can also add gaussian and/or lorentzian broadening.
 
 # REQUIRED FILES:
 # calc_spectrum.py
@@ -67,9 +67,9 @@ fi
 #./calc_spectrum.py -n $samples --de 0.02 --epsilon $name.rawdata.dat
 
 # For ionizations, use the following
-#./calc_spectrum.py -n $nsamples --de 0.02 --notrans spectrum_rawdata 
+#./calc_spectrum.py -n $samples --de 0.02 --notrans $name.rawdata.dat
 
 # for Gaussian and lorentzian broadening, use:
-#./calc_spectrum.py -n $nsamples --de 0.02 -s 0.3 -t 0.3 spectrum_rawdata 
+#./calc_spectrum.py -n $samples --de 0.02 -s 0.3 -t 0.3 $name.rawdata.dat
 
 

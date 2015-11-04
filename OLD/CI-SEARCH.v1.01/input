@@ -1,0 +1,5 @@
+! CI-SEARCH INPUT DECK
+1d-6    ! Threshold for gap convergence (eV) 
+1d-6    ! Threshold for energy difference convergence (eV) 
+100      ! Maximum number of iterations 
+1.      ! Maximum CI splitting (eV): When the gap is larger than threshold, it is reduced to this value - restricts initial big "jumps" in geometry 

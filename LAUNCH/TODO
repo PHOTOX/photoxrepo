@@ -1,0 +1,4 @@
+test CP2K on the new cluster
+test NWCHEM on a324
+
+provide a unified way of fetching data from scradirs via job.log or somethin like this

@@ -2,12 +2,27 @@ This folder contains miscellaneous utilities that defy any classification.
 
 You should be able to get help from any program by running it with parameter -h.
 
-==== CUT_SPHERE ====
-A small program for cutting a sphere of solvent around a solute.
+==== cut_sphere.f90 ====
+A program for cutting a sphere of solvent (arbitrary) around a solute.
 There are several modes of operation. Try
       $ cut_sphere -h 
-to get help.
 
 
-==== molfreq.sh ====
+==== molprofreq2molden.sh ====
 A program for visualization (using MOLDEN) of normal modes calculated in MOLPRO.
+
+
+==== hist.cpp ====
+Super simple program for creating histograms from columns of data.
+TODO: Some clever determination of optimal binnning parameter based on the number of samples.
+
+
+==== delete_jobs.sh ====
+Delete a batch of jobs between job_id1 and job_id2.
+
+
+==== molpro2molden.sh ====
+Extracting XYZ coordinates from Molpro output files.
+Use with care, it may depend on MOLPRO version and type of job.
+
+

@@ -15,7 +15,7 @@ fi
 node=$(uname -a | awk '{print $2}' )
 
  function print_help {
-   echo "USAGE: . SetEnvironment.sh PROGRAM [VERSION]"
+   echo "USAGE: source SetEnvironment.sh PROGRAM [VERSION]"
    echo ""
    echo "Available programs are:"
    echo " " 
@@ -55,7 +55,6 @@ function set_version {
 }
 
 # First, determine where we are. 
-# Currently works for as67-1 and a324 clusters.
 if [[ "$node" =~ ^s[0-9]+$|as67-1 ]];then
    cluster=as67
 elif [[ "$node" =~ ^a[0-9]+$|403-a324-01 ]];then
@@ -71,9 +70,9 @@ fi
 if [[ $cluster = "as67" ]];then
    PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA TURBOMOLE MOPAC GROMACS )
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA TERACHEM SHARC MOPAC )
+   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=( QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS )
+   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS )
 fi
 
 
@@ -105,7 +104,7 @@ case "$program" in
    "MOLPRO" )
       VERSIONS=( 2012 )
       if [[ $cluster = "as67" ]];then
-         MOLPRO[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+         MOLPRO[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
          MOLPRO_MPI[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
          export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
       else
@@ -117,7 +116,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export m12root=${MOLPRO[$version]}
       export m12_mpiroot=${MOLPRO_MPI[$version]}
       export MOLPROEXE=$m12root/bin/molpro
@@ -131,13 +129,16 @@ case "$program" in
          VERSIONS=( G09.D01 G09.A02 )
       fi
       GAUSS[G09.A02]="/home/slavicek/G03/gaussian09/a02/g09"
-      GAUSS[G09.D01]="/home/slavicek/G03/gaussian09/d01/arch/x86_64_sse4.2/g09"
+      if [[ $cluster = "as67gpu" ]];then
+         GAUSS[G09.D01]="/home/slavicek/G03/g09-altix/g09/"
+      else
+         GAUSS[G09.D01]="/home/slavicek/G03/gaussian09/d01/arch/x86_64_sse4.2/g09"
+      fi
 
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export gaussroot=${GAUSS[$version]}
       GAUSSEXE=$gaussroot/g09
       ;;
@@ -149,7 +150,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export DFTBEXE=${DFTB[$version]}
       ;;
 
@@ -160,7 +160,6 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       export turboroot=${TURBO[$version]}
       export PATH=$turboroot/scripts:$PATH
       export PATH=$turboroot/bin/x86_64-unknown-linux-gnu:$PATH
@@ -178,11 +177,13 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      echo "Exporting variables for $program version $version "
       TERA[dev]=/home/hollas/programes/TeraChem-dev/build_mpich
       TERA[debug]=/home/hollas/programes/TeraChem-dev/build_debug
       TERA[1.5]=/home/hollas/TeraChem/TERACHEM-1.5/
       TERA[1.5K]=/home/hollas/TeraChem/
+      if [[ $version =~ de ]];then
+         source  ~/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
+      fi
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export NBOEXE=/home/hollas/TeraChem/nbo6.exe
@@ -199,27 +200,35 @@ case "$program" in
 
    "CP2K" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 2.6.2 )
-         CP2K[2.6]=/home/hollas/programes/src/cp2k-2.6.2/exe/Linux-x86-64-gfortran-mkl/
-         MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
-      else
-         VERSIONS=( 2.5 )
-         . /home/uhlig/intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
-         . /home/uhlig/intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
-         . /home/uhlig/build/libint/1.1.4-icc/env.sh
-         . /home/uhlig/build/libxc/2.1.2-icc/env.sh
-         . /home/uhlig/build/openmpi/1.6.5-icc/env.sh
-         . /home/uhlig/build/fftw/3.3.4-icc/env.sh
-         MPIRUN=mpirun
-      fi
-      if [[ $cluster = "as67-1" ]];then
-         CP2K[2.5]=/home/uhlig/build/cp2k/2_5_12172014/
+         VERSIONS=( 2.7-trunk 2.6.2 2.5 )
+         base=/home/hollas/build-fromfrank/
+         CP2K[2.5]=$base/cp2k/2_5_12172014/
       elif [[ $cluster = "a324" ]];then
-         CP2K[2.5]=/home/uhlig/build/cp2k/2.5_11122014/
+         base=/home/uhlig/build/
+         VERSIONS=( 2.5 )
+         CP2K[2.5]=$base/cp2k/2.5_11122014/
+      elif [[ $cluster = "as67" ]];then
+         VERSIONS=( 2.5 )
+         base=/home/uhlig/build/
+         CP2K[2.5]=$base/cp2k/2_5_12172014/
       fi
       set_version
       if [[ $? -ne 0 ]];then
          return 1
+      fi
+
+      if [[ $version = "2.5" ]];then
+         . $base/../intel/composer_xe_2013_sp1.4.211/bin/compilervars.sh intel64
+         . $base/../intel/composer_xe_2013_sp1.4.211/mkl/bin/mklvars.sh intel64
+         . $base/libint/1.1.4-icc/env.sh
+         . $base/libxc/2.1.2-icc/env.sh
+         . $base/openmpi/1.6.5-icc/env.sh
+         . $base/fftw/3.3.4-icc/env.sh
+         MPIRUN=mpirun
+      else
+         MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+         CP2K[2.6.2]=/home/hollas/programes/src/cp2k-2.6.2/exe/Linux-x86-64-gfortran-mkl/
+         CP2K[2.7-trunk]=/home/hollas/programes/src/cp2k-trunk/cp2k/exe/Linux-x86-64-gfortran-mkl-noplumed/
       fi
 
       export cp2kroot=${CP2K[$version]}
@@ -233,13 +242,14 @@ case "$program" in
       ;;
 
    "ORCA" )
-      VERSIONS=(3.0.3 3.0.2 3.0.0 )
+      VERSIONS=(3.0.3 3.0.2 )
       if [[ $cluster = "as67" ]];then
          VERSIONS[2]=3.0.0    # old version for debug purposes
       fi
+      echo ${VERSIONS[@]}
       ORCA[3.0.0]=/home/guest/programs/orca/orca_3_0_0_linux_x86-64/
       ORCA[3.0.2]=/home/guest/programs/orca/orca_3_0_2_linux_x86-64/
-      ORCA[3.0.3]=/home/guest/programs/orca/orca_3_0_2_linux_x86-64/
+      ORCA[3.0.3]=/home/guest/programs/orca/orca_3_0_3_linux_x86-64/
       set_version
       if [[ $? -ne 0 ]];then
          return 1
@@ -286,12 +296,15 @@ case "$program" in
       fi
       ;;
    "GROMACS" )
-      if [[ $cluster = "as67gpu" ]];then
+      if [[ $cluster = "as67" ]];then
+         VERSIONS=( 4.5.5 )
+         GROMACSEXE=mdrun_d
+      elif [[ $cluster = "as67gpu" ]];then
          VERSIONS=(5.1, 5.1_GPU )
          GROMACSEXE=gmx
-      elif [[ $cluster = "as67" ]];then
-         VERSIONS=(4.5.5)
-         GROMACSEXE=mdrun_d
+      else
+         VERSIONS=(5.1)
+         GROMACSEXE=gmx
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -331,8 +344,11 @@ case "$program" in
    "NWCHEM" )
       if [[ $cluster = "as67gpu" ]];then
         VERSIONS=(6.6-beta)
+      elif [[ $cluster = "a324" ]];then
+        VERSIONS=( 6.6 )
       fi
       NWCHEM[6.6-beta]=/home/hollas/programes/src/nwchem-6.6/
+      NWCHEM[6.6]=/home/hollas/programes/src/nwchem-6.6/
       set_version
       if [[ $? -ne 0 ]];then
          return 1
@@ -366,5 +382,6 @@ EOF
       ;;
 esac
 #----------------------------
+#echo "Exporting variables for $program version $version "
 
 

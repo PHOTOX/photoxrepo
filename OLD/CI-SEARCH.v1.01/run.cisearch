@@ -1,0 +1,5 @@
+rm movie
+rm WORKING -r
+mkdir WORKING
+./ci-search 
+

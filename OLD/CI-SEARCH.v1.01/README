@@ -1,0 +1,17 @@
+CI-Seach v1.01 README
+
+
+Files needed to be changed for a new run
+
+mini.dat - initial geometry 
+input - convergence criteria and other technical parameters
+script_for_molpro - includes Molpro parameters
+
+
+
+Other files
+
+ci-seach.f - main program
+Make - compiles ci-search.f
+run.cisearch - script for running the code
+
