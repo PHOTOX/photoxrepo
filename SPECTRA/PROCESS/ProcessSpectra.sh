@@ -3,6 +3,8 @@
 # Driver script for spectra simulation using the reflection principle.
 # One can also add gaussian and/or lorentzian broadening.
 
+# It works both for UV/VIS spectra and photoionization spectra.
+
 # REQUIRED FILES:
 # calc_spectrum.py
 # extractG09.sh or similar
@@ -16,6 +18,13 @@ imax=1000      # number of calculations
 grep_function="grep_G09_EOM" # this function parses the outputs of the calculations
                # It is imported e.g. from extractG09.sh
 filesuffix="log" # i.e. "com.out" or "log"
+
+## SETUP FOR SPECTRA GENERATION ## 
+#gauss=0.3   # Uncomment for Gaussian broadening parameter in eV
+#lorentz=0.1 # Uncomment for Lorentzian broadening parameter in eV
+de=0.02     # Energy bin for histograms
+molar=false # Set to "true" to print intensities in molar units instead of absorption cross section
+ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole moments)
 ##############
 
 # Import grepping functions
@@ -32,10 +41,13 @@ fi
 if [[ -f extractQC.sh ]];then
    source extractQC.sh 
 fi
+if [[ -f extractTERA.sh ]];then
+   source extractTERA.sh 
+fi
 
 i=$istart
 samples=0
-rm -f $name.rawdata.dat
+rm -f $name.rawdata.dat omegas.dat
 while [[ $i -le $imax ]]
 do
 
@@ -61,15 +73,19 @@ if [[ $samples == 0 ]];then
 	exit 1
 fi
 
+options=" --de $de "
+if [[ ! -z $gauss ]];then
+   options=" -s $gauss "$options
+fi
+if [[ ! -z $lorentz ]];then
+   options=" -t $lorentz "$options
+fi
+if [[ $ioniz = "true" ]];then
+   options=" --notrans "$options
+fi
+if [[ $molar = "true" ]];then
+   options=" --epsilon"$options
+fi 
 
-./calc_spectrum.py -n $samples --de 0.02 $name.rawdata.dat
-# If you need molar absorption coefficient, use:
-#./calc_spectrum.py -n $samples --de 0.02 --epsilon $name.rawdata.dat
-
-# For ionizations, use the following
-#./calc_spectrum.py -n $samples --de 0.02 --notrans $name.rawdata.dat
-
-# for Gaussian and lorentzian broadening, use:
-#./calc_spectrum.py -n $samples --de 0.02 -s 0.3 -t 0.3 $name.rawdata.dat
-
+./calc_spectrum.py -n $samples $options $name.rawdata.dat
 

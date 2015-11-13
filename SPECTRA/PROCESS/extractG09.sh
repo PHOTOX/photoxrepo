@@ -95,6 +95,35 @@ function grep_G09_ioniz {
    return 0
 }
 
+function grep_G09ioniz_exc {
+   local in=$1
+   local numstates=$3
+   local out=$2
+
+   checkG09ioniz $in
+   if [[ "$?" -ne "0" ]];then
+      return 1
+   fi
+
+   en1=$(grep "SCF Done" $in | tail -1| awk '{print $5}')
+   en2=$(grep "SCF Done" $in | head -1| awk '{print $5}')
+   deltaE=$(awk -v en1=$en1 -v en2=$en2 'BEGIN{print 27.2114*(en1-en2);exit 0 }') 
+   echo $deltaE >> $out
+
+   grep -e 'Ground to excited state transition electric dipole moments' -e 'Excited State' -A `expr $numstates + 1` $in | \
+   awk -v numstates=$numstates -v de=$deltaE 'BEGIN{
+	i=1}
+	{
+	if ($1 == "Excited" && $2 == "State" ) {
+		en[i]=$5+de
+		print en[i]
+		i++
+	}
+	}
+	END{
+	}' >> $out	
+   return 0
+}
 
 # Private functions, should not be called from outside
 
@@ -114,3 +143,5 @@ else
    return 1
 fi
 }
+
+
