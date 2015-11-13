@@ -1,0 +1,195 @@
+Startfile from command line: multibasis.inp
+
+
+       ***********************************************************
+       *                    TeraChem vDEV                        *
+       *                 Hg Version: 9deb85015035+               *
+       *                Compiled without textures                *
+       *           Chemistry at the Speed of Graphics!           *
+       ***********************************************************
+       * This program may only be used in connection with        *
+       * a valid license from PetaChem, LLC. Use of this program *
+       * or results thereof indicates acceptance of all terms    *
+       * and conditions stated in the license and that a valid   *
+       * license agreement between the user and PetaChem, LLC    *
+       * exists. PetaChem, LLC does not warrant the correctness  *
+       * of results or their suitability for any purpose.        *
+       * Please email bugs, suggestions, and comments to         *
+       *                  help@petachem.com                      *
+       *                                                         *
+       ***********************************************************
+
+
+       ***********************************************************
+       *  Compiled by hollas       Pá říj 30 03:33:29 CET 2015  *
+       *  Supported architectures: sm_52                         *
+       *  Cuda compilation tools, release 7.5, V7.5.17           *
+       ***********************************************************
+
+
+ Job started   Fri Nov 13 23:12:14 2015
+ On n29 (available memory: 110763 MB)
+
+######################################### RUNTIME INFO ##########################################
+/home/hollas/programes/TeraChem-dev/build_mpich/bin/terachem multibasis.inp 
+
+NVRM version: NVIDIA UNIX x86_64 Kernel Module  352.41  Fri Aug 21 23:09:52 PDT 2015
+GCC version:  gcc version 4.7.2 (Debian 4.7.2-5) 
+
+	linux-vdso.so.1 =>  (0x00007fff90896000)
+	libmpi.so.12 => /home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/libmpi.so.12 (0x00002b9c52829000)
+	libintbox.so.1 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libintbox.so.1 (0x00002b9c52d21000)
+	libthcbox.so.1 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libthcbox.so.1 (0x00002b9c608d5000)
+	libcuda.so.1 => /usr/local/programs/cuda/driver-352.41/usr/lib/x86_64-linux-gnu/libcuda.so.1 (0x00002b9c614d0000)
+	libcudart.so.7.5 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcudart.so.7.5 (0x00002b9c62484000)
+	libcublas.so.7.5 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcublas.so.7.5 (0x00002b9c626e2000)
+	libcufft.so.7.5 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcufft.so.7.5 (0x00002b9c63fc2000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00002b9c6ac0c000)
+	libcilkrts.so.5 => /home/hollas/programes/TeraChem-dev/build_mpich/lib/libcilkrts.so.5 (0x00002b9c6ae8e000)
+	libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00002b9c6b0d0000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00002b9c6b3d7000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00002b9c6b5ed000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00002b9c6b80a000)
+	/lib64/ld-linux-x86-64.so.2 (0x00002b9c52607000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00002b9c6bb95000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00002b9c6bd99000)
+	libifport.so.5 => /home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/libifport.so.5 (0x00002b9c6bfa2000)
+	libifcore.so.5 => /home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/libifcore.so.5 (0x00002b9c6c1cf000)
+	libimf.so => /home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/libimf.so (0x00002b9c6c506000)
+	libsvml.so => /home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/libsvml.so (0x00002b9c6c9c1000)
+	libintlc.so.5 => /home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/libintlc.so.5 (0x00002b9c6d894000)
+#################################################################################################
+
+  _________________________________
+ |         DFTD3 V3.0 Rev 2        |
+ | S.Grimme, University Bonn       |
+ |           Aug  2013             |
+  _________________________________
+ 
+ Please cite DFT-D3 work done with this code as:
+ S. Grimme, J. Antony, S. Ehrlich and H. Krieg,
+ J. Chem. Phys. 132 (2010), 154104
+ If used with BJ-damping cite also
+ S. Grimme, S. Ehrlich and L. Goerigk,
+ J. Comput. Chem. 32 (2011), 1456-1465
+ For DFT-D2 the reference is
+ S. Grimme, J. Comput. Chem., 27 (2006), 1787-1799
+ 
+Scratch directory: ./scr
+Random number seed: 1447452736
+
+XYZ coordinates water.xyz
+Molden File Output: ./scr/water.molden
+Using the following atom-specific basis sets
+Atom type:O Basis:aug-cc-pvdz
+Using basis set: 6-31gs
+Spin multiplicity: 0
+DIIS will use up to 10 vectors.
+WF convergence threshold: 3.00e-05
+Using DIIS algorithm to converge WF
+Maximum number of SCF iterations: 100
+Incremental fock with rebuild ever 8 iterations
+Will switch to conventional Fock if diffuse functions are detected
+X-matrix tolerance: 1.00e-04
+PRECISION: DYNAMIC
+DFT Functional requested: blyp
+Method: BLYP  with dispersion correction
+  Becke 1988 exchange functional:       1.0 
+  Lee-Yang-Parr correlation functional: 1.0 
+Wavefunction: RESTRICTED
+WARNING: Closed shell calculations can only have a spin multiplicty
+         of 1. Spin multiplity is now being reset to 1.
+Spin multiplicity: 1
+DFT grid type: 1
+Using dynamic DFT grids.
+Initial guess generated by maximum overlap
+
+*******************************************
+**** SINGLE POINT GRADIENT CALCULATIONS ****
+********************************************
+SCF:   Initial guess is taken from previous step
+
+using 1 out of 1 CUDA devices
+   Device 0:  GeForce GTX TITAN X, 12287MB, CC 5.2 -- CPU THREAD 0
+-------------------------------------------------------------------
+Compiled with MAGMA support.  MAGMA parameters:
+    Matrices larger than 5000 square will be treated with MAGMA
+       (Change by setting the MagmaMinN environment variable)
+    Magma will use 1 out of 1 GPUs
+       (Change by setting the MagmaNGPUs environment variable)
+-------------------------------------------------------------------
+ CPU Memory Available: 16103.50 MegaWords 
+ GPU Memory Available: 1535.98 MegaWords 
+ Maximum recommended basis set size: 27600 basis functions
+ (limited by GPU memory)
+-------------------------------------------------------------------
+Using d-functions. Configuring GPUs accordingly. 
+0: CUBLAS initialized, available GPU memory: 9655MB
+
+****** QM coordinates ******
+O        -0.0000218309        -0.0660220264        -1.5099793198  
+H         0.0000841166         0.8300419659        -1.8585417882  
+H        -0.0001501717         0.0314438609        -0.4476371681  
+
+Multiple basis sets used. 
+Total atoms:     3
+Total charge:    0
+Total electrons: 10 (5-alpha, 5-beta)
+Number electrons modeled by ECPs: 0
+Total orbitals:  29
+Total AO shells: 13 (8 S-shells; 3 P-shells; 2 D-shells; 0 F-shells; 0 G-shells)
+Spin multiplicity: 1
+Nuclear repulsion energy (QM atoms): 8.697785923154 a.u.
+
+DFTD Energy:    -0.0007203 hartree
+Setting up the DFT grid...
+time to set the grid = 0.00 s
+DFT grid points: 3263 (1087 points/atom)
+Setting up the DFT grid...
+time to set the grid = 0.00 s
+DFT grid points: 9058 (3019 points/atom)
+
+                      *** Start SCF Iterations ***
+
+ Iter     DIIS Error       Energy change      Electrons        XC Energy           Energy        Time(s)
+----------------------------------------------------------------------------------------------------------
+         >>> Purifying P... IDMP = 5.77e-15 <<<
+THRESPDP set to 1.00e+00
+                >>> SWITCHING TO GRID 1 <<<
+   1     0.7873764846     -75.9111609255     9.9999896786    -8.7592918786     -75.9111609255     0.05  
+                >>> SWITCHING TO GRID 0 <<<
+   2     0.6634342327      +0.0518876261     9.9999572638   -10.0425894384     -75.8592732994     0.03  
+   3     0.1640202293      -0.5228815903     9.9999065678    -9.1081140439     -76.3821548897     0.03  
+   4     0.0301219163      -0.0315716766     9.9999159128    -9.2749514207     -76.4137265663     0.03  
+   5     0.0069563237      -0.0013621739     9.9999155145    -9.2423591175     -76.4150887402     0.03  
+                >>> SWITCHING TO GRID 1 <<<
+   6     0.0002923914      -0.0000319294     9.9999733277    -9.2493122483     -76.4151206696     0.04  
+   7     0.0000763104      -0.0000000771     9.9999732032    -9.2495041579     -76.4151207468     0.04  
+THRESPDP set to 9.01e-02
+   8     0.0000452973      +0.0000005662     9.9999732291    -9.2495379145     -76.4151201805     0.04  
+   9     0.0000008757      +0.0000000164     9.9999732006    -9.2495450045     -76.4151201642     0.04  
+----------------------------------------------------------------------------------------------------------
+FINAL ENERGY: -76.4151201642 a.u.
+DISPERSION CONTRIBUTION TO ENERGY: -0.0007203183 a.u.
+CENTER OF MASS: {-0.000023, -0.010427, -1.470038} ANGS
+DIPOLE MOMENT: {-0.000026, 1.598438, 1.070026} (|D| = 1.923528) DEBYE
+
+Running Mulliken population analysis...
+
+GPU Memory: 9553 Mb
+Writing out molden info
+
+Gradient units are Hartree/Bohr
+---------------------------------------------------
+        dE/dX            dE/dY            dE/dZ
+    0.0000090439     0.0147167286    -0.0615795148
+   -0.0000014120    -0.0156565667     0.0005748747
+   -0.0000076319     0.0009398382     0.0610046396
+---------------------------------------------------
+Net gradient: -2.100090e-13  3.597060e-11 -5.210377e-10
+Net torque:    9.967607e-06  2.890982e-07  4.340325e-07
+
+Total processing time: 0.38 sec 
+
+ Job finished: Fri Nov 13 23:12:18 2015
+

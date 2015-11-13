@@ -1,0 +1,19 @@
+basis		6-31g*
+# Different elements can have different basis
+$multibasis
+O              aug-cc-pvdz
+$end
+# Set gpu_ecp 0  for very heavy elements like Rhenium
+# This restriction can be lifted in future TeraChem versions
+gpu_ecp        1
+# coordinates file (XYZ or PDB)
+coordinates	water.xyz
+charge          0 
+spinmult        0
+method		blyp
+dftd		yes
+#scf            diis+a
+gpus		1
+run		gradient
+end
+
