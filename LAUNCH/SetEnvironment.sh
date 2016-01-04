@@ -68,13 +68,18 @@ else
 fi
 
 if [[ $cluster = "as67" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA TURBOMOLE MOPAC GROMACS )
+   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER )
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS )
+   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS )
+   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER)
 fi
 
+basedir=/usr/local/programs
+if [[ $cluster != "as67" ]];then
+   basedir=$basedir/common
+fi
+basedir_custom=/usr/local/programs/custom
 
 if [[ -z $1 ]];then
    echo "SetEnvironment.sh: You did not provide any parameter. Which program do you want to use?"
@@ -97,20 +102,27 @@ if [[ $available = "False" ]];then
 fi
 
 # declaration of associative BASH arrays
-declare -A NWCHEM GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TURBO TERA MOPAC SHARCH QCHEM QCHEM_MPI
+declare -A NWCHEM GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
 
 
 case "$program" in
    "MOLPRO" )
-      VERSIONS=( 2012 )
-      if [[ $cluster = "as67" ]];then
-         MOLPRO[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
-         MOLPRO_MPI[2012]=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
-         export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
+      if [[ $cluster = "as67gpu" ]];then
+         VERSIONS=( 2012 2015 )
       else
-         MOLPRO[2012]=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
-         MOLPRO_MPI[2012]=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
-         export MPIDIR=/usr/local/programs/common/openmpi/openmpi-1.6.2/arch/x86_64-intel_12.0.5.220
+         VERSIONS=( 2012 )
+      fi
+
+      MOLPRO[2015]=$basedir_custom/molpro/arch/molprop_2015_1_linux_x86_64_i8
+
+      if [[ $cluster = "as67" ]];then
+         MOLPRO[2012]=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+         MOLPRO_MPI[2012]=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+         export MPIDIR=${basedir}/common/openmpi/openmpi-1.6.5/arch/amd64-intel_12.0.5.220
+      else
+         MOLPRO[2012]=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
+         MOLPRO_MPI[2012]=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220-openmpi_1.6.2/molprop_2012_1_Linux_x86_64_i8)
+         export MPIDIR=${basedir}/openmpi/openmpi-1.6.2/arch/x86_64-intel_12.0.5.220
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -153,20 +165,32 @@ case "$program" in
       export DFTBEXE=${DFTB[$version]}
       ;;
 
-   "TURBO" )
-      VERSIONS=( 6.0 )
-      TURBO[6.0]=/home/oncakm/TurboMole-6.0
+   "AMBER" )
+      if [[ $cluster = "as67" ]];then
+         VERSIONS=( 11 11-MPI )
+      elif [[ $cluster = "a324" ]];then
+         VERSIONS=( 12 12-MPI )
+      else
+         # Version 14 is only AmberTools15 (Containing Sander)
+         VERSIONS=( 12 12-MPI 14 14-MPI)
+      fi
+      AMBER[11]=/usr/local/programs/amber/amber11/sub/amber_sp_env.sh
+      AMBER[11-MPI]=/usr/local/programs/amber/amber11/sub/amber_mp_env.sh
+      AMBER[12]=/usr/local/programs/common/amber/amber12/sub/amber_sp_env.sh
+      AMBER[12-MPI]=/usr/local/programs/common/amber/amber12/sub/amber_mp_env.sh
+      AMBER[14]=/usr/local/programs/custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/
+      AMBER[14-MPI]=${AMBER[14]}
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      export turboroot=${TURBO[$version]}
-      export PATH=$turboroot/scripts:$PATH
-      export PATH=$turboroot/bin/x86_64-unknown-linux-gnu:$PATH
+      source ${AMBER[$version]}
       ;;
 
    "TERACHEM" )
-      if [[ $cluster = "as67gpu" || $node = "a32" || $node = "a33" ]];then
+      if [[ $cluster = "as67gpu" ]];then
+         VERSIONS=( dev debug amber )
+      elif [[ $node = "a32" || $node = "a33" ]];then
          VERSIONS=( dev debug )
       elif [[ $node = "a25" ]];then
          VERSIONS=( 1.5K 1.5 dev debug)
@@ -177,24 +201,25 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      TERA[dev]=/home/hollas/programes/TeraChem-dev/build_mpich
-      TERA[debug]=/home/hollas/programes/TeraChem-dev/build_debug
-      TERA[1.5]=/home/hollas/TeraChem/TERACHEM-1.5/
-      TERA[1.5K]=/home/hollas/TeraChem/
+      TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
+      TERA[debug]=$basedir_custom/terachem/terachem-dev/build_debug
+      TERA[amber]=$basedir_custom/terachem/terachem-dev/build_amber
+      TERA[1.5]=$basedir_custom/terachem/terachem-1.5
+      TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       if [[ $version =~ de ]];then
-         source  ~/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
+         source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       fi
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
-      export NBOEXE=/home/hollas/TeraChem/nbo6.exe
-      if [[ $version -eq "dev" || $version -eq "debug" ]];then
+      export NBOEXE=$TeraChem/nbo6.exe
+      if [[ $version = "dev" || $version = "debug" ]];then
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-         export LD_LIBRARY_PATH=/home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
+         export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export TERAEXE=$TeraChem/bin/terachem
-      elif [[ $version -eq "1.5K" ]];then
+      elif [[ $version = "1.5K" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
-      elif [[ $version -eq "1.5" ]];then
-         export LD_LIBRARY_PATH=/home/hollas/TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
+      elif [[ $version = "1.5" ]];then
+         export LD_LIBRARY_PATH=$TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
       fi
       ;;
 
@@ -242,14 +267,10 @@ case "$program" in
       ;;
 
    "ORCA" )
-      VERSIONS=(3.0.3 3.0.2 )
-      if [[ $cluster = "as67" ]];then
-         VERSIONS[2]=3.0.0    # old version for debug purposes
-      fi
-      echo ${VERSIONS[@]}
-      ORCA[3.0.0]=/home/guest/programs/orca/orca_3_0_0_linux_x86-64/
-      ORCA[3.0.2]=/home/guest/programs/orca/orca_3_0_2_linux_x86-64/
-      ORCA[3.0.3]=/home/guest/programs/orca/orca_3_0_3_linux_x86-64/
+      VERSIONS=(3.0.3 3.0.2 3.0.0 )
+      ORCA[3.0.0]=$basedir/orca/orca_3_0_0_linux_x86-64_openmpi_1.6.5/
+      ORCA[3.0.2]=$basedir/orca/orca_3_0_2_linux_x86-64_openmpi_1.6.5/
+      ORCA[3.0.3]=$basedir/orca/orca-3.0.3_linux_x86-64_openmpi_1.6.5/
       set_version
       if [[ $? -ne 0 ]];then
          return 1
@@ -257,9 +278,9 @@ case "$program" in
       orcaroot=${ORCA[$version]}
       export ORCAEXE=$orcaroot/orca
       if [[ $cluster = "as67" ]];then
-         source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+         source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
-         source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
       fi
       ;;
 
@@ -270,9 +291,9 @@ case "$program" in
          return 1
       fi
       if [[ $cluster = "as67" ]];then
-         export MOLPRO=$(readlink -f /usr/local/programs/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8/bin)
+         export MOLPRO=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
       else
-         export MOLPRO=$(readlink -f /usr/local/programs/common/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8/bin)
+         export MOLPRO=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
       fi
       export SHARC=/home/hollas/programes/src/sharc/bin/
       export SCRADIR=/scratch/$USER/scr-sharc-generic_$$
@@ -310,8 +331,8 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      GROMACS[5.1]=/home/hollas/programes/gromacs/5.1-gnu/
-      GROMACS[5.1_GPU]=/home/hollas/programes/gromacs/5.1-gnu-gpu/
+      GROMACS[5.1]=$basedir_custom/gromacs/gromacs-5.1/arch/x86_64-gnu/
+      GROMACS[5.1_GPU]=$basedir_custom/gromacs/gromacs-5.1/arch/x86_64-gnu-gpu/
       if [[ $cluster = "as67" ]];then
          source /home/hollas/programes/src/gromacs-4.5.5/scripts/GMXRC.bash
       else
@@ -322,13 +343,13 @@ case "$program" in
    "QCHEM" )
       VERSIONS=(4.1)
       if [[ $cluster = "as67" ]];then
-         QCHEM[4.1]=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
-         QCHEM_MPI[4.1]=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
-         source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+         QCHEM[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64
+         QCHEM_MPI[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
+         source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
-         QCHEM[4.1]=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64
-         QCHEM_MPI[4.1]=/usr/local/programs/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
-         source /usr/local/programs/common/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         QCHEM[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64
+         QCHEM_MPI[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
+         source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -348,13 +369,14 @@ case "$program" in
         VERSIONS=( 6.6 )
       fi
       NWCHEM[6.6-beta]=/home/hollas/programes/src/nwchem-6.6/
-      NWCHEM[6.6]=/home/hollas/programes/src/nwchem-6.6/
+      NWCHEM[6.6]=/usr/local/programs/custom/nwchem/nwchem-6.6/src
+
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      export LD_LIBRARY_PATH=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/lib/:$LD_LIBRARY_PATH
-      export MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+      export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/lib/:$LD_LIBRARY_PATH
+      export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
       export nwchemroot=${NWCHEM[$version]}
       export NWCHEMEXE=$nwchemroot/bin/LINUX64/nwchem
       if [[ ! -d "/scratch/$USER/nwchem_scratch" ]];then
@@ -381,7 +403,5 @@ EOF
       print_help
       ;;
 esac
-#----------------------------
-#echo "Exporting variables for $program version $version "
 
 
