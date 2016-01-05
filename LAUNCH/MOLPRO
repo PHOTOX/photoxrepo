@@ -3,7 +3,7 @@
 #$ -V
 # Molpro 2012 SGE submission script (single- and nulti-processor version)
 version=$2
-source SetEnvironment.sh MOLPRO
+source SetEnvironment.sh MOLPRO $version
 if [[ $? != "0" ]];then
    echo "Error when exporting MOLPRO parameters in SetEnvironment.sh"
    exit 1

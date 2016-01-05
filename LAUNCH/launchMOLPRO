@@ -1,7 +1,7 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "USAGE: '$0 input.com queue [number_of_cpus]' "
+   echo "USAGE: '$0 input.com queue [number_of_cpus] [version]' "
    exit 1
 }
 
@@ -40,15 +40,15 @@ cat > r.$input << EOF
 #$ -V
 
 
-MOLPRO $input 
+MOLPRO $input $4
 EOF
 
 if [[ "nproc" -gt 1 ]];then
-   echo "Submitting Molpro 2012 job for parallel execution in ${queue} queue with ${nproc} processes."
+   echo "Submitting Molpro job for parallel execution in ${queue} queue with ${nproc} processes."
    echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$input"
    qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
 else
-   echo "Launching single-processor Molpro 12 job."
+   echo "Launching single-processor Molpro job."
    echo "qsub -cwd -q $queue r.$input"
    qsub -cwd -q $queue r.$input
 fi

@@ -4,6 +4,8 @@
 # It should point to the newest version that is available on our clusters.
 # This script should work for all PHOTOX clusters.
 
+# TODO: move dftb, g09,cp2k and other to custom_dir
+
 program=$1
 # Optional second parameter
 if [[ -z $2 ]];then
@@ -113,7 +115,8 @@ case "$program" in
          VERSIONS=( 2012 )
       fi
 
-      MOLPRO[2015]=$basedir_custom/molpro/arch/molprop_2015_1_linux_x86_64_i8
+      MOLPRO[2015]=$basedir_custom/molpro/molpro2015/arch/x86_64_i8
+      MOLPRO_MPI[2015]=${MOLPRO[2015]}
 
       if [[ $cluster = "as67" ]];then
          MOLPRO[2012]=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/amd64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
@@ -128,10 +131,13 @@ case "$program" in
       if [[ $? -ne 0 ]];then
          return 1
       fi
-      export m12root=${MOLPRO[$version]}
-      export m12_mpiroot=${MOLPRO_MPI[$version]}
-      export MOLPROEXE=$m12root/bin/molpro
-      export MOLPROEXE_MPI=$m12_mpiroot/bin/molpro
+      export molproroot=${MOLPRO[$version]}
+      export molpro_mpiroot=${MOLPRO_MPI[$version]}
+      export MOLPROEXE=$molproroot/bin/molpro
+      export MOLPROEXE_MPI=$molpro_mpiroot/bin/molpro
+      if [[ $version = 2015 ]];then
+         export MPIDIR=$molproroot
+      fi
       ;;
 
    "GAUSSIAN" )
@@ -368,8 +374,8 @@ case "$program" in
       elif [[ $cluster = "a324" ]];then
         VERSIONS=( 6.6 )
       fi
-      NWCHEM[6.6-beta]=/home/hollas/programes/src/nwchem-6.6/
-      NWCHEM[6.6]=/usr/local/programs/custom/nwchem/nwchem-6.6/src
+      NWCHEM[6.6-beta]=$basedir_custom/nwchem/nwchem-6.6beta/src
+      NWCHEM[6.6]=$basedir_custom/nwchem/nwchem-6.6/src
 
       set_version
       if [[ $? -ne 0 ]];then
@@ -380,7 +386,7 @@ case "$program" in
       export nwchemroot=${NWCHEM[$version]}
       export NWCHEMEXE=$nwchemroot/bin/LINUX64/nwchem
       if [[ ! -d "/scratch/$USER/nwchem_scratch" ]];then
-         mkdir /scratch/hollas/nwchem_scratch
+         mkdir /scratch/$USER/nwchem_scratch
       fi
       if [[ ! -f "/home/$USER/.nwchemrc" ]];then
          cat > "/home/$USER/.nwchemrc" << EOF
