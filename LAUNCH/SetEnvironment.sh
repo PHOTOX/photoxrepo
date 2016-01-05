@@ -274,9 +274,9 @@ case "$program" in
 
    "ORCA" )
       VERSIONS=(3.0.3 3.0.2 3.0.0 )
-      ORCA[3.0.0]=$basedir/orca/orca_3_0_0_linux_x86-64_openmpi_1.6.5/
-      ORCA[3.0.2]=$basedir/orca/orca_3_0_2_linux_x86-64_openmpi_1.6.5/
-      ORCA[3.0.3]=$basedir/orca/orca-3.0.3_linux_x86-64_openmpi_1.6.5/
+      ORCA[3.0.0]=$basedir_custom/orca/orca_3_0_0_linux_x86-64_openmpi_165/
+      ORCA[3.0.2]=$basedir_custom/orca/orca_3_0_2_linux_x86-64_openmpi_165/
+      ORCA[3.0.3]=$basedir_custom/orca/orca_3_0_3_linux_x86-64_openmpi_165/
       set_version
       if [[ $? -ne 0 ]];then
          return 1
