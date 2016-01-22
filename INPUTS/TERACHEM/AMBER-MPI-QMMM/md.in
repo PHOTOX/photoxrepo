@@ -1,0 +1,32 @@
+gpr minimization step1, hold the protein fixed
+ &cntrl
+  imin   = 0,
+  cut    = 10.0,
+  maxcyc = 1,
+  ntmin  = 3,
+  ntb    = 0,
+  irest  = 0,  !Set to 1 to restart
+  ntx    = 1,  !Set to 5 when you need to restart equil run
+  ntpr   = 1, !print detials to log every step
+  ntwx   = 10, !write coordinates to mdcrd every step
+  ntwr   = 1, !write restart file every step
+  jfastw = 4,
+  ig     = -1, !random seed
+  ifqnt = 1,
+  nstlim = 5
+ /
+ &qmmm
+  qmcut     =  9999.9,
+  qmmask    = ':63 | (:62 & @C,O) | (:64 & @N,H)',
+  qmcharge = 0,
+  qmshake   = 0,
+  verbosity = 0,
+  qm_theory = 'EXTERN',
+/
+ &tc
+  use_template = 1,
+  mpi = 1,
+ /
+END
+END
+

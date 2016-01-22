@@ -1,0 +1,30 @@
+basis        6-31gs
+method        pbe0
+charge        2
+spinmult       1
+maxit         100
+xtol          1e-3
+threall       1e-12
+convthre      1.0e-6
+dftgrid        1
+gpus        1
+run         energy
+coordinates  formaldehyde.xyz
+
+#PCM related
+#most important keywords
+pcm            cosmo
+pcm_grid       iswig
+ss_pcm_solvation ground_neq
+sspcm_convthre   1e-6
+epsilon         78.39
+fast_epsilon    1.776
+pcm_read        /ABSOLUTE_PATH_TO/groundfield.bin
+
+#other PCM keywords (same as their default values. 
+#List explicitly here as examples of what could be specified
+pcmgrid_heavy   17
+pcmgrid_h       17
+pcm_radii       bondi
+cgprecond       blockjacobi
+end

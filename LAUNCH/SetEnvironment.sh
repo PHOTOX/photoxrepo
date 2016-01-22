@@ -184,7 +184,7 @@ case "$program" in
       AMBER[11-MPI]=/usr/local/programs/amber/amber11/sub/amber_mp_env.sh
       AMBER[12]=/usr/local/programs/common/amber/amber12/sub/amber_sp_env.sh
       AMBER[12-MPI]=/usr/local/programs/common/amber/amber12/sub/amber_mp_env.sh
-      AMBER[14]=/usr/local/programs/custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/
+      AMBER[14]=/usr/local/programs/custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/amber.sh
       AMBER[14-MPI]=${AMBER[14]}
       set_version
       if [[ $? -ne 0 ]];then
@@ -195,7 +195,7 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( dev debug amber )
+         VERSIONS=( dev debug )
       elif [[ $node = "a32" || $node = "a33" ]];then
          VERSIONS=( dev debug )
       elif [[ $node = "a25" ]];then
@@ -209,7 +209,6 @@ case "$program" in
       fi
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
       TERA[debug]=$basedir_custom/terachem/terachem-dev/build_debug
-      TERA[amber]=$basedir_custom/terachem/terachem-dev/build_amber
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       if [[ $version =~ de ]];then
@@ -327,11 +326,11 @@ case "$program" in
          VERSIONS=( 4.5.5 )
          GROMACSEXE=mdrun_d
       elif [[ $cluster = "as67gpu" ]];then
-         VERSIONS=(5.1, 5.1_GPU )
-         GROMACSEXE=gmx
+         VERSIONS=(5.1  5.1_GPU )
+         GROMACSEXE="gmx mdrun"
       else
          VERSIONS=(5.1)
-         GROMACSEXE=gmx
+         GROMACSEXE="gmx mdrun"
       fi
       set_version
       if [[ $? -ne 0 ]];then

@@ -1,0 +1,89 @@
+#$ -S /bin/bash
+#$ -cwd
+#$ -V
+#$ -l num_gpu=1
+#$ -q nq-gpu
+#$ -pe shm 1
+
+JOBNAME=TERAMBER_${JOB_ID}_$$
+delscratch=true
+AMBER="sander.MPI -O -i md.in -o Antb_min3.out -p Antb.prmtop -c Antb_min2.rst -ref Antb_init.rst -x Antb_min3.mdcrd -r Antb_min3.rst  -inf Antb_min3.info"
+
+
+SCRDIR=/scratch/$USER/$JOBNAME
+
+uname -n > job.log
+echo "$SCRDIR" >> job.log
+
+KDE=`pwd`
+
+if [[ -d $SCRDIR ]];then
+   echo "Job direcory $SCRDIR already exist!"
+   echo "Perhaps it's a leftover from some old job, you could probably delete it."
+   echo "Exiting..."
+   exit 1
+else
+   mkdir $SCRDIR
+fi
+
+
+cp -upr * $SCRDIR/.
+
+cd $SCRDIR
+
+export OMP_NUM_THREADS=1
+
+uname -a
+
+source SetEnvironment.sh TERACHEM dev
+MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
+export MPI_HOME=/home/hollas/programes/mpich-3.1.3/arch/x86_64-intel-2015-update5/
+export PATH=$MPI_HOME/bin:$PATH
+
+$MPIRUN -np 1 $TERAEXE --UseMPI=1 > tera.out &
+sleep 5
+# Get PID of the last process
+terapid=$!
+# Ugly workaround because MPI_Lookup does not work
+grep port_name: tera.out | awk '{print $6}' > port.txt
+
+
+source SetEnvironment.sh AMBER 14-MPI 
+export PATH=$TeraChem/bin/:$PATH
+TeraChem=$TeraChem/bin/
+
+$MPIRUN -np 1 $AMBER &
+amberpid=$!
+
+while true;do
+   sleep 30
+   if ! `ps|grep -q $terapid` && ! `ps|grep -q $amberpid` ;then
+      echo "Both AMBER and TeraChem stopped."
+      break
+   fi
+   if ! `ps|grep -q $terapid` ;then
+      echo "Terachem died. Killing AMBER."
+      kill -9 $amberpid 
+      break
+   fi   
+   if ! `ps|grep -q $amberpid` ;then
+      echo "AMBER died. Killing TeraChem."
+      kill -9 $terapid 
+      break
+   fi
+done
+
+cp -upr * $KDE/.
+if [[ $? -ne "0" ]];then
+   echo "Error when copying the data from scratch back to the server."
+   echo "I will keep the directory $SCRDIR on node:"
+   uname -a
+   exit 1
+fi
+
+cd ..
+
+if [[ $delscratch -eq "true" ]];then
+   rm -r $JOBNAME
+fi
+

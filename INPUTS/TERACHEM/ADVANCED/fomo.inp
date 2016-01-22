@@ -12,6 +12,6 @@ casci          yes
 cassinglets    5
 coordinates	methaniminium.xyz
 units 		angstrom
-gpus		1  0
+gpus		1
 run 		energy
 end

@@ -1,0 +1,27 @@
+basis        6-31gs
+method       pbe0
+charge        0
+spinmult       1
+maxit         100
+xtol          1e-3
+threall       1e-12
+convthre      1.0e-6
+dftgrid        1
+gpus        1
+run         energy
+nstep       100
+coordinates  formaldehyde.xyz
+
+pcm          cosmo
+pcm_grid        iswig
+pcmgrid_heavy   17
+pcmgrid_h       17
+epsilon         78.39
+pcm_radii       bondi
+cosmo_rad_scale 1.2
+solvent_radius  0
+dynamiccg       3
+cgprecond       blockjacobi3
+cgblocksize     100
+pcm_read        /ABSOLUTE_PATH_TO/groundfield.bin
+end

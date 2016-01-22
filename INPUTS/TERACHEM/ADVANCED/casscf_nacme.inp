@@ -1,0 +1,25 @@
+basis 		6-31g
+charge   	1	
+spinmult	1
+method 		rhf
+timings         yes
+coordinates	methaniminium.xyz
+units 		angstrom
+gpus		1
+
+## CASSCF definition
+
+# Active space definition
+# Beware, active is number of active orbitals
+# This is different from usual MOLPRO definition
+casscf          yes
+cassinglets    5
+closed         2
+active         8
+
+# Defition of states for which we calculate couplings
+# BEWARE: numbering of states starts at 0!
+nacstate1      0
+nacstate2      2
+run 		coupling
+end
