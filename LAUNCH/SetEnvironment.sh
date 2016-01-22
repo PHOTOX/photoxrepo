@@ -281,6 +281,7 @@ case "$program" in
          return 1
       fi
       orcaroot=${ORCA[$version]}
+      export PATH=$orcaroot/:$PATH
       export ORCAEXE=$orcaroot/orca
       if [[ $cluster = "as67" ]];then
          source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
