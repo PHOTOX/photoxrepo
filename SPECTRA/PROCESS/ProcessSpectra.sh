@@ -53,14 +53,11 @@ do
 
    file=$name.$i.$filesuffix
 
-   if  [[ -f $file ]];then
+   $grep_function "$file" $name.rawdata.dat $states
 
-      $grep_function $file $name.rawdata.dat $states
-
-      if [[ $? -eq "0" ]];then
-         let samples++
-         echo -n "$i "
-      fi
+   if [[ $? -eq "0" ]];then
+      let samples++
+      echo -n "$i "
    fi
 
    let i++

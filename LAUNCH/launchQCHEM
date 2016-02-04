@@ -2,7 +2,7 @@
 
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchQC input.com queue [mpi|shm] [nproc]' "
+   echo "USAGE: 'launchQC input.com queue [mpi|openmp] [nproc]' "
    exit 1
 }
 
@@ -14,7 +14,7 @@ fi
 
 input=$1
 queue=$2
-para_type=shm
+para_type=openmp
 nproc=1
 
 if [[ ! -e "$input" ]];then
@@ -26,11 +26,12 @@ if [[ ! -z $3 ]];then
 
   if [[ "$3" = "mpi" ]];then
      para_type=mpi
-  elif [[ "$3" = "shm" ]];then
-     para_type=shm
+  elif [[ "$3" = "openmp" ]];then
+     para_type=openmp
   else
      echo "Error in the third parameter: $3."
-     echo "It should be either \"mpi\" or \"shm\"."
+     echo "It should be either \"mpi\" or \"openmp\"."
+     echo "Check the QCHEM manual and decide which type of parallelization is necessary for your method. "
      PrintHelp
   fi
 
@@ -63,6 +64,10 @@ EOF
 
 echo "Launching QCHEM job."
 echo "$nproc proccesors will be used." 
+
+if [[ $para_type = "openmp" ]];then
+   para_type=shm
+fi
 
 echo "qsub -cwd -q $queue -pe $para_type $nproc r.$input"
 qsub -cwd -q $queue -pe $para_type $nproc r.$input
