@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # First, determine where we are. 
 node=$(uname -a | awk '{print $2}' )
 if [[ "$node" =~ ^s[0-9]+$|as67-1 ]];then
@@ -27,8 +28,7 @@ function PrintHelp {
       echo "For the development version, use \"dev\" as the third parameter."
    elif [[ $cluster = "as67gpu" ]];then
       echo "nq-gpu"
-      echo "Only development version is available on this cluster,"
-      echo "so please specify \"dev\" as a third parameter."
+      echo "Only development version is available on this cluster."
    fi
    exit 1
 }
@@ -49,22 +49,15 @@ fi
 
 input=$1
 version=$3
-if [[ -z $version ]];then
-   version=1.5K
-fi
 
 if [[ -z $2 ]];then
-	echo "GPU queue not specified."
-        error=1
+   echo "GPU queue not specified."
+   error=1
 fi
 
 queue=$2
 
-#if [[ $queue =~ ^m2090|^gtx690|^titan|^nq-gpu|^gtx970 ]];then
-# DH hack, gtx970 now does not work
-if [[ $queue =~ ^m2090|^gtx690|^titan|^nq-gpu ]];then
-   echo 
-else
+if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
    echo "$queue is not a valid GPU queue."
    error=1
 fi
@@ -75,7 +68,7 @@ fi
 #   error=1
 #fi
 
-if [[ "$queue" =~ ^gtx970 && "$3" =~ ^1.5 ]];then
+if [[ "$queue" =~ ^gtx970 && ! "$version" =~ ^de ]];then
    echo "You need to use development version of TeraChem on GTX970 cards."
    echo "Provide the "dev" parameter or use differrent queue."
    echo "Exiting..."
@@ -172,15 +165,10 @@ TERA $input $3
 EOF
 
 
-if [[ $HOSTNAME = "403-as67-01" ]];then
-
-   echo "qsub -V -cwd -q nq-gpu -l num_gpu=1 -pe shm $numgpus r.$1"
-   qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
-
-else
-
-   echo "qsub -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1"
-   qsub  -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1
-
+if [[ ! $queue =~ \-gpu ]];then
+   queue=aq-gpu-$queue
 fi
+
+echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1"
+qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
 

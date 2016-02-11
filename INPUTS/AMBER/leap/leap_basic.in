@@ -1,0 +1,24 @@
+# Load full amber force field for biomolecules
+source leaprc.ff12SB
+
+# Load parameters for water
+spceion = loadamberparams frcmod.ionsjc_spce
+
+# Define water to be qSPC/Fw, see manual for other water FF
+WAT=SPG
+loadAmberParams frcmod.qspcfw
+
+# Set water to be flexible
+set default FlexibleWater on
+
+# Load input pdb
+TP = loadpdb liclwat4.pdb
+check TP
+
+# Save Amber topology and parameters
+saveAmberParm TP input.top input.crd
+
+# Save new pdb (needed for ABIN)
+savepdb TP input.pdb
+quit
+
