@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/home/slavicek/G03/gaussian09/a02/g09/formchk $1.chk
+/home/slavicek/G03/gaussian09/a02/g09/cubegen 0 spin=scf $1.fchk $1.cube 0 h
