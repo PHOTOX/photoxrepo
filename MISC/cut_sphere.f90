@@ -1,7 +1,8 @@
 !# cut_sphere           D. Hollas, 2014
 !- Program for cutting solvent molecules around the solute
 !  from an xyz file.
-!- It assumes, that the solute atoms are the first atoms in the file.
+
+!- It assumes that the solute atoms are the first atoms in the file.
 !- The coordinates are read from standard input.
 !- See help in subroutine PrintHelp().
 
@@ -19,28 +20,29 @@
 
 program cut_sphere
    implicit none
-   integer, parameter :: maxatom=10000
-   character(len=2)   :: at(maxatom)
+   integer, parameter :: MAXATOM=10000
+   character(len=2)   :: at(maxatom),at_temp(MAXATOM)
    real*8    :: x(maxatom), y(maxatom), z(maxatom)
-   real*8    :: vx(maxatom), vy(maxatom), vz(maxatom)
+   real*8    :: x_temp(maxatom), y_temp(maxatom), z_temp(maxatom)
    real*8    :: rmin(maxatom),r(maxatom,maxatom), rmolmin(maxatom)
    integer   :: index(maxatom),index_rev(maxatom)
    integer   :: natmol=3, nmol=-1, nsolute=-1, atidx=-1
    integer   :: nmoltotal, natom
    real*8    :: rad=-1
-   logical   :: lcom=.false., ltrans=.false., lvel=.false.
+   logical   :: lcom=.false., ltrans=.false., lref=.false.
    integer   :: i, j, iat, imol, idx
-   real*8    :: xt, yt, zt
-   character(len=100) :: chjunk, chveloc
+   real*8    :: xt, yt, zt, get_distance, box(3)
+   character(len=100) :: chjunk, chref
+
+   box(1)=-1; box(2)=-1; box(3)=-1;
 
 
-   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel, chveloc)
+   call Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lref, chref, box)
 
    read(*,*)natom
-   write(*,*)'Total number of atoms:', natom
    if(natom.gt.maxatom)then
       write(*,*)'ERROR: number of atoms is greater than maximum.'
-      write(*,*)'Adjust parameter maxatom and recompile'
+      write(*,*)'Adjust parameter MAXATOM and recompile'
       stop 1
    end if
 
@@ -48,6 +50,29 @@ program cut_sphere
    do i=1,natom
       read(*,*)at(i),x(i),y(i),z(i)
    enddo
+
+   ! When using reference geometry (e.g. if we are "cutting" velocities)
+   if(lref)then
+      at_temp=at
+      x_temp=x
+      y_temp=y
+      z_temp=z
+      open(500, file=chref,access="sequential",action="read")
+      read(500,*)i
+      if(i.ne.natom)then
+         write(*,*)"ERROR: Number of atoms in reference and input files do not match!"
+         stop 1
+      end if
+
+      read(500,*)
+      do i=1,natom
+         read(500,*)at(i),x(i),y(i),z(i)
+         if(at(i).ne.at_temp(i))then
+            write(*,*)"ERROR: Incompatible atom types!",at(i),at_temp(i),"Line:",i
+         end if
+      enddo
+
+   end if
 
    if (lcom.or.ltrans)then
       xt=0.0
@@ -61,18 +86,8 @@ program cut_sphere
       xt=xt/nsolute
       yt=yt/nsolute
       zt=zt/nsolute
-      write(*,*)'Coordinates of the geometrical center.'
+      write(*,*)'Coordinates of the geometrical center of the solute.'
       write(*,*)xt, yt, zt
-   end if
-
-   if (ltrans)then
-      write(*,*)'Translating the molecule to the origin.'
-      do iat=1,natom
-         x(iat)=x(iat)-xt
-         y(iat)=y(iat)-yt
-         z(iat)=z(iat)-zt
-      end do
-      xt=0.0d0; yt=0.0d0; zt=0.0d0
    end if
 
    if(atidx.gt.0)then
@@ -82,33 +97,46 @@ program cut_sphere
       write(*,*)'Coordinates of the atom around which we cut:'
       write(*,*)xt, yt, zt
    end if
+
+   if (ltrans.or.box(1).gt.0)then
+      write(*,*)'Origin of coordinates will be a:'
+      write(*,*)xt, yt, zt
+      write(*,*)'Translating the molecule to the origin.'
+      do iat=1,natom
+         x(iat)=x(iat)-xt
+         y(iat)=y(iat)-yt
+         z(iat)=z(iat)-zt
+      end do
+      xt=0.0d0; yt=0.0d0; zt=0.0d0
+   end if
+
  
 
-! determine the closest distance of every solvent atoms to solute
-! based on all atoms in the solute
-if(.not.lcom.and.atidx.lt.0)then
-   do i=nsolute+1,natom
-      rmin(i)=10000d0
-      do j=1,nsolute
-         r(i,j)=(x(i)-x(j))**2+(y(i)-y(j))**2+(z(i)-z(j))**2 
-         r(i,j)=dsqrt(r(i,j))
-         if(r(i,j).lt.rmin(i))then
-            rmin(i)=r(i,j)
-         endif
+!  Determine the closest distance of every solvent atoms to solute
+!  based on all atoms in the solute
+   if(.not.lcom.and.atidx.lt.0)then
+      do i=nsolute+1,natom
+         rmin(i)=100000d0
+         do j=1,nsolute
+            r(i,j) = get_distance(x(j), y(j), z(j), x(i), y(i), z(i), box)
+!            r(i,j)=(x(i)-x(j))**2+(y(i)-y(j))**2+(z(i)-z(j))**2 
+!            r(i,j)=dsqrt(r(i,j))
+            if(r(i,j).lt.rmin(i))then
+               rmin(i)=r(i,j)
+            endif
+         enddo
       enddo
-   enddo
-end if
-
-! determine the distances to the geometrical center
-! or to atom with index atidx
+   end if
+    
+!  Determine the distances to the geometrical center
+!  or to an atom with index atidx
    if(lcom.or.atidx.gt.0)then
       do i=nsolute+1,natom
-         rmin(i)=(x(i)-xt)**2+(y(i)-yt)**2+(z(i)-zt)**2 
-         rmin(i)=dsqrt(rmin(i))
+         rmin(i) = get_distance(xt, yt, zt, x(i), y(i), z(i), box)
       enddo
    end if
 
-! total number of molecules
+!  total number of solvent molecules
    nmoltotal=(natom-nsolute)/natmol
 
 !  Now we have to determine, which atom in each molecule is closest
@@ -135,6 +163,10 @@ end if
       write(*,*)'is', nmol
    end if
 
+! Center the solvent molecules around solute if PBC
+  if(box(1).gt.0) call solvent2box(x, y, z, box, nsolute, nmoltotal, natmol, MAXATOM)
+     
+
 ! Here's where the index ordering happens.
 ! ###############################################
    do i=1,nmoltotal
@@ -151,6 +183,14 @@ end if
       enddo
       index_rev(index(i))=i
    enddo
+
+!  Move input coordinates back in place 
+!  instead of reference geometry
+   if(lref)then
+      x=x_temp
+      y=y_temp
+      z=z_temp
+   end if
        
 
 !  WRITE THE RESULTS----------------------
@@ -184,41 +224,17 @@ end if
 
    close(150)
 
-   ! Now, get the velocities from veloc.in to veloc.out
-   ! To be used with script create_trajectories.sh
-   if(lvel)then
-   open(150,file=chveloc, action='read', status="old")
-   read(150,'(A23)')chjunk
-   do iat=1,natom
-      read(150,*)vx(iat),vy(iat),vz(iat)
-   end do
-   close(150)
-   
-   open(150,file='veloc.out', action='write')
-   write(150,*)chjunk
-   ! first write solute
-   do idx=1,nsolute
-      write(150,*)vx(idx),vy(idx),vz(idx)
-   end do
-   ! now write ordered solvent molecules
-   do imol=1,nmol
-      do iat=1,natmol
-         idx=nsolute+(index_rev(imol)-1)*natmol+iat
-         write(150,*)vx(idx),vy(idx),vz(idx)
-      enddo
-   enddo
-   close(150)
-   end if
-
 end
 
-subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lvel, chveloc)
+subroutine Get_cmdline(natmol, nmol, nsolute, rad, lcom, atidx, ltrans, lref, chref, box)
 implicit none
-real*8,intent(inout)    :: rad
+real*8,intent(inout)    :: rad, box(3)
 integer, intent(inout)  :: natmol, nmol, nsolute, atidx
-logical, intent(inout)  :: lcom, ltrans, lvel
-character(len=100)      :: arg, chveloc
+logical, intent(inout)  :: lcom, ltrans, lref
+character(len=*), intent(out) :: chref
+character(len=100)      :: arg
 integer                 :: i
+real*8                  :: distmax
 
 i=0
 do while (i < command_argument_count())
@@ -266,14 +282,24 @@ do while (i < command_argument_count())
     endif
   case ('-com')
     lcom=.true.
-  case ('-vel')
-    lvel=.true.
+  case ('-ref')
+    lref=.true.
     i=i+1
     call get_command_argument(i, arg)
-    read(arg,'(A)')chveloc
-    write(*,*)'Using file '//trim(chveloc)//' for velocities.'
+    read(arg,'(A)')chref
+    write(*,*)'Using reference file '//trim(chref)
   case ('-trans')
     ltrans=.true.
+  case ('-box')
+    i=i+1
+    call get_command_argument(i, arg)
+    read(arg,*)box(1)
+    i=i+1
+    call get_command_argument(i, arg)
+    read(arg,*)box(2)
+    i=i+1
+    call get_command_argument(i, arg)
+    read(arg,*)box(3)
   case default
     call PrintHelp()
     write(*,*)'Invalid command line argument!'
@@ -313,8 +339,106 @@ end do
      lcom=.true.
   end if
 
+  ! Check size of the box
+  if(box(1).gt.0)then
+     distmax=100000
+     do i=1,3
+        if(box(i).lt.distmax) distmax = box(i)
+     end do
+     distmax = distmax / 2.0d0
+
+     if(.not.lcom.and.atidx.le.0)then
+        write(*,*)'ERROR: PBC not supported with this setting.'
+        write(*,*)'Please set -com or -i options.'
+        stop 1
+     end if
+  end if
+
+  if(rad.gt.0.and.box(1).gt.0)then
+     if(rad.gt.distmax)then
+        write(*,*)'Error: Radius is bigger that half size of the box!'
+     end if
+  end if
 
 end subroutine Get_cmdline
+
+real*8 function get_distance(x1, y1, z1, x2, y2, z2, box)
+   implicit none
+   real*8,intent(in)  :: x1, y1, z1
+   real*8,intent(inout)  :: x2, y2, z2
+   real*8,intent(in)  :: box(3)
+!   real*8,optional,intent(in)  :: box(3)
+   real*8  :: dx, dy, dz, temp
+
+   dx = x1 - x2
+   dy = y1 - y2
+   dz = z1 - z2
+
+!   if (present(box))then
+     if (box(1).gt.0)then
+        dx = dx - box(1) * nint(dx/box(1))
+        dy = dy - box(2) * nint(dy/box(2))
+        dz = dz - box(3) * nint(dz/box(3))
+      end if
+!   end if
+   
+   temp = dx*dx + dy*dy + dz*dz
+   temp = dsqrt(temp)
+   get_distance = temp
+   return 
+
+end function
+
+! WARNING: this code works only if -com or -i are set 
+! We expect that the molecules have been translated to the center of origin
+subroutine solvent2box(x, y, z, box, nsolute, nmoltotal, natmol,maxatom)
+implicit none
+real*8,intent(inout) :: x(maxatom), y(maxatom), z(maxatom)
+real*8,intent(in)    :: box(3)
+integer,intent(in)   :: nsolute, nmoltotal, natmol, maxatom
+real*8   :: dx, dy, dz, temp
+integer  :: imol, iat, idx
+real*8   :: shiftx, shifty, shiftz, pom
+real*8, parameter    :: epsilon=0.000001d0
+
+
+do imol=1, nmoltotal
+
+   shiftx=0.0d0 ; shifty=0.0d0 ; shiftz=0.0d0
+!  First determine, whether we shift in given direction
+   do iat=1,natmol
+      idx = nsolute + (imol-1)*natmol+iat
+      pom = nint(x(idx)/box(1)) * box(1)
+      if(abs(pom).gt.abs(shiftx)) shiftx = pom
+      pom = nint(y(idx)/box(2)) * box(2)
+      if(abs(pom).gt.abs(shifty)) shifty = pom
+      pom = nint(z(idx)/box(3)) * box(3)
+      if(abs(pom).gt.abs(shiftz)) shiftz = pom
+   end do
+
+!  Shift solvent molecules as a whole!!
+   if(abs(shiftx).gt.epsilon)then
+     do iat=1,natmol
+         idx = nsolute + (imol-1)*natmol+iat
+         x(idx) = x(idx) - shiftx
+     end do
+   end if
+   if(abs(shifty).gt.epsilon)then
+     do iat=1,natmol
+         idx = nsolute + (imol-1)*natmol+iat
+         y(idx) = y(idx) - shifty
+     end do
+   end if
+   if(abs(shiftz).gt.epsilon)then
+     do iat=1,natmol
+         idx = nsolute + (imol-1)*natmol+iat
+         z(idx) = z(idx) - shiftz
+     end do
+   end if
+
+end do
+
+end subroutine
 
 subroutine PrintHelp()
 implicit none
@@ -325,9 +449,9 @@ implicit none
     print '(a)', ''
     print '(a)', 'There are 3 ways how to determine the distance of solvent to solute.'
     print '(a)', '  1. Closest distance between ANY solvent atom and ANY solute atom.'
-    print '(a)', '     This is the default if we want specific number of solvent molecules.'
+    print '(a)', '     This is the default if you want specific number of solvent molecules.'
     print '(a)', '  2. Distance is determined relative to the geometrical center of the solute.'
-    print '(a)', '     This is the default if we cut specific radius. (option -com)'
+    print '(a)', '     This is the default if you cut specific radius. (option -com)'
     print '(a)', '  3. Distance is determined relative to one specific atom of the solute.'
     print '(a)', '     (option -i idx)'
     print '(a)', ''
@@ -347,8 +471,9 @@ implicit none
     print '(a)', '                   This is the default if -r is specified.'
     print '(a)', '  -trans           Translate the molecule so that the &
                   coordinates of geometrical center are (0, 0, 0).'
-    print '(a)', '  -vel <file_name> Cut also velocities from "file_name". '
-    print '(a)', '                   The order of atoms must be the same! Useful for ABIN simulations.'
+    print '(a)', '  -ref <file_name> Use reference geometry to determine atomic distances.'
+    print '(a)', '                   Useful when you need to "cut" velocities.'
+    print '(a)', '  -box <size_x size_y size_z>  Dimensions of periodic boundary box.'
 end subroutine PrintHelp
 
 subroutine PrintInputError()
