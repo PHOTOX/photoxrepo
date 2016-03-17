@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # First, determine where we are. 
 node=$(uname -a | awk '{print $2}' )
 if [[ "$node" =~ ^s[0-9]+$|as67-1 ]];then
@@ -47,9 +48,6 @@ fi
 
 input=$1
 version=$3
-if [[ -z $version ]];then
-   version=1.5K
-fi
 
 if [[ -z $2 ]];then
    echo "GPU queue not specified."
@@ -58,14 +56,12 @@ fi
 
 queue=$2
 
-if [[ $queue =~ ^m2090|^gtx690|^titan|^nq-gpu|^gtx970 ]];then
-   echo 
-else
+if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
    echo "$queue is not a valid GPU queue."
    error=1
 fi
 
-if [[ "$queue" =~ ^gtx970 && "$version" =~ ^1.5 ]];then
+if [[ "$queue" =~ gtx970 && "$version" =~ ^1.5 ]];then
    echo "You need to use development version of TeraChem on GTX970 cards."
    echo "Provide the "dev" parameter or use differrent queue."
    echo "Exiting..."
@@ -162,15 +158,10 @@ TERA $input $3
 EOF
 
 
-if [[ $HOSTNAME = "403-as67-01" ]];then
-
-   echo "qsub -V -cwd -q nq-gpu -l num_gpu=1 -pe shm $numgpus r.$1"
-   qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
-
-else
-
-   echo "qsub -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1"
-   qsub  -V -cwd -q aq-gpu-$queue -l num_gpu=1 -pe shm $numgpus r.$1
-
+if [[ ! $queue =~ \-gpu ]];then
+   queue=aq-gpu-$queue
 fi
+
+echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1"
+qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
 

@@ -5,6 +5,7 @@
 # This script should work for all PHOTOX clusters.
 
 # TODO: move dftb, g09,cp2k and other to custom_dir
+export PHOTOX=/usr/local/programs/custom/PHOTOX
 
 program=$1
 # Optional second parameter
@@ -70,11 +71,11 @@ else
 fi
 
 if [[ $cluster = "as67" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER )
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER)
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER)
 fi
 
 basedir=/usr/local/programs
@@ -104,10 +105,25 @@ if [[ $available = "False" ]];then
 fi
 
 # declaration of associative BASH arrays
-declare -A NWCHEM GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
+declare -A ABIN NWCHEM GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
 
 
 case "$program" in
+   "ABIN" )
+      VERSIONS=(1.0 1.0-mpi 1.0-cp2k)
+      if [[ ! set_version ]];then
+         return 1
+      fi
+      abinroot=$PHOTOX/bin
+      ABIN[1.0]=$abinroot/abin.v1.0
+      ABIN[1.0-mpi]=$abinroot/abin.v1.0-mpi
+      ABIN[1.0-cp2k]=$abinroot/abin.v1.0-cp2k
+
+      export ABINEXE=${ABIN[$version]}
+      if [[ $version = 1.0-mpi ]];then
+         export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+      fi
+      ;;
    "MOLPRO" )
       if [[ $cluster = "as67gpu" ]];then
          VERSIONS=( 2012 2015 )
@@ -180,11 +196,11 @@ case "$program" in
          # Version 14 is only AmberTools15 (Containing Sander)
          VERSIONS=( 12 12-MPI 14 14-MPI)
       fi
-      AMBER[11]=/usr/local/programs/amber/amber11/sub/amber_sp_env.sh
-      AMBER[11-MPI]=/usr/local/programs/amber/amber11/sub/amber_mp_env.sh
-      AMBER[12]=/usr/local/programs/common/amber/amber12/sub/amber_sp_env.sh
-      AMBER[12-MPI]=/usr/local/programs/common/amber/amber12/sub/amber_mp_env.sh
-      AMBER[14]=/usr/local/programs/custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/amber.sh
+      AMBER[11]=$basedir/amber/amber11/sub/amber_sp_env.sh
+      AMBER[11-MPI]=$basedir/amber/amber11/sub/amber_mp_env.sh
+      AMBER[12]=$basedir_custom/amber/amber12/sub/amber_sp_env.sh
+      AMBER[12-MPI]=$basedir_custom/amber/amber12/sub/amber_mp_env.sh
+      AMBER[14]=$basedir_custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/amber.sh
       AMBER[14-MPI]=${AMBER[14]}
       set_version
       if [[ $? -ne 0 ]];then
@@ -221,7 +237,7 @@ case "$program" in
       if [[ $version != "1.5" && $version != "1.5K" ]];then
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
          export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
-         export TERAEXE=$TeraChem/bin/terachem
+         export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
       elif [[ $version = "1.5K" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
       elif [[ $version = "1.5" ]];then

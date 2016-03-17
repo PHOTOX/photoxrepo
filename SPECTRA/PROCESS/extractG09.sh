@@ -125,6 +125,40 @@ function grep_G09ioniz_exc {
    return 0
 }
 
+function grep_G09ECD {
+   local in=$1
+   local numstates=$3
+   local out=$2
+
+   checkG09 $in
+   if [[ "$?" -ne "0" ]];then
+      return 1
+   fi
+
+grep  -e 'Excited State' -e '       state          XX          YY          ZZ     R(length)' -A 40 mol1_dftb.8.log  | \
+   awk -v numstates=$numstates 'BEGIN{
+        i=1}
+        {
+        if ($1 == "Excited" && $2 == "State" ) {
+                en[i]=$5
+                i++
+        }
+        if ($1 == "state") {
+                for (k=1;k<=numstates;k++) {
+                        getline
+                        rotlength[k]=$5
+                }
+        }
+        }
+        END{
+        for (i=1; i<=numstates; i++) {
+                print en[i]
+                print rotlength[i]
+        }
+        }' >> $out
+   return 0
+}
+
 # Private functions, should not be called from outside
 
 function checkG09 {
