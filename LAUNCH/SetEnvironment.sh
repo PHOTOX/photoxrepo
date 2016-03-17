@@ -16,7 +16,7 @@ fi
 
 node=$(uname -a | awk '{print $2}' )
 
- function print_help {
+function print_help {
    echo "USAGE: source SetEnvironment.sh PROGRAM [VERSION]"
    echo ""
    echo "Available programs are:"
@@ -24,7 +24,7 @@ node=$(uname -a | awk '{print $2}' )
    echo "${PROGRAMS[@]}" 
    echo " " 
    echo "To find out all available versions of a given PROGRAM, type:"
-   echo "SetEnvironment.sh PROGRAM --versions"
+   echo "SetEnvironment.sh PROGRAM -ver"
    echo "Exiting..."
    return 0
 }
@@ -44,7 +44,7 @@ function set_version {
    fi
 
    # print available versions if user requests illegal version
-   if [[ $ver != "--versions" ]];then
+   if [[ "$version" != "-ver" ]];then
       echo 1>&2 "Version $version is not available!" 
    fi
 
@@ -52,7 +52,7 @@ function set_version {
    for vers in ${VERSIONS[@]};do
       echo 1>&2  $vers
    done
-   echo ""
+#   echo ""
    return 1
 }
 
@@ -195,13 +195,13 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( dev debug )
+         VERSIONS=( dev debug bhand trunk )
       elif [[ $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( dev debug )
+         VERSIONS=( dev debug bhand trunk )
       elif [[ $node = "a25" ]];then
-         VERSIONS=( 1.5K 1.5 dev debug)
-      else
-         VERSIONS=( 1.5K dev debug )
+         VERSIONS=( 1.5K 1.5 dev debug bhand trunk )
+      elif [[ $cluster = "a324" ]];then
+         VERSIONS=( 1.5K dev debug bhand trunk )
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -209,6 +209,7 @@ case "$program" in
       fi
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
       TERA[debug]=$basedir_custom/terachem/terachem-dev/build_debug
+      TERA[bhand]=$basedir_custom/terachem/terachem-dev/build_bhand
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       if [[ $version =~ de ]];then
@@ -217,7 +218,7 @@ case "$program" in
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export NBOEXE=$TeraChem/nbo6.exe
-      if [[ $version = "dev" || $version = "debug" ]];then
+      if [[ $version != "1.5" && $version != "1.5K" ]];then
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
          export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export TERAEXE=$TeraChem/bin/terachem

@@ -2,7 +2,7 @@
 if [ -z $1 ];then
 	echo "No input file specified. Exiting..."
 	echo "Call as: $0 input.com [version]"
-        echo "where version is 1.5K or dev."
+        . SetEnvironment.sh TERACHEM -ver
 	exit 1
 fi
 
@@ -11,8 +11,13 @@ if [[ ! -e "$1" ]];then
 fi
 
 CUR_DIR=$(pwd)
-numgpus=$(grep gpus $1 | grep -v '#'  | head -1 | awk '{print $2}')
-coord=$(grep coordinates $1 | grep -v '#' | grep -v 'min_coordinates' | head -1 |   awk '{print $2}')
+inp=$1
+# [[:blank:]]+ matches also tabs 
+#numgpus=$(egrep -e '^[[:blank:]]*gpus[[:blank:]]+' $1 | head -1 | awk '{print $2}')
+
+# This could all be done more nicely using awk only
+numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $inp)
+coord=$(awk '{if ($1=="coordinates") {print $2;exit 0}}' $inp)
 if [ -z $numgpus ];then
 	echo "Number of gpus not specified. Exiting..."
 	echo "Set variable "gpus" in $1"
@@ -24,9 +29,8 @@ if [ ! -e $coord ];then
 	echo "Set variable "coordinates" in $1"
 	exit 1
 fi
-
 coord_name=$(basename $coord)
-coord_mm=$(grep qmmm $1 | grep -v '#' | head -1 | awk '{print $2}')
+coord_mm=$(awk '{if ($1=="qmmm") {print $2;exit 0}}' $inp)
 if [[ ! -z $coord_mm ]];then
    coord_mm_name=$(basename $coord_mm)
    if [[ ! -e $coord_mm ]];then
@@ -35,9 +39,9 @@ if [[ ! -z $coord_mm ]];then
       exit 1
    fi
 fi
-guess1=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $2}' )
-guess2=$(grep guess $1 | grep -v '#' | tail -1 | awk '{print $3}' )
-plumed=$(grep plumedfile $1 | grep -v '#' | tail -1 | awk '{print $2}' )
+guess1=$(awk '{if ($1=="guess") {print $2;exit 0}}' $inp)
+guess2=$(awk '{if ($1=="guess") {print $3;exit 0}}' $inp)
+plumed=$(awk '{if ($1=="plumedfile") {print $2;exit 0}}' $inp)
 
 
 if [[ ! -z "$guess1" ]];then
@@ -63,7 +67,7 @@ if [[ ! -z "$plumed" ]];then
    fi
 fi
 
-scrdir=$(grep scrdir $1 | grep -v '#' | head -1 | awk '{print $2}')
+scrdir=$(awk '{if ($1=="scrdir") {print $2;exit 0}}' $inp)
 #- All clear, let's go.
 
 version=$2
@@ -93,6 +97,8 @@ if [[ -z $scrdir ]];then
    
    if [[ ! -z "$guess1" ]];then
       cp $guess1 $scrdir
+      echo $?
+      echo $guess1
       if [[ ! -z "$guess2" ]];then
          cp $guess2 $scrdir
          echo "guess $scrdir/ca $scrdir/cb" >> $scrdir/$1
@@ -100,16 +106,15 @@ if [[ -z $scrdir ]];then
          echo "guess $scrdir/c0"     >> $scrdir/$1
       fi
    fi
-   grep min_coordinates $1 >> $scrdir/$1
-   grep -v -e "coordinates" -e "qmmm " -e "guess " $1 >> $scrdir/$1
+   egrep -v -e "^[[:blank:]]*coordinates[[:blank:]]+" -e \
+      '^[[:blank:]]*qmmm[[:blank:]]+' -e '^[[:blank:]]*guess[[:blank:]]+' $1 >> $scrdir/$1
    echo "end" >> $scrdir/$1
    cd $scrdir
 
-#elif [ -e $scrdir ];then
-#	echo "WARNING: Scratch directory specified in $1 already exists!"
-#	echo "Please, remove it or change its name." 
-#	echo "Exiting...." 
-#	exit 1
+elif [ -e $scrdir ];then
+   echo "WARNING: Scratch directory specified in $1 already exists!"
+   echo "It's content will be rewritten." 
+   copyback=false
 else
    copyback=false
 fi
