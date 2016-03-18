@@ -34,27 +34,20 @@ function PrintHelp {
 
 if [[ $1 =~ -h ]];then
    PrintHelp
-fi
-
-if [[ -z $1 ]];then
+elif [[ -z $1 ]];then
    echo "Input file not specified. Exiting..."
    PrintHelp
-fi
-
-if [[ ! -e "$1" ]];then
+elif [[ ! -e "$1" ]];then
    echo "Input file $1 does not exist. Exiting..."
+   PrintHelp
+elif [[ -z $2 ]];then
+   echo "GPU queue not specified."
    PrintHelp
 fi
 
 input=$1
-version=$3
-
-if [[ -z $2 ]];then
-   echo "GPU queue not specified."
-   error=1
-fi
-
 queue=$2
+version=$3
 
 if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
    echo "$queue is not a valid GPU queue."
@@ -64,81 +57,63 @@ fi
 if [[ "$queue" =~ gtx970 && "$version" =~ ^1.5 ]];then
    echo "You need to use development version of TeraChem on GTX970 cards."
    echo "Provide the "dev" parameter or use differrent queue."
-   echo "Exiting..."
-   exit 1
+   error=1
 fi
 
 
 
-numgpus=$(grep gpus  $1 | grep -v '#' | head -1 |  awk '{printf"%i",$2}')
+numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $input)
+
+declare -A file file2 gpumax
+gpucards=( m2090 gtx690 gtx970 titan nq-gpu )
+gpumax[aq-gpu-m2090]=2
+gpumax[aq-gpu-gtx690]=4
+gpumax[aq-gpu-gtx970]=2
+gpumax[aq-gpu-titan]=4
+gpumax[nq-gpu]=4
+
+if [[ ! $queue =~ \-gpu ]];then
+   queue=aq-gpu-$queue
+fi
 
 if [[ -z $numgpus ]];then
    echo "Number of gpus not specified. Exiting..."
    echo "Please, set variable \"gpus\" in $1 ."
-   exit 1
+   error=1
+elif [[ "$numgpus" -gt ${gpumax[$queue]} ]];then
+   echo "Maximum number of gpus for queue $queue is ${gpumax[$queue]}."
+   echo "Please, adjust variable gpu in your input file."
+   echo "Job not submitted."
    error=1
 fi
 
-if [[ $numgpus -gt 2 ]] &&  [[ $2 = "m2090" ]];then
-   echo "Maximum number of gpus for m2090 cards is 2."
-   echo "Job not submitted. Exiting..."
-   exit 1
-   error=1
-fi
 
-if [[ $numgpus -gt 4 && $2 = "gtx690"  ]];then
-   echo "Maximum number of gpus for gtx690 cards is 4."
-   echo "Job not submitted. Exiting..."
-   error=1
-fi
+keyfiles=( coordinates qmmm guess plumedfile pcm_read fon_guess \
+  pcm_radii_file restartmd casguess )
 
-if [[ $numgpus -gt 2 && $2 =~ $gtx970  ]];then
-   echo "Maximum number of gpus for gtx970 nodes is 2."
-   echo "Job not submitted. Exiting..."
-   error=1
-fi
-
-if [[ $numgpus -gt 4 && $2 =~ titan|nq-gpu  ]];then
-   echo "Maximum number of gpus for titan cards is 4."
-   echo "Job not submitted. Exiting..."
-   error=1
-fi
-
-## Check the presence of the input geometry
-coord=$(grep coordinates $input | grep -v '#' | grep -v 'min_coordinates' | head -1 | awk '{printf"%s", $2}')
-coord_mm=$(grep qmmm $input | grep -v '#' | head -1 |  awk '{print $2}')
-guess1=$(grep guess $input | grep -v '#' | tail -1 | awk '{print $2}' )
-guess2=$(grep guess $input | grep -v '#' | tail -1 | awk '{print $3}' )
-
-# WARNING: this does not work for dos files, i.e. for different linebreaks!
-if [[ ! -e $coord ]];then
-   echo "Geometry not found. Exiting..."
-   echo "Set variable "coordinates" in $input"
-   error=1
-fi
-
-if [[ ! -z $coord_mm ]];then
-   if [[ ! -e $coord_mm ]];then
-      echo "MM geometry not found. Exiting..."
-      echo "Set or unset variable "qmmm" in $1"
-      error=1
+# Check for presence of input files
+for f in ${keyfiles[@]};do
+   file[$f]=$(awk -v file="$f" '{if ($1==file) {print $2;exit 0}}' $input)
+   # this one  is neccessary for unrestricted guesses
+   file2[$f]=$(awk -v file="$f" '{if ($1==file) {print $3;exit 0}}' $input)
+   if [[ ! -z ${file[$f]} ]];then
+      if [[ ! -f ${file[$f]} ]];then
+         echo "ERROR: Could not found file ${file[$f]}"
+         error=1
+      fi
    fi
-fi
-
-if [[ ! -z $guess1 ]];then
-   if [[ ! -e $guess1 ]];then
-      echo "Guess file $guess1 not found. Exiting..."
-      echo "Set or unset variable "guess" in $1"
-      error=1
+   if [[ ! -z ${file2[$f]} ]];then
+      if [[ ! -f ${file2[$f]} ]];then
+         echo "ERROR: Could not found file ${file2[$f]}"
+         error=1
+      fi
    fi
-fi
+done
 
-if [[ ! -z $guess2 ]];then
-   if [[ ! -e $guess2 ]];then
-      echo "Guess file $guess2 not found. Exiting..."
-      echo "Set or unset variable "guess" in $input"
-      error=1
-   fi
+if [[  -z ${file["coordinates"]} ]];then
+   echo "You did not specify input coordinates!"
+   echo "Set variable \"coordinates\" in $input"
+   error=1
 fi
 
 if [[ $error -eq 1 ]];then
@@ -149,18 +124,11 @@ fi
 cat > r.$input << EOF
 #!/bin/bash
 
-#$ -cwd
-#$ -e .
-#$ -o .
-#$ -V
+#$ -cwd -e -o -V
 
 TERA $input $3
 EOF
 
-
-if [[ ! $queue =~ \-gpu ]];then
-   queue=aq-gpu-$queue
-fi
 
 echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1"
 qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1

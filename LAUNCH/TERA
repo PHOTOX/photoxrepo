@@ -7,7 +7,8 @@ if [ -z $1 ];then
 fi
 
 if [[ ! -e "$1" ]];then
-	echo "Input file doesn't exists!"
+   echo "Input file $1 doesn't exist!"
+   exit 1
 fi
 
 CUR_DIR=$(pwd)
@@ -15,59 +16,41 @@ inp=$1
 # [[:blank:]]+ matches also tabs 
 #numgpus=$(egrep -e '^[[:blank:]]*gpus[[:blank:]]+' $1 | head -1 | awk '{print $2}')
 
+keyfiles=( coordinates qmmm guess plumedfile pcm_read fon_guess \
+  pcm_radii_file restartmd casguess )
+declare -A file filename file2 filename2
+
+for f in ${keyfiles[@]};do
+   file[$f]=$(awk -v file="$f" '{if ($1==file) {print $2;exit 0}}' $inp)
+   # this one  is neccessary for unrestricted guesses
+   file2[$f]=$(awk -v file="$f" '{if ($1==file) {print $3;exit 0}}' $inp)
+   if [[ ! -z ${file[$f]} ]];then
+      if [[ ! -f ${file[$f]} ]];then
+         echo "ERROR: Could not found file ${file[$f]}"
+         exit 1
+      fi
+      filename[$f]=$(basename ${file[$f]})
+   fi
+   if [[ ! -z ${file2[$f]} ]];then
+      if [[ ! -f ${file2[$f]} ]];then
+         echo "ERROR: Could not found file ${file2[$f]}"
+         exit 1
+      fi
+      filename2[$f]=$(basename ${file2[$f]})
+   fi
+done
+
 # This could all be done more nicely using awk only
 numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $inp)
-coord=$(awk '{if ($1=="coordinates") {print $2;exit 0}}' $inp)
 if [ -z $numgpus ];then
 	echo "Number of gpus not specified. Exiting..."
 	echo "Set variable "gpus" in $1"
 	exit 1
 fi
 
-if [ ! -e $coord ];then
-	echo "Geometry not found. Exiting..."
-	echo "Set variable "coordinates" in $1"
-	exit 1
-fi
-coord_name=$(basename $coord)
-coord_mm=$(awk '{if ($1=="qmmm") {print $2;exit 0}}' $inp)
-if [[ ! -z $coord_mm ]];then
-   coord_mm_name=$(basename $coord_mm)
-   if [[ ! -e $coord_mm ]];then
-      echo "MM geometry not found. Exiting..."
-      echo "Set or unset variable "qmmm" in $1"
-      exit 1
-   fi
-fi
-guess1=$(awk '{if ($1=="guess") {print $2;exit 0}}' $inp)
-guess2=$(awk '{if ($1=="guess") {print $3;exit 0}}' $inp)
-plumed=$(awk '{if ($1=="plumedfile") {print $2;exit 0}}' $inp)
-
-
-if [[ ! -z "$guess1" ]];then
-   if [[ ! -e "$guess1" ]];then
-	echo "Guess file $guess1 not found. Exiting..."
-	echo "Set or unset variable "guess" in $1"
-	exit 1
-   fi
-fi
-if [[ ! -z "$guess2" ]];then
-   if [[ ! -e "$guess2" ]];then
-      echo "Guess file $guess2 not found. Exiting..."
-      echo "Set or unset variable "guess" in $1"
-      exit 1
-   fi
-fi
-
-if [[ ! -z "$plumed" ]];then
-   plumed_name=$(basename $plumed)
-   if [[ ! -e "$plumed" ]];then
-      echo "PLUMED input file $plumed not found. Exiting..."
-      exit 1
-   fi
-fi
 
 scrdir=$(awk '{if ($1=="scrdir") {print $2;exit 0}}' $inp)
+
 #- All clear, let's go.
 
 version=$2
@@ -84,51 +67,46 @@ echo "NODE  $node" > job.log.${JOB_ID}
 if [[ -z $scrdir ]];then
    copyback=true
    input=$(basename $1 .inp)
-   echo $input
    input=$(basename $input .com)
-   scrdir="/scratch/$USER/TERA-$input_${JOB_ID}"
+   scrdir="/scratch/$USER/TERA-${inp}-${JOB_ID}"
    echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    mkdir $scrdir
-#	echo "scrdir $scrdir"  > $scrdir/$1
    echo "scrdir not specified, using : $scrdir"
+
+   # Create auxiliary input file and copy files to scratch
    echo "memcheck no" > $scrdir/$1
-   cp $coord $scrdir/$coord_name
-   echo "coordinates $coord_name" >> $scrdir/$1
-   if [[ ! -z "$coord_mm" ]];then
-       cp $coord_mm $scrdir/$coord_mm_name
-       echo "qmmm  $coord_mm_name" >> $scrdir/$1
-   fi
-   if [[ ! -z "$plumed" ]];then
-       cp $plumed $scrdir/$plumed
-       echo "plumedfile  $plumed_name" >> $scrdir/$1
-   fi
-   
-   if [[ ! -z "$guess1" ]];then
-      cp $guess1 $scrdir
-      echo $?
-      echo $guess1
-      if [[ ! -z "$guess2" ]];then
-         cp $guess2 $scrdir
-         echo "guess $scrdir/ca $scrdir/cb" >> $scrdir/$1
-      else
-         echo "guess $scrdir/c0"     >> $scrdir/$1
+   for f in ${keyfiles[@]};do
+      if [[ ! -z ${file[$f]} && ! -z ${file2[$f]} ]];then
+         # for "guess" keyword
+         echo "$f ${filename[$f]} ${filename2[$f]}" >> $scrdir/$1
+         cp ${file[$f]} $scrdir/${filename[$f]}
+         cp ${file2[$f]} $scrdir/${filename2[$f]}
+      elif [[ ! -z ${file[$f]} ]];then
+         echo "$f ${filename[$f]}" >> $scrdir/$1
+         cp ${file[$f]} $scrdir/${filename[$f]}
       fi
-   fi
+   done
+
+   # TeraChem ignores duplcate keywords, so cat is sufficient
    cat $1 >> $scrdir/$1
    echo "end" >> $scrdir/$1
    cd $scrdir
 
 elif [ -e $scrdir ];then
+
    echo "WARNING: Scratch directory specified in $1 already exists!"
    echo "It's content will be rewritten." 
    copyback=false
+
 else
+
    echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    copyback=false
+
 fi
 
- export OMP_NUM_THREADS=$numgpus  #setting to number of gpus, used only for MKL library anyway i.e. for diagonalization
-# echo "Running Terachem job $1 using $OMP_NUM_THREADS cpu cores"
+export OMP_NUM_THREADS=$numgpus  # setting to number of gpus
+# used only for MKL library anyway i.e. for diagonalization
 
 $TERAEXE $1 > $CUR_DIR/$1.out
 
