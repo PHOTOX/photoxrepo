@@ -11,13 +11,14 @@ fi
 
 KDE=$(pwd)
 
+
+input=$(basename $input .inp)
+input=$(basename $input .com)
 export PATH=$orcaroot:$PATH
+export SCRDIR="/scratch/$USER/ORCA-$input-${JOB_ID}"
 
-# DH: I have no idea why this bit was here.
-# ORCA appears to work without it.
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/programs/common/intel/compiler/2011.5.220/composerxe-2011.5.220/compiler/lib/intel64/
-
-export SCRDIR="/scratch/$USER/ORCA_$1_${JOB_ID}"
+echo "NODE  $node" > job.log.${JOB_ID}
+echo "SCRATCH  $SCRDIR" >> job.log.${JOB_ID}
 
 mkdir -p $SCRDIR
 cp $1 $SCRDIR

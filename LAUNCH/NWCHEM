@@ -1,20 +1,25 @@
 #!/bin/bash
 
-#$ -V
-# Molpro 2012 SGE submission script (single- and nulti-processor version)
+
 source SetEnvironment.sh NWCHEM
 scratch=/scratch/${USER}
 
 input=$1
-export INPFILE=$input.$JOB_ID
-export LOGFILE=$1.log
-export OUTFILE=$1.out
-
 nproc=$2
+export INPFILE=$input.$JOB_ID
+export LOGFILE=$input.log
+export OUTFILE=$input.out
 
-export SCRATCH=${scratch}/NWCHEM_$1_${JOB_ID}
+input=$(basename $input .inp)
+input=$(basename $input .com)
+
+
+export SCRATCH=${scratch}/NWCHEM-$input-${JOB_ID}
 export WORKDIR=$PWD
 mkdir -p ${SCRATCH}
+
+echo "NODE  $node" > job.log.${JOB_ID}
+echo "SCRATCH  $SCRATCH" >> job.log.${JOB_ID}
 
 cd ${WORKDIR}
 echo "scratch_dir $SCRATCH" > $INPFILE
