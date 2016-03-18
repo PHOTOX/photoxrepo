@@ -83,6 +83,8 @@ function grep_G09_ioniz {
    local in=$1
    local numstates=$3
    local out=$2
+   local en1
+   local en2
 
    checkG09ioniz $in
    if [[ "$?" -ne "0" ]];then
@@ -96,6 +98,9 @@ function grep_G09_ioniz {
 }
 
 function grep_G09ioniz_exc {
+   local deltaE
+   local en1
+   local en2
    local in=$1
    local numstates=$3
    local out=$2

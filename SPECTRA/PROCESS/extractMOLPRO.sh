@@ -12,6 +12,7 @@ function grep_MOLPRO_EOM {
    local in=$1
    local numstates=$3
    local out=$2
+   local lines
 
    checkMOLPRO $in
    if [[ "$?" -ne "0" ]];then

@@ -15,6 +15,9 @@ function grep_QC_TUNOPT {
    local in=$1
    local numstates=$3
    local out=$2
+   local nelec
+   local nlines
+   local nlines1
 
    in=$in/N_22.out
 

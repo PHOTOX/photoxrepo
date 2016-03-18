@@ -14,7 +14,6 @@ function grep_ORCAUV {
    local in=$1
    local numstates=$3
    local out=$2
-
    local nstate4
    let nstate4=numstates+4
 

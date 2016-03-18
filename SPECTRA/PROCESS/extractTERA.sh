@@ -12,6 +12,7 @@ function grep_TERA_TDDFT {
    local in=$1
    local numstates=$3
    local out=$2
+   local nstate1
 
    let nstate1=numstates+1
 
@@ -45,6 +46,8 @@ function grep_TERA_TDDFT {
 function grep_TERA_ioniz {
    local in1=$1
    local out=$2
+   local en1
+   local en2
 
    checkTERAioniz "$in1"
    if [[ "$?" -ne "0" ]];then
@@ -62,6 +65,9 @@ function grep_TERA_ioniz_exc {
    local out=$2
    local numstates=$3
    local in2=$4
+   local en1
+   local en2
+   local nstate1
 
    checkTERA "$in1"
    if [[ "$?" -ne "0" ]];then
