@@ -73,9 +73,17 @@ if [[ $? != "0" ]];then
    exit 1
 fi
 
+node=$(uname -n)
+date
+echo "NODE  $node" > job.log.${JOB_ID}
+
 if [[ -z $scrdir ]];then
    copyback=true
-   scrdir="/scratch/$USER/TERA-$1_${JOB_ID}"
+   input=$(basename $1 .inp)
+   echo $input
+   input=$(basename $input .com)
+   scrdir="/scratch/$USER/TERA-$input_${JOB_ID}"
+   echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    mkdir $scrdir
 #	echo "scrdir $scrdir"  > $scrdir/$1
    echo "scrdir not specified, using : $scrdir"
@@ -101,7 +109,7 @@ if [[ -z $scrdir ]];then
       fi
    fi
    grep min_coordinates $1 >> $scrdir/$1
-   grep -v -e "coordinates" -e "qmmm " -e "guess " $1 >> $scrdir/$1
+   cat $1 >> $scrdir/$1
    echo "end" >> $scrdir/$1
    cd $scrdir
 
@@ -111,14 +119,12 @@ if [[ -z $scrdir ]];then
 #	echo "Exiting...." 
 #	exit 1
 else
+   echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    copyback=false
 fi
 
  export OMP_NUM_THREADS=$numgpus  #setting to number of gpus, used only for MKL library anyway i.e. for diagonalization
- echo "Running Terachem job $1 using $OMP_NUM_THREADS cpu cores"
- node=$(uname -n)
- echo $node
- date
+# echo "Running Terachem job $1 using $OMP_NUM_THREADS cpu cores"
 
 $TERAEXE $1 > $CUR_DIR/$1.out
 
@@ -127,7 +133,7 @@ if [[ $copyback = "true" ]];then
  cp -r $scrdir/ $CUR_DIR
  if [[ $? -ne "0" ]];then
    echo "Error when copying the data from scratch back to the server."
-   echo "I will keep the directory $SCRDIR on node:"
+   echo "I will keep the directory $scrdir on node:"
    uname -a
    exit 1
  fi
