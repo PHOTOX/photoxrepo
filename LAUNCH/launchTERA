@@ -21,15 +21,14 @@ function PrintHelp {
    echo " "
    echo "This is the launching script for TeraChem jobs on PHOTOX clusters. "
    echo " "
-   echo "SYNTAX: launchTERA input.com queue [dev]"
+   echo "SYNTAX: launchTERA input.com queue [version]"
    echo "where queue is:"
    if [[ $cluster = "a324" ]];then
       echo " \"m2090\",\"gtx690\", gtx970 or \"titan\"."
-      echo "For the development version, use \"dev\" as the third parameter."
    elif [[ $cluster = "as67gpu" ]];then
       echo "nq-gpu"
-      echo "Only development version is available on this cluster."
    fi
+   . SetEnvironment.sh TERACHEM -ver
    exit 1
 }
 
@@ -38,13 +37,13 @@ if [[ $1 =~ -h ]];then
 fi
 
 if [[ -z $1 ]];then
-	echo "Input file not specified. Exiting..."
-	PrintHelp
+   echo "Input file not specified. Exiting..."
+   PrintHelp
 fi
 
 if [[ ! -e "$1" ]];then
-	echo "Input file $1 does not exist. Exiting..."
-        PrintHelp
+   echo "Input file $1 does not exist. Exiting..."
+   PrintHelp
 fi
 
 input=$1
@@ -62,13 +61,7 @@ if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
    error=1
 fi
 
-#if [[ ! -z $3 && $3 != "dev" && $3 != "1.5K" && $3 != "1.5" && $3 != "debug" ]];then
-#   echo "Incorrect version specified."
-#   echo "Expected \"dev\", 1.5K or 1.5, got $3."
-#   error=1
-#fi
-
-if [[ "$queue" =~ ^gtx970 && ! "$version" =~ ^de ]];then
+if [[ "$queue" =~ gtx970 && "$version" =~ ^1.5 ]];then
    echo "You need to use development version of TeraChem on GTX970 cards."
    echo "Provide the "dev" parameter or use differrent queue."
    echo "Exiting..."

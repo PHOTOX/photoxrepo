@@ -17,13 +17,14 @@
 # This should be a prime number.
 
 #########SETUP###########
-movie=./movie.xyz       # Input xyz file.
-output=geoms.xyz        # Output xyz file.
-nsample=0               # Number of samples. Greater than 0 or 0 for maximum number of samples (0 only with fixed offset)
+movie=movie.xyz    # Input xyz file.
+output=geoms.xyz   # Output xyz file.
+nsample=0          # Number of samples. Greater than 0 or 0 for maximum number of samples (0 only with fixed offset)
 random=0                # 0 - pick geometries using fixed offset
                         # 1 - pick geometries randomly
 step=11                 # fixed offset, every step-th geometry is taken
 seed=980160             # random seed, if negative, it is based on current time
+cut="./cut_sphere -u 5 -v 3 -va 3" # cut command
 #########################
 
 
@@ -79,7 +80,6 @@ if [[ $geoms3 -lt $nsample ]] && [[ $random -eq 1 ]];then
 fi
 
 #Generate random numbers
-source SetEnvironment.sh PHOTOX
 if [[ $random -eq 1 ]];then
    abin-randomint $seed $nsample $geoms  > irans.dat
    if [[ $? -ne 0 ]];then
@@ -113,15 +113,19 @@ for ((i=1;i<=nsample;i++)) {
 
    if [[ $random -eq 1 ]];then
       nrand=`head -$i irans.dat |tail -1`
-      geomrand=$(expr $nrand \* $natom2)
-      head -$geomrand $movie | tail -$natom2 >> $output
-   fi
-
-   if [[ $random -eq 0 ]];then
+      offset=$(expr $nrand \* $natom2)
+   elif [[ $random -eq 0 ]];then
       let offset=offset+natom2*step
-      head -$offset $movie | tail -$natom2 >> $output
    fi
 
+   if [[ -z $cut ]];then
+      head -$offset $movie | tail -$natom2 >> $output
+   else
+      head -$offset $movie | tail -$natom2 | $cut 
+      cat cut_qm.xyz >> $output
+   fi
+   echo -n "$i "
 }
+echo ""
 echo "Finished successfully."
 
