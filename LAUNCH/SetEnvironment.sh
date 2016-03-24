@@ -228,6 +228,7 @@ case "$program" in
       TERA[bhand]=$basedir_custom/terachem/terachem-dev/build_bhand
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
+      TERA[trunk]=/home/hollas/programes/TeraChem-dev/TESTMPI/production/build
       if [[ $version =~ de ]];then
          source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       fi

@@ -96,6 +96,10 @@ for f in ${keyfiles[@]};do
    file[$f]=$(awk -v file="$f" '{if ($1==file) {print $2;exit 0}}' $input)
    # this one  is neccessary for unrestricted guesses
    file2[$f]=$(awk -v file="$f" '{if ($1==file) {print $3;exit 0}}' $input)
+   # Allow comments at the end of input line
+   if [[ ${file2[$f]} =~ ^# ]];then
+      file2[$f]=""
+   fi
    if [[ ! -z ${file[$f]} ]];then
       if [[ ! -f ${file[$f]} ]];then
          echo "ERROR: Could not found file ${file[$f]}"
