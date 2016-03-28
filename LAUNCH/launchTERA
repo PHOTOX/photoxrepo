@@ -128,7 +128,10 @@ fi
 cat > r.$input << EOF
 #!/bin/bash
 
-#$ -cwd -e -o -V
+#$ -cwd 
+#$ -e . 
+#$ -o .
+#$ -V
 
 TERA $input $3
 EOF
