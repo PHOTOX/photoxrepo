@@ -365,13 +365,17 @@ case "$program" in
       ;;
 
    "QCHEM" )
-      VERSIONS=(4.1)
+      VERSIONS=(4.1 4.3)
       if [[ $cluster = "as67" ]];then
          QCHEM[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64
+         QCHEM[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
+         QCHEM_MPI[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
          source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
          QCHEM[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64
+         QCHEM[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
+         QCHEM_MPI[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
          source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
       fi

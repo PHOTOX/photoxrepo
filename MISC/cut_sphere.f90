@@ -69,6 +69,7 @@ program cut_sphere
          read(500,*)at(i),x(i),y(i),z(i)
          if(at(i).ne.at_temp(i))then
             write(*,*)"ERROR: Incompatible atom types!",at(i),at_temp(i),"Line:",i
+            stop 1
          end if
       enddo
 

@@ -2,7 +2,8 @@
 
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchQC input.com queue [mpi|openmp] [nproc]' "
+   echo "USAGE: 'launchQCHEM input.com queue [mpi|openmp] [nproc] [version]' "
+   echo "(if you need non-default version, you must specify paralellization as well)"
    exit 1
 }
 
@@ -14,6 +15,7 @@ fi
 
 input=$1
 queue=$2
+version=$5
 para_type=openmp
 nproc=1
 
@@ -58,7 +60,7 @@ cat > r.$input << EOF
 #$ -o .
 #$ -V
 
-QCHEM $input $para_type
+QCHEM $input $para_type $version
 EOF
 
 
