@@ -29,7 +29,10 @@ if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
     PrintHelp
 fi
 
-cat > r.$input << EOF
+name=$(basename $1 .inp)
+name=$(basename $name .com)
+
+cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd
@@ -42,11 +45,11 @@ EOF
 
 if [[ "nproc" -gt 1 ]];then
    echo "Submitting Nwchem job for parallel execution in ${queue} queue with ${ncpus} processes."
-   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$input"
-   qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
+   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$name"
+   qsub -cwd -q $queue -pe mpi_alt $nproc r.$name
 else
    echo "Launching single-processor Nwchem job."
-   echo "qsub -cwd -q $queue r.$input"
-   qsub -cwd -q $queue r.$input
+   echo "qsub -cwd -q $queue r.$name"
+   qsub -cwd -q $queue r.$name
 fi
 

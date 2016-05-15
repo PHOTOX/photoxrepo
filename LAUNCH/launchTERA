@@ -124,8 +124,11 @@ if [[ $error -eq 1 ]];then
    PrintHelp
 fi
 
+name=$(basename $1 .inp)
+name=$(basename $name .com)
+name=$(basename $name .in)
 
-cat > r.$input << EOF
+cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd 
@@ -137,6 +140,6 @@ TERA $input $3
 EOF
 
 
-echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1"
-qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$1
+echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name"
+qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$nane
 

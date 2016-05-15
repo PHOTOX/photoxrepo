@@ -52,9 +52,10 @@ if [[ $4 -eq 1 && $3 = "mpi" ]]; then
 fi
 
 
-#- Everything OK, let's go.
+name=$(basename $1 .inp)
+name=$(basename $name .com)
 
-cat > r.$input << EOF
+cat > r.$name << EOF
 #$ -cwd
 #$ -e .
 #$ -o .
@@ -71,6 +72,6 @@ if [[ $para_type = "openmp" ]];then
    para_type=shm
 fi
 
-echo "qsub -cwd -q $queue -pe $para_type $nproc r.$input"
-qsub -cwd -q $queue -pe $para_type $nproc r.$input
+echo "qsub -cwd -q $queue -pe $para_type $nproc r.$name"
+qsub -cwd -q $queue -pe $para_type $nproc r.$name
 

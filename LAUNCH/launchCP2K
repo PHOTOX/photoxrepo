@@ -29,7 +29,10 @@ if [[ ! -e "$input" ]];then
    PrintHelp
 fi
 
-cat > r.$input << EOF
+name=$(basename $1 .inp)
+name=$(basename $name .com)
+
+cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd
@@ -43,6 +46,6 @@ EOF
 echo "Launching CP2K job."
 echo "$nproc proccesors will be used." 
 
-echo "qsub -cwd -q $queue -pe mpi $nproc r.$input"
-qsub -cwd -q $queue -pe mpi $nproc r.$input
+echo "qsub -cwd -q $queue -pe mpi $nproc r.$name"
+qsub -cwd -q $queue -pe mpi $nproc r.$name
 

@@ -29,9 +29,10 @@ if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
     PrintHelp
 fi
 
-PWD=$(pwd)
+name=$(basename $1 .inp)
+name=$(basename $name .com)
 
-cat > r.$input << EOF
+cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd
@@ -45,11 +46,11 @@ EOF
 
 if [[ "nproc" -gt 1 ]];then
    echo "Submitting Molpro job for parallel execution in ${queue} queue with ${nproc} processes."
-   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$input"
-   qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
+   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$name"
+   qsub -cwd -q $queue -pe mpi_alt $nproc r.$name
 else
    echo "Launching single-processor Molpro job."
-   echo "qsub -cwd -q $queue r.$input"
-   qsub -cwd -q $queue r.$input
+   echo "qsub -cwd -q $queue r.$name"
+   qsub -cwd -q $queue r.$name
 fi
 

@@ -28,8 +28,10 @@ if [[ $nproc == "" ]];then
    exit 1
 fi
 
+name=$(basename $1 .inp)
+name=$(basename $name .com)
 
-cat > r.$input << EOF
+cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd
@@ -44,6 +46,6 @@ echo "Launching Gaussian 09 job."
 echo "$nproc proccesors will be used." 
 
 
-echo "qsub -cwd -q $queue -pe shm $nproc r.$input"
-qsub -cwd -q $queue -pe shm $nproc r.$input
+echo "qsub -cwd -q $queue -pe shm $nproc r.$name"
+qsub -cwd -q $queue -pe shm $nproc r.$name
 

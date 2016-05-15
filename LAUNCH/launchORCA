@@ -36,8 +36,10 @@ if [[ $nproc -gt 1 ]];then
    echo "You should first try whether you get the same results both with serial and parallel versions."
 fi
 
+name=$(basename $1 .inp)
+name=$(basename $name .com)
 
-cat >r.$1 << EOF
+cat >r.$name << EOF
 #!/bin/bash
 
 #$ -cwd
@@ -50,10 +52,10 @@ EOF
 
 echo "$nproc proccesors will be used" 
 if [[ "$nproc" -eq 1 ]];then
-   echo "qsub -cwd -q $queue r.$input"
-   qsub -cwd -q $queue r.$input
+   echo "qsub -cwd -q $queue r.$name"
+   qsub -cwd -q $queue r.$name
 else
-   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$input"
-   qsub -cwd -q $queue -pe mpi_alt $nproc r.$input
+   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$name"
+   qsub -cwd -q $queue -pe mpi_alt $nproc r.$name
 fi
 
