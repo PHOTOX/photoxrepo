@@ -67,6 +67,25 @@ function grep_QC_EOMIP {
       return 1
    fi
 
+   grep -A 4 "Excitation energy =" $in  > temp.dat
+   
+   local i=1
+   local n=5
+
+   while [ $i -le $numstates ]
+   do
+
+      head -$n temp.dat | tail -5 > temp.$i.dat
+   
+      checkIP temp.$i.dat
+      if [[ "$?" == "0" ]];then
+         grep "Excitation energy" temp.$i.dat | awk '{print $9}' >> $out
+      fi
+
+      rm temp.$i.dat
+      let i++
+      let n+=6 
+   done
 
    return 0
 }
@@ -76,6 +95,14 @@ function grep_QC_EOMIP {
 
 function checkQC {
 if [[ $( grep "Have a nice day." $1 ) ]];then
+   return 0
+else
+   return 1
+fi
+}
+
+function checkIP {
+if [[ $( grep "infty" temp.$i.dat) ]];then
    return 0
 else
    return 1
