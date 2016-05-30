@@ -141,5 +141,5 @@ EOF
 
 
 echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name"
-qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$nane
+qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name
 
