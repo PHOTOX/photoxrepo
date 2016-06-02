@@ -6,13 +6,13 @@
 # Different methods are parallelized with OpenMP or MPI. See the manual.
 
 if [ "$#" -lt 1 ] ; then
-   echo "Usage: $(/usr/bin/basename $0) <input_file> [par_type] [version]"
+   echo "Usage: $(/usr/bin/basename $0) <input_file> [version] [par_type]"
    echo
    exit 1
 fi
 
-version=$3
-parall=$2
+version=$2
+parall=$3
 INPUT=$1
 
 source SetEnvironment.sh QCHEM $version

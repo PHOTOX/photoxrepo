@@ -32,22 +32,37 @@ function PrintHelp {
    exit 1
 }
 
-if [[ $1 =~ -h ]];then
-   PrintHelp
-elif [[ -z $1 ]];then
-   echo "Input file not specified. Exiting..."
-   PrintHelp
-elif [[ ! -e "$1" ]];then
-   echo "Input file $1 does not exist. Exiting..."
-   PrintHelp
-elif [[ -z $2 ]];then
-   echo "GPU queue not specified."
+NUMPARAMS=2
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
+
+   shift 
+
+done
+
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
    PrintHelp
 fi
-
-input=$1
-queue=$2
-version=$3
 
 if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
    echo "$queue is not a valid GPU queue."
@@ -76,12 +91,15 @@ if [[ ! $queue =~ \-gpu ]];then
    queue=aq-gpu-$queue
 fi
 
+# Remove specific node, if specified
+q=${queue%%@*}
+
 if [[ -z $numgpus ]];then
    echo "Number of gpus not specified. Exiting..."
    echo "Please, set variable \"gpus\" in $1 ."
    error=1
-elif [[ "$numgpus" -gt ${gpumax[$queue]} ]];then
-   echo "Maximum number of gpus for queue $queue is ${gpumax[$queue]}."
+elif [[ "$numgpus" -gt ${gpumax[$q]} ]];then
+   echo "Maximum number of gpus for queue $q is ${gpumax[$q]}."
    echo "Please, adjust variable gpu in your input file."
    echo "Job not submitted."
    error=1
@@ -124,7 +142,7 @@ if [[ $error -eq 1 ]];then
    PrintHelp
 fi
 
-name=$(basename $1 .inp)
+name=$(basename $input .inp)
 name=$(basename $name .com)
 name=$(basename $name .in)
 
@@ -136,7 +154,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-TERA $input $3
+TERA $input $version
 EOF
 
 

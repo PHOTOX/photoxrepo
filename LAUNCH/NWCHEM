@@ -1,11 +1,11 @@
 #!/bin/bash
-
-
+input=$1
+version=$2
+nproc=${NSLOTS}
 source SetEnvironment.sh NWCHEM
+
 scratch=/scratch/${USER}
 
-input=$1
-nproc=$2
 export INPFILE=$input.$JOB_ID
 export LOGFILE=$input.log
 export OUTFILE=$input.out

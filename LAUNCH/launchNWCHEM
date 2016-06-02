@@ -1,22 +1,45 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchNWCHEM input.com queue [number_of_cpus]' "
+   echo "USAGE: 'launchNWCHEM input.com queue [-n num_cpus] [-v version]' "
+   echo " "
+   . SetEnvironment.sh NWCHEM -ver
    exit 1
 }
+NUMPARAMS=2
+nproc=1
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      "-n" )
+      version=$2
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
 
-if [[ $# -lt "2" ]]; then
-   echo "Not enough parameters."
+   shift 
+
+done
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
    PrintHelp
-fi
-
-input=$1
-queue=$2
-
-if [[ ! -z $3 ]];then
-   nproc=$3
-else
-   nproc=1
 fi
 
 if [[ ! -e "$input" ]];then
@@ -29,7 +52,7 @@ if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
     PrintHelp
 fi
 
-name=$(basename $1 .inp)
+name=$(basename $input .inp)
 name=$(basename $name .com)
 
 cat > r.$name << EOF
@@ -40,7 +63,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-NWCHEM $input $nproc
+NWCHEM $input $nproc $version
 EOF
 
 if [[ "nproc" -gt 1 ]];then

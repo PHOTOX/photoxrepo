@@ -1,17 +1,43 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchG09 input.com queue' "
+   echo "USAGE: 'launchGAUSS input.com queue [-v version]' "
+   echo " "
+   . SetEnvironment.sh GAUSSIAN -ver
    exit 1
 }
 
-if [[ $# -lt "2" ]]; then
-   echo "Not enough parameters."
+NUMPARAMS=2
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
+
+   shift 
+
+done
+
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
    PrintHelp
 fi
-
-input=$1
-queue=$2
 
 if [[ ! -e "$input" ]];then
    echo "File $input does not exist. Exiting."
@@ -28,7 +54,7 @@ if [[ $nproc == "" ]];then
    exit 1
 fi
 
-name=$(basename $1 .inp)
+name=$(basename $input .inp)
 name=$(basename $name .com)
 
 cat > r.$name << EOF
@@ -39,7 +65,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-GAUSS $input
+GAUSS $input $version
 EOF
 
 echo "Launching Gaussian 09 job."

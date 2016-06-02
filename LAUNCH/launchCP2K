@@ -1,22 +1,46 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchCP2K your_input.inp queue [nproc]' "
+   echo "USAGE: 'launchCP2K your_input.inp queue [-n nproc] [-v version]' "
    echo " "
+   . SetEnvironment.sh CP2K -ver
    exit 1
 }
 
-#- Check input sanity ------
+NUMPARAMS=2
+nproc=1
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      "-n" )
+      version=$2
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
 
-if [[ $# -lt "2" ]] || [[ "$1" =~ -h ]]; then
+   shift 
+
+done
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
    PrintHelp
-fi
-
-input=$1
-queue=$2
-nproc=$3
-if [[ -z $3 ]];then
-   nproc=1
 fi
 
 if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
@@ -29,7 +53,7 @@ if [[ ! -e "$input" ]];then
    PrintHelp
 fi
 
-name=$(basename $1 .inp)
+name=$(basename $input .inp)
 name=$(basename $name .com)
 
 cat > r.$name << EOF
@@ -40,7 +64,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-CP2K $input
+CP2K $input $version
 EOF
 
 echo "Launching CP2K job."

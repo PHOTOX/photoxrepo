@@ -2,57 +2,80 @@
 
 function PrintHelp {
    echo " "
-   echo "USAGE: 'launchQCHEM input.com queue [mpi|openmp] [nproc] [version]' "
-   echo "(if you need non-default version, you must specify paralellization as well)"
+   echo "USAGE: 'launchQCHEM input.com queue [-p mpi|openmp] [-n nproc] [-v version]' "
+   echo "where \"openmp\" or \"mpi\" id the type of parallelization used."
+   echo "default is \"openmp\". See QCHEM manual for details."
+   echo "MPI parallelization is not supported in version 4.3"
+   . SetEnvironment.sh QCHEM -ver
    exit 1
 }
 
-#- Check input sanity ------
+NUMPARAMS=2
 
-if [[ $# -lt "2" ]] || [[ "$1" = "-h" ]]; then
-   PrintHelp
-fi
-
-input=$1
-queue=$2
-version=$5
 para_type=openmp
 nproc=1
+
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      "-n" )
+      nproc=$2
+      shift 
+      ;;
+      "-p" )
+      para_type=$2
+      if [[ $2 != "openmp" && $2 != "mpi" ]];then
+         echo "Invalid parameter $2"
+         PrintHelp
+      fi
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
+
+   shift 
+
+done
+
+if [[ $index -ne $NUMPARAMS ]];then
+   echo $index
+   echo "Incorrect number of parameters."
+   PrintHelp
+fi
 
 if [[ ! -e "$input" ]];then
    echo "File $input does not exist. Exiting."
    PrintHelp
 fi
 
-if [[ ! -z $3 ]];then
-
-  if [[ "$3" = "mpi" ]];then
-     para_type=mpi
-  elif [[ "$3" = "openmp" ]];then
-     para_type=openmp
-  else
-     echo "Error in the third parameter: $3."
-     echo "It should be either \"mpi\" or \"openmp\"."
-     echo "Check the QCHEM manual and decide which type of parallelization is necessary for your method. "
-     PrintHelp
-  fi
-
-  if [[ -z $4 ]];then
-     echo "Please, provide the number of processors."
-     PrintHelp
-  else
-     nproc=$4
-  fi
-
+if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
+    echo "Error: number_of_cpus parameter is not a number!"
+    PrintHelp
 fi
 
-if [[ $4 -eq 1 && $3 = "mpi" ]]; then
+if [[ $nproc -eq 1 && $para_type = "mpi" ]]; then
     echo "QCHEM will not run an MPI job on a single processor."
     PrintHelp
 fi
 
 
-name=$(basename $1 .inp)
+name=$(basename $input .inp)
 name=$(basename $name .com)
 
 cat > r.$name << EOF
@@ -61,7 +84,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-QCHEM $input $para_type $version
+QCHEM $input $version $para_type
 EOF
 
 

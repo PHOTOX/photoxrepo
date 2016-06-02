@@ -1,24 +1,47 @@
 #!/bin/bash
 function PrintHelp {
    echo " "
-   echo "Launcher for DFTB+ jobs. "
+   echo "Launcher for DFTB+ jobs."
    echo "Note that input paramaters have to be in file \"dftb_in.hsd\" "
    echo " "
-   echo "USAGE: 'launchDFTB queue [nproc]' "
+   echo "USAGE: 'launchDFTB queue [-n nproc]' "
    exit 1
 }
 
-if [[ $# -lt "1" ]]; then
-   echo "Not enough parameters."
+NUMPARAMS=1
+nproc=1
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift 
+      ;;
+      "-n" )
+      version=$2
+      shift 
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
+
+   shift 
+
+done
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
    PrintHelp
 fi
 
-queue=$1
-if [[ -z $2 ]];then
-   nproc=1
-else
-   nproc=$2
-fi
 
 if [[ ! -e "dftb_in.hsd" ]];then
    echo "File dftb_in.hsd does not exist. Exiting."
