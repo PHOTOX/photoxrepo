@@ -6,14 +6,20 @@
 # Different methods are parallelized with OpenMP or MPI. See the manual.
 
 if [ "$#" -lt 1 ] ; then
-   echo "Usage: $(/usr/bin/basename $0) <input_file> [version] [par_type]"
+   echo "Usage: $(/usr/bin/basename $0) <input_file> [version] [par_type] [SAVEWF]"
+   echo "par_type is either mpi or openmp"
+   echo "\"SAVEWF\" is the name of the scratch folder woth stored wavefunction"
    echo
    exit 1
 fi
 
+if [[ -z $NSLOTS ]];then
+   NSLOTS=1
+fi
 version=$2
 parall=$3
 INPUT=$1
+WF=$4
 
 source SetEnvironment.sh QCHEM $version
 if [[ $? != "0" ]];then
@@ -28,18 +34,15 @@ export QCLOCALSCR=/scratch/${USER}
 
 if [[ ${NSLOTS} -eq 1 ]]; then
   source ${qcroot}/qcenv.sh
-
-  qchem ${INPUT} ${INPUT}.out &> ${INPUT}.log
+  qchem ${INPUT} ${INPUT}.out $WF &> ${INPUT}.log
 
 elif [[ $parall = "mpi" ]];then
-
   source ${qc_mpiroot}/qcenv.sh
-  qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
+  qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out $WF &> ${INPUT}.log
 
 else
-
   source ${qcroot}/qcenv.sh
-  qchem -nt ${NSLOTS} ${INPUT} ${INPUT}.out &> ${INPUT}.log
+  qchem -nt ${NSLOTS} ${INPUT} ${INPUT}.out $WF &> ${INPUT}.log
 
 fi
 

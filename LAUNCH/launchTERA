@@ -21,7 +21,7 @@ function PrintHelp {
    echo " "
    echo "This is the launching script for TeraChem jobs on PHOTOX clusters. "
    echo " "
-   echo "SYNTAX: launchTERA input.com queue [version]"
+   echo "SYNTAX: launchTERA input.com queue [-v version]"
    echo "where queue is:"
    if [[ $cluster = "a324" ]];then
       echo " \"m2090\",\"gtx690\", gtx970 or \"titan\"."

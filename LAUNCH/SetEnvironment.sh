@@ -234,6 +234,7 @@ case "$program" in
       fi
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
+      export PATH=$TeraChem/bin:$PATH
       export NBOEXE=$TeraChem/nbo6.exe
       if [[ $version != "1.5" && $version != "1.5K" ]];then
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
