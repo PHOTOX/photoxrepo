@@ -53,7 +53,7 @@ if BEST_GUESS <= MIN_OMEGA or BEST_GUESS >= MAX_OMEGA:
    print("ERROR:Incorrect input value for BEST_GUESS")
    sys.exit(1)
 
-if METHOD == 1 and (MAX_OMEGA-MIN_OMEGA)/STEP < 2:
+if METHOD == 1 and (MAX_OMEGA-MIN_OMEGA)/STEP < 1:
     print("ERROR: Wrong initial interpolation interval. I need at least 2 initial points")
     print("Adjust MIN_OMEGA or MAX_OMEGA or STEP")
     sys.exit(1)

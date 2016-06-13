@@ -23,7 +23,7 @@ do
       shift 
       ;;
       "-n" )
-      version=$2
+      nproc=$2
       shift 
       ;;
       *)
