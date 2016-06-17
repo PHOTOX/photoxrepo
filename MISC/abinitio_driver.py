@@ -5,6 +5,7 @@ import os
 
 TERA_VERSION = "dev"
 QCHEM_VERSION = "4.3"
+CHECK_SCF = True
 
 
 # This is only for debug purposes
@@ -124,7 +125,7 @@ class Abinitio_driver_terachem(Abinitio_driver):
 
    def prepare_input(self, basefile, inpfile, wfguessdir = ""):
       guess = ""
-      if len(wfguessdir):
+      if len(wfguessdir) and not DRY_RUN:
           guess = "guess  "
           if self.is_restricted(basefile):
               guess += wfguessdir + "/c0\n"
@@ -143,6 +144,8 @@ class Abinitio_driver_terachem(Abinitio_driver):
 
       self.scrdir = "scr-"+inpfile.lower().split(".inp")[0]
       self.jobname = "jobname"
+      if DRY_RUN:
+          return self.scrdir
       with open(inpfile, "w") as of:
          of.write("scrdir  " + self.scrdir+"\n")
          of.write("jobname  " + self.jobname+"\n")
@@ -179,7 +182,8 @@ class Abinitio_driver_terachem(Abinitio_driver):
                continue
             if l[0] == "SCF" and l[1] == "did":
                print("ERROR: SCF did not converge! See file "+outfile)
-               exit(1)
+               if CHECK_SCF:
+                  exit(1)
             if l[0] == "FINAL":
                en_scf = float(l[2])
                return en_scf
@@ -240,6 +244,9 @@ class Abinitio_driver_qchem(Abinitio_driver):
 
    def prepare_input(self, basefile, inpfile, wfguess=False):
        global __counter__
+       if DRY_RUN:
+           return self.SCRDIR_R
+       
        with open(basefile,"r") as bf:
            with open(inpfile,"w") as of:
                for line in bf:

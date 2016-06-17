@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
-from abinitio_driver import *
+import abinitio_driver as driver
 import scipy.optimize as opt
 from scipy.interpolate  import interp1d
 try:
@@ -10,6 +10,7 @@ try:
    import matplotlib.pyplot as plt
 except:
    pass
+
 
 # This is the driver script for omega tuning of long-range functionals such as BNL or wPBE
 # The interface to ab initio programs is in separate file abinitio_driver.py
@@ -21,14 +22,14 @@ except:
 
 
 ####### USER INPUT PARAMETERS ############################
-#PROGRAM = "TERACHEM"
+#PROGRAM = "QCHEM"
 PROGRAM = "TERACHEM"
-METHOD = 1
+METHOD = 0
 # 0 - minimization
 # 1 - interpolation
-MIN_OMEGA =  350
-BEST_GUESS = 450
-MAX_OMEGA =  500
+MIN_OMEGA =  300
+BEST_GUESS = 370
+MAX_OMEGA =  450
 STEP      =  50
 # for interpolation, one needs at least 2 starting points
 # i.e. (MAX_OMEGA-MIN_OMEGA)/STEP >=2
@@ -41,7 +42,9 @@ MAXITER   = 20
 ####### END OF USER INPUT #########################################
 
 # use only if you already have output files and you know what you're doing!
-DRY_RUN = False
+driver.DRY_RUN   = False
+# Whether to check SCF convergence (implemented only for TC at the moment)
+driver.CHECK_SCF = False
 
 # These 2 are a safety defaults for the minimizer
 # if the user picked MIN_OMEGA, BEST_GUESS and MAX_OMEGA incorrectly
@@ -72,7 +75,7 @@ def minimize(min_omega, max_omega, thr_omega):
             options={"xtol":thr_omega,"maxiter": MAXITER})
    except NameError:
        print("Whoops, you probably have old version of SciPy that does not have minimize_scalar!")
-       print("But you can comment the following line and use interpolation instead!")
+       print("Use interpolation instead!")
        raise
 
    print(res)
@@ -89,11 +92,11 @@ def minimize(min_omega, max_omega, thr_omega):
 
 def f_optomega_ip(omega):
    if PROGRAM == "TERACHEM":
-      driver = Abinitio_driver_terachem()
+      dr = driver.Abinitio_driver_terachem()
    elif PROGRAM == "QCHEM":
-      driver = Abinitio_driver_qchem()
+      dr = driver.Abinitio_driver_qchem()
 
-   IP_dscf, IP_koop = driver.compute_ip(omega/1000.)
+   IP_dscf, IP_koop = dr.compute_ip(omega/1000.)
 
    f = (IP_dscf - IP_koop)**2
    return f
@@ -163,22 +166,82 @@ def interpolate(min_omega, max_omega, step, best_guess):
    return res
 
 
+def interpolate_read(min_omega, max_omega, step, best_guess):
+   """Interpolate for fixed omega range using cubic spline
+        Then find the root. Read omegas from s file"""
+    
+   deltaIP = []
+   omegas  = []
+
+   with open("omegas.dat","r") as f:
+      comm_first = True
+      for line in f:
+         l = line.split()
+         if not len(l):
+            continue
+         if l[0][0] == '#':
+            if comm_first:
+               comm_first = False
+               continue
+            else:
+               break
+         else:
+            omegas.append(float(l[0]))
+            deltaIP.append(float(l[3]))
+
+#  Check whether deltaIP crosses zero. If not, exit
+#  This assumes a monotonic dependence of deltaIP on omega
+   if deltaIP[0] * deltaIP[-1] > 0:
+      print("ERROR:could not find optimal omega for a computed range.")
+      sys.exit(1)
+
+   # Interpolate the computed points
+   if len(omegas) >=4:
+       f_omega = interp1d(omegas, deltaIP, kind='cubic')
+   elif len(omegas) == 3:
+       f_omega = interp1d(omegas, deltaIP, kind='quadratic')
+   elif len(omegas) == 2:
+       f_omega = interp1d(omegas, deltaIP, kind='linear')
+   else:
+       print("ERROR: I need at least 2 points for interpolation, and I only got "+str(len(omegas)))
+       sys.exit(1)
+
+   # Plot the interpolated function for later inspection
+   try:
+      x = [ x + omegas[0] for x in range((omegas[-1]-omegas[0]))]
+      plt.plot(omegas, deltaIP, 'o', x, f_omega(x), "-")
+      plt.savefig("omega-deltaIP.png")
+   except:
+      pass
+
+   # Find the root of interpolated function deltaIP(omega)
+   res = opt.brentq(f_omega, omegas[0], omegas[-1])
+   return res
+
+
 #### Actual calculation starts here!
 
 if METHOD == 0:
     omega = minimize(MIN_OMEGA, MAX_OMEGA, THR_OMEGA)
 elif METHOD == 1:
     omega = interpolate(MIN_OMEGA, MAX_OMEGA, STEP, BEST_GUESS)
+elif METHOD == 2:
+    omega = interpolate_read(MIN_OMEGA, MAX_OMEGA, STEP, BEST_GUESS)
 
 print("Final tuned omega = ",omega)
+
+if DRY_RUN or METHOD == 2:
+   print("Only dry run, exiting now.")
+   sys.exit(0)
+
 print("Recomputing with final omega...")
 
 if PROGRAM == "TERACHEM":
-    driver = Abinitio_driver_terachem()
+    dr = driver.Abinitio_driver_terachem()
 if PROGRAM == "QCHEM":
-    driver = Abinitio_driver_qchem()
+    dr = driver.Abinitio_driver_qchem()
 
-IP_dscf, IP_koop = driver.compute_ip(omega/1000.)
+IP_dscf, IP_koop = dr.compute_ip(omega/1000.)
 print("Final IP_dscf:",IP_dscf*AUtoEV)
 print("Final IP_koop:",IP_koop*AUtoEV)
     
