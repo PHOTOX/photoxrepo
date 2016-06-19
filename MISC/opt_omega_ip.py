@@ -2,6 +2,7 @@
 import os
 import sys
 import abinitio_driver as driver
+from abinitio_driver import AUtoEV
 import scipy.optimize as opt
 from scipy.interpolate  import interp1d
 try:
@@ -10,7 +11,6 @@ try:
    import matplotlib.pyplot as plt
 except:
    pass
-
 
 # This is the driver script for omega tuning of long-range functionals such as BNL or wPBE
 # The interface to ab initio programs is in separate file abinitio_driver.py
@@ -22,35 +22,35 @@ except:
 
 
 ####### USER INPUT PARAMETERS ############################
+
 #PROGRAM = "QCHEM"
 PROGRAM = "TERACHEM"
 METHOD = 0
 # 0 - minimization
 # 1 - interpolation
+# 2 - read omega-deltaIP function from file omegas.dat and interpolate
+
+# Options for interpolation
 MIN_OMEGA =  300
-BEST_GUESS = 370
-MAX_OMEGA =  450
+BEST_GUESS = 400
+MAX_OMEGA =  500
 STEP      =  50
 # for interpolation, one needs at least 2 starting points
 # i.e. (MAX_OMEGA-MIN_OMEGA)/STEP >=2
 # of course, this inequality should hold as well: MIN_OMEGA <  BEST_GUESS < MAX_OMEGA
 
+# OPTIONS for minimizer
 # accuracy and maximum iterations for the minimizer
-THR_OMEGA = 0.005
+THR_OMEGA = 10.000  # absolute accuracy, omega*1000
 MAXITER   = 20
-
-####### END OF USER INPUT #########################################
-
-# use only if you already have output files and you know what you're doing!
-driver.DRY_RUN   = False
-# Whether to check SCF convergence (implemented only for TC at the moment)
-driver.CHECK_SCF = False
-
-# These 2 are a safety defaults for the minimizer
-# if the user picked MIN_OMEGA, BEST_GUESS and MAX_OMEGA incorrectly
+# These are bounds for the minimizer, can be tighter if you know where to look
 MIN_OMEGA_DEF = 100
 MAX_OMEGA_DEF = 800
 
+####### END OF USER INPUT #########################################
+
+# Whether to check SCF convergence (implemented only for TC at the moment)
+driver.CHECK_SCF = True
 
 if BEST_GUESS <= MIN_OMEGA or BEST_GUESS >= MAX_OMEGA:
    print("ERROR:Incorrect input value for BEST_GUESS")
@@ -66,16 +66,11 @@ def minimize(min_omega, max_omega, thr_omega):
    """Minimization of a general univariate function"""
    # http://docs.scipy.org/doc/scipy/reference/optimize.html
    try:
-      res  = opt.minimize_scalar(f_optomega_ip,method="brent",bracket=(MIN_OMEGA, BEST_GUESS, MAX_OMEGA), \
-         options={"xtol":thr_omega,"maxiter": MAXITER})
-   except ValueError as e:
-       print(e)
-       print("Using bracketing interval:",MIN_OMEGA_DEF, MAX_OMEGA_DEF)
-       res = opt.minimize_scalar(f_optomega_ip,method="brent",bracket=(MIN_OMEGA_DEF, MAX_OMEGA_DEF), \
-            options={"xtol":thr_omega,"maxiter": MAXITER})
+      res = opt.minimize_scalar(f_optomega_ip,method="bounded",bounds=(MIN_OMEGA_DEF, MAX_OMEGA_DEF), \
+              options={"xatol":thr_omega,"maxiter": MAXITER,"disp": True})
    except NameError:
        print("Whoops, you probably have old version of SciPy that does not have minimize_scalar!")
-       print("Use interpolation instead!")
+       print("Use interpolation instead and comment out this code!")
        raise
 
    print(res)
@@ -187,7 +182,7 @@ def interpolate_read(min_omega, max_omega, step, best_guess):
                break
          else:
             omegas.append(float(l[0]))
-            deltaIP.append(float(l[3]))
+            deltaIP.append(float(l[1]))
 
 #  Check whether deltaIP crosses zero. If not, exit
 #  This assumes a monotonic dependence of deltaIP on omega
@@ -230,10 +225,10 @@ elif METHOD == 2:
 
 print("Final tuned omega = ",omega)
 
-if DRY_RUN or METHOD == 2:
-   print("Only dry run, exiting now.")
+if METHOD == 2:
    sys.exit(0)
 
+# This can be skipped if you want to save time
 print("Recomputing with final omega...")
 
 if PROGRAM == "TERACHEM":
@@ -242,7 +237,8 @@ if PROGRAM == "QCHEM":
     dr = driver.Abinitio_driver_qchem()
 
 IP_dscf, IP_koop = dr.compute_ip(omega/1000.)
+err   = IP_dscf - IP_koop
 print("Final IP_dscf:",IP_dscf*AUtoEV)
 print("Final IP_koop:",IP_koop*AUtoEV)
+print("Final deltaIP:",err*AUtoEV)
     
-

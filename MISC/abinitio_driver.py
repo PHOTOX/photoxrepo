@@ -3,6 +3,8 @@ from sys import exit
 import shutil
 import os
 
+# TODO: Implement check for SCF convergence for QCHEM
+
 TERA_VERSION = "dev"
 QCHEM_VERSION = "4.3"
 CHECK_SCF = True
@@ -81,11 +83,11 @@ class Abinitio_driver():
 
       with open("omegas.dat", "a") as f:
           if __counter__ == 0:
-              f.write("# omega   dSCF    Koop    deltaIP\n")
-          string = str(round(omega,3))+"  "
-          string += str(round(ip_dscf*AUtoEV,3))+"  "
-          string += str(round(ip_koop*AUtoEV,3))+"  "
-          string += str(round(err*AUtoEV,3))+"\n"
+              f.write("# omega  deltaIP    dSCF    Koop\n")
+          string = str(round(omega,4))+"  "
+          string += str(round(err*AUtoEV,4))+"  "
+          string += str(round(ip_dscf*AUtoEV,4))+"  "
+          string += str(round(ip_koop*AUtoEV,4))+"\n"
           f.write(string)
 
       __counter__ += 1
