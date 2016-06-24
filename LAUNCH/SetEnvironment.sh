@@ -366,7 +366,7 @@ case "$program" in
       ;;
 
    "QCHEM" )
-      VERSIONS=(4.1 4.3)
+      VERSIONS=(4.3 4.1)
       if [[ $cluster = "as67" ]];then
          QCHEM[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64

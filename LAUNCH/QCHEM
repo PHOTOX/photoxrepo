@@ -16,8 +16,8 @@ fi
 if [[ -z $NSLOTS ]];then
    NSLOTS=1
 fi
-version=$2
-parall=$3
+version=$3
+parall=$2
 INPUT=$1
 WF=$4
 

@@ -84,7 +84,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V
 
-QCHEM $input $version $para_type
+QCHEM $input $para_type $version 
 EOF
 
 
