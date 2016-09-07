@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ "$#" -lt 1 || "$1" = "-h" ]] ; then
+   echo "Usage: $(/usr/bin/basename $0) <input_file> [version] [nproc]"
+   echo
+   exit 1
+fi
+
 input=$1
 version=$2
 nproc=${NSLOTS}
@@ -14,7 +20,7 @@ if [[ $? != "0" ]];then
 fi
 
 DIR=$(pwd)
-SCRDIR=/scratch/$USER/CP2K_$input_${JOB_ID}
+SCRDIR=/scratch/$USER/CP2K_${input}_${JOB_ID}
 
 if [[ -d $SCRDIR ]];then
    echo "ERROR: scratch directory $SCRDIR already exist!"

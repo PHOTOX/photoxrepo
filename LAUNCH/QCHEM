@@ -6,7 +6,7 @@
 # Different methods are parallelized with OpenMP or MPI. See the manual.
 
 if [ "$#" -lt 1 ] ; then
-   echo "Usage: $(/usr/bin/basename $0) <input_file> [version] [par_type] [SAVEWF]"
+   echo "Usage: $(/usr/bin/basename $0) <input_file> [par_type] [version] [SAVEWF]"
    echo "par_type is either mpi or openmp"
    echo "\"SAVEWF\" is the name of the scratch folder woth stored wavefunction"
    echo

@@ -211,14 +211,15 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( dev debug bhand trunk )
+         VERSIONS=( dev 1.9-dev debug bhand trunk qmmm )
       elif [[ $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( dev debug bhand trunk )
+         VERSIONS=( 1.9-dev dev debug bhand trunk )
       elif [[ $node = "a25" ]];then
-         VERSIONS=( 1.5K 1.5 dev debug bhand trunk )
+         VERSIONS=( 1.9-dev 1.5K 1.5 dev debug bhand trunk )
       elif [[ $cluster = "a324" ]];then
-         VERSIONS=( 1.5K dev debug bhand trunk )
+         VERSIONS=( 1.9-dev 1.5K dev debug bhand trunk )
       fi
+      export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
       set_version
       if [[ $? -ne 0 ]];then
          return 1
@@ -228,8 +229,10 @@ case "$program" in
       TERA[bhand]=$basedir_custom/terachem/terachem-dev/build_bhand
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
+      TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
       TERA[trunk]=/home/hollas/programes/TeraChem-dev/production/build
-      if [[ $version =~ de ]];then
+      TERA[qmmm]=/home/hollas/programes/TeraChem-dev/production_qmmm/build
+      if [[ $version != "1.5K" && $version != "1.5" ]];then
          source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       fi
       export TeraChem=${TERA[$version]}
@@ -237,6 +240,8 @@ case "$program" in
       export PATH=$TeraChem/bin:$PATH
       export NBOEXE=$TeraChem/nbo6.exe
       if [[ $version != "1.5" && $version != "1.5K" ]];then
+         export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
+         export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
          export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
@@ -249,7 +254,7 @@ case "$program" in
 
    "CP2K" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 2.7-trunk 2.6.2 2.5 )
+         VERSIONS=( 2.7-trunk 3.0-trunk 2.6.2 2.5 )
          base=/home/hollas/build-fromfrank/
          CP2K[2.5]=$base/cp2k/2_5_12172014/
       elif [[ $cluster = "a324" ]];then
@@ -278,6 +283,7 @@ case "$program" in
          MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
          CP2K[2.6.2]=/home/hollas/programes/src/cp2k-2.6.2/exe/Linux-x86-64-gfortran-mkl/
          CP2K[2.7-trunk]=/home/hollas/programes/src/cp2k-trunk/cp2k/exe/Linux-x86-64-gfortran-mkl-noplumed/
+         CP2K[3.0-trunk]=$basedir_custom/cp2k/cp2k-3.0-trunk/src/cp2k/exe/Linux-x86-64-intel-mkl-noplumed/
       fi
 
       export cp2kroot=${CP2K[$version]}

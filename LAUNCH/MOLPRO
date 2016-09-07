@@ -17,8 +17,8 @@ OUTFILE=$1.out
 nproc=${NSLOTS}
 echo "Number of processor is $nproc"
 
-export SCRATCH=${scratch}/M12_$1_${JOB_ID}
-export INTGDIR=${scratch}/M12_$1_${JOB_ID}
+export SCRATCH=${scratch}/MOLPRO-$1-${JOB_ID}
+export INTGDIR=${scratch}/MOLPRO-$1-${JOB_ID}
 export WORKDIR=$(/bin/pwd)
 
 
