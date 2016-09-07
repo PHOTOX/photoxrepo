@@ -243,7 +243,7 @@ case "$program" in
          export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
          export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-         export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
+         #export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
       elif [[ $version = "1.5K" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
@@ -309,10 +309,12 @@ case "$program" in
       export PATH=$orcaroot/:$PATH
       export ORCAEXE=$orcaroot/orca
       if [[ $cluster = "as67" ]];then
-         source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+         export OPENMPI=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2
       else
-         source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         export OPENMPI=$basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5
       fi
+      export PATH=${OPENMPI}/bin:${PATH}
+      export LD_LIBRARY_PATH=${OPENMPI}/lib:${LD_LIBRARY_PATH}
       ;;
 
    "SHARC" )
