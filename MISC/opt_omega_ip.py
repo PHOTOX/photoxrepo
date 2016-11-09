@@ -102,9 +102,9 @@ def interpolate(min_omega, max_omega, step, best_guess):
         Then find the root."""
    omega = min_omega
    if PROGRAM == "TERACHEM":
-      driver = Abinitio_driver_terachem()
+      driver = driver.Abinitio_driver_terachem()
    elif PROGRAM == "QCHEM":
-      driver = Abinitio_driver_qchem()
+      driver = driver.Abinitio_driver_qchem()
     
    deltaIP = []
    omegas  = []
