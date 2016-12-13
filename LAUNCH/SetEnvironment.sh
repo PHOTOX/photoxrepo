@@ -211,7 +211,7 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( dev 1.9-dev debug bhand trunk qmmm )
+         VERSIONS=( 1.9-dev dev debug bhand trunk qmmm )
       elif [[ $node = "a32" || $node = "a33" ]];then
          VERSIONS=( 1.9-dev dev debug bhand trunk )
       elif [[ $node = "a25" ]];then
@@ -243,7 +243,7 @@ case "$program" in
          export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
          export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-         #export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
+         export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
       elif [[ $version = "1.5K" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
@@ -421,16 +421,16 @@ case "$program" in
       fi
       if [[ ! -f "/home/$USER/.nwchemrc" ]];then
          cat > "/home/$USER/.nwchemrc" << EOF
- nwchem_basis_library $nwchemroot/src/basis/libraries/
- nwchem_nwpw_library $nwchemroot/src/nwpw/libraryps/
+ nwchem_basis_library $nwchemroot/basis/libraries/
+ nwchem_nwpw_library $nwchemroot/nwpw/libraryps/
  ffield amber
- amber_1 $nwchemroot/src/data/amber_s/
- amber_2 $nwchemroot/src/data/amber_q/
- amber_3 $nwchemroot/src/data/amber_x/
- amber_4 $nwchemroot/src/data/amber_u/
- spce   $nwchemroot/src/data/solvents/spce.rst
- charmm_s $nwchemroot/src/data/charmm_s/
- charmm_x $nwchemroot/src/data/charmm_x/
+ amber_1 $nwchemroot/data/amber_s/
+ amber_2 $nwchemroot/data/amber_q/
+ amber_3 $nwchemroot/data/amber_x/
+ amber_4 $nwchemroot/data/amber_u/
+ spce   $nwchemroot/data/solvents/spce.rst
+ charmm_s $nwchemroot/data/charmm_s/
+ charmm_x $nwchemroot/data/charmm_x/
 EOF
       fi
       ;;
