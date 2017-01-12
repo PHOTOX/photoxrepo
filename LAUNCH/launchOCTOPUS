@@ -44,7 +44,6 @@ export octopuslibs=/home/chalabaj/prog/octopus/Octopus_environment.sh
 
 #parallelization
 if [[ $nproc -gt "1" ]]; then
-cat > r.$name  << EOF  
 cat > r.$name << EOF
 #!/bin/bash
 source $octopuslibs
