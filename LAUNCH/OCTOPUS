@@ -2,6 +2,9 @@
 
 #$ -cwd -V
 
+#required libraries for OCTOPUS
+source SetEnvironment.sh OCTOPUS
+
 name=$1
 jobfile=job.log
 delscratch="true"
@@ -10,10 +13,8 @@ export basedir=$PWD
 export scrdir="/scratch/${USER}"
 export SCRATCH=$scrdir/${JOB_ID}
 
-echo  ${JOB_ID}     > $jobfile
-echo  ${USER}       >>  $jobfile
-echo  ${HOSTNAME}   >>  $jobfile
-echo  ${SCRATCH}    >>  $jobfile
+echo "NODE  ${HOSTNAME}"   >>  $jobfile
+echo "SCRATCH  ${SCRATCH}"    >>  $jobfile
 echo  $basedir      >>  $jobfile
 echo 'NSLOTS: '${NSLOTS} >>  $jobfile   #NSLOTS
 
@@ -24,7 +25,12 @@ if [[ -d $SCRATCH ]];then
 else
    mkdir ${SCRATCH}
    cp -p * $SCRATCH/.
-   cp /home/chalabaj/skripty/octopus_analyzer/fetchoctopus.sh $basedir/.
+   if [[ -d static ]];then
+      cp -r static $SCRATCH
+   fi
+   if [[ -d restart ]];then
+      cp -r restart $SCRATCH
+   fi
 fi
 
 cd $SCRATCH

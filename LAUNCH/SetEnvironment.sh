@@ -66,16 +66,16 @@ elif [[ "$node" =~ ^n[0-9]+$|403-as67-01  ]];then
    cluster=as67gpu
 else
    echo "I did not recognize any of the PHOTOX clusters. Please check the script SetEnvironment.sh"
-   echo "Exiting..."
+   echo "node=$node"
    return 1
 fi
 
 if [[ $cluster = "as67" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER OCTOPUS)
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER OCTOPUS )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER)
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER OCTOPUS )
 fi
 
 basedir=/usr/local/programs
@@ -105,7 +105,7 @@ if [[ $available = "False" ]];then
 fi
 
 # declaration of associative BASH arrays
-declare -A ABIN NWCHEM GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
+declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
 
 
 case "$program" in
@@ -185,6 +185,16 @@ case "$program" in
          return 1
       fi
       export DFTBEXE=${DFTB[$version]}
+      ;;
+
+   "OCTOPUS" )
+      VERSIONS=( 6.0 )
+      OCTOPUS[6.0]=/home/chalabaj/prog/octopus/Octopus_environment.sh
+      set_version
+      if [[ $? -ne 0 ]];then
+         return 1
+      fi
+      source ${OCTOPUS[$version]}
       ;;
 
    "AMBER" )

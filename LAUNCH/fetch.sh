@@ -3,8 +3,11 @@
 # Expects the presence of file job.log.${JOB_ID}.
 
 if [[ -z $1 ]];then
+   # This is for MD jobs where we assume
+   # that there is only one job in the directory
    log=job.log
 else
+   # This is for single point jobs such as terachem...
    job_id=$1
    log=job.log.$job_id
 fi
@@ -17,7 +20,7 @@ fi
 
 # this is the old ABIN format
 NODE=$(head -1 $log)
-JOB=$(tail -1 $log)
+SCRATCH=$(head -2 $log | tail -1) 
 
 tmp=$(awk '{if ($1=="NODE") print $2}' $log)
 if [[ ! -z $tmp ]];then
@@ -26,17 +29,16 @@ fi
 
 tmp=$(awk '{if ($1=="SCRATCH") print $2}' $log)
 if [[ ! -z $tmp ]];then
-   JOB=$tmp
+   SCRATCH=$tmp
 fi
 
-KDE=`pwd`
+WHERE=$PWD
 
 # copy all data from scratch if it is newer (-u switch)
 # and preserve the timestamps (-p switch)
 if [[ -z $1 ]];then #this is for ABIN
-   ssh -n $NODE "cp -r -u -p $JOB/* $KDE"
+   ssh -n $NODE "cp -r -u -p $SCRATCH/* $WHERE/"
 else
-   ssh -n $NODE "cp -r -u -p $JOB/ $KDE"
+   ssh -n $NODE "cp -r -u -p $SCRATCH/ $WHERE/"
 fi
-
 
