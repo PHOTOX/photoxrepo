@@ -41,7 +41,6 @@ fi
 #required libraries for OCTOPUS
 export octopuslibs=/home/chalabaj/prog/octopus/Octopus_environment.sh
 
-
 #parallelization
 if [[ $nproc -gt "1" ]]; then
 cat > r.$name << EOF
@@ -51,11 +50,20 @@ source $octopuslibs
 #$ -V
 #$ -cwd
 #$ -e .
-#$ -pe mpi $nproc
-
+#$ -o .
+#$ -pe mpi $nproc 
+#$ -notify
 export OMP_NUM_THREADS=1  
-mpirun -np \${NSLOTS} octopus > $name.out
+
+OCTOPUS $name
 EOF
+
+echo "Launching parallel OCTOPUS 6.0 job for $input using $nproc processors."
+echo "Results will be saved to $name.out, JOB information in $name.log"
+echo "qsub -cwd -V -q $queue -pe mpi $nproc r.$name"
+echo "-----------------------------------------"
+qsub -cwd -V -q $queue -pe mpi $nproc r.$name
+
   else 
 cat > r.$name << EOF
 #!/bin/bash
@@ -64,14 +72,13 @@ source $octopuslibs
 #$ -V
 #$ -cwd
 #$ -e .
-
-octopus > $name.out
+#$ -notify
+OCTOPUS $name
 EOF
-fi
-
 echo "Launching OCTOPUS 6.0 job for $input using $nproc processor(s)."
 echo "Results will be saved to $name.out."
 echo "qsub -cwd -q $queue r.$name"
 echo "-----------------------------------------"
+qsub -cwd -V -q $queue r.$name
+fi
 
-qsub -cwd -q $queue r.$name
