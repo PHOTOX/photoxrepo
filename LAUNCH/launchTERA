@@ -59,6 +59,11 @@ do
 
 done
 
+if [[ ! -f $input ]];then
+   echo "Input file $input does not exist!"
+   PrintHelp
+fi
+
 if [[ $index -ne $NUMPARAMS ]];then
    echo "Incorrect number of parameters."
    PrintHelp
@@ -153,6 +158,8 @@ cat > r.$name << EOF
 #$ -e . 
 #$ -o .
 #$ -V
+#$ -l num_gpu=1
+#$ -pe shm $numgpus
 
 TERA $input $version
 EOF

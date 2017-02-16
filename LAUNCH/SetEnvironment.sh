@@ -154,6 +154,7 @@ case "$program" in
       if [[ $version = 2015 ]];then
          export MPIDIR=$molproroot
       fi
+      export MPIRUN=$MPIDIR/bin/mpirun
       ;;
 
    "GAUSSIAN" )
