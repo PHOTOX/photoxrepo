@@ -13,7 +13,7 @@ export basedir=$PWD
 export scrdir="/scratch/${USER}"
 export SCRATCH=$scrdir/${JOB_ID}
 
-echo "NODE  ${HOSTNAME}"   >>  $jobfile
+echo "NODE  ${HOSTNAME}"   >  $jobfile
 echo "SCRATCH  ${SCRATCH}"    >>  $jobfile
 echo  $basedir      >>  $jobfile
 echo 'NSLOTS: '${NSLOTS} >>  $jobfile   #NSLOTS
@@ -36,11 +36,16 @@ fi
 cd $SCRATCH
  
 function clean_scratch {
-   echo "Job stopped after qdel ${JOB_ID}">> $jobfile
-   echo "Copying current data back to $basedir/">> $jobfile
    cp -pr * $basedir/.
-   cd ../
-   rm -r $SCRATCH
+   if [[ $? -ne "0" ]];then
+      echo "Error when copying the data from scratch back to the server."
+      echo "I will keep the directory $SCRATCH on node ${HOSTNAME}"
+      exit 1
+   fi
+   if [[ $delscratch -eq "true" ]];then
+      cd ../
+      rm -r $SCRATCH
+   fi
    exit 1
 }
 trap clean_scratch SIGUSR2  #if qdel JOBID then copy current data to basedir
@@ -53,9 +58,5 @@ octopus > $name.out
 fi
 
 echo 'Normal termination of:' ${JOB_ID} >> $jobfile
-cp -pr * $basedir/.
+clean_scratch
 
-if [[ $delscratch -eq "true" ]];then
-  cd ../
-  rm -r $SCRATCH
-fi

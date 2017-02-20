@@ -8,7 +8,7 @@
 if [ "$#" -lt 1 ] ; then
    echo "Usage: $(/usr/bin/basename $0) <input_file> [par_type] [version] [SAVEWF]"
    echo "par_type is either mpi or openmp"
-   echo "\"SAVEWF\" is the name of the scratch folder woth stored wavefunction"
+   echo "\"SAVEWF\" is the name of the scratch folder with stored wavefunction"
    echo
    exit 1
 fi
@@ -40,10 +40,13 @@ elif [[ $parall = "mpi" ]];then
   source ${qc_mpiroot}/qcenv.sh
   qchem -np ${NSLOTS} ${INPUT} ${INPUT}.out $WF &> ${INPUT}.log
 
-else
+elif [[ $parall = "openmp" ]];then
   source ${qcroot}/qcenv.sh
   qchem -nt ${NSLOTS} ${INPUT} ${INPUT}.out $WF &> ${INPUT}.log
 
+else 
+   echo "ERROR in QCHEM: Incorrent parallel environment! 2nd parameter to this script should be \"mpi\" or \"openmp\""
+   exit 1
 fi
 
 rm -rf TMP core

@@ -2,7 +2,7 @@
 
 # Gaussian 2009 SGE submission script
 
-#$ -V
+#$ -cwd -V
 input=$1
 version=$2
 
@@ -18,19 +18,9 @@ export GAUSS_EXEDIR="$gaussroot"
 export GAUSS_SCRDIR="/scratch/$USER/GAUSS_$1_${JOB_ID}"
 export LD_LIBRARY_PATH=$GAUSS_EXEDIR
 
-if [ -e "$1" ]
-then
- mkdir -p $GAUSS_SCRDIR
- echo "Running Gaussian job $1"
- uname -n
- date
- $GAUSSEXE $1
-else
- echo "`basename $0` input file does not exist."
-fi
 
 function clean_scr {
-   echo "Cleaning up temporary files."
+   echo "Cleaning up temporary files in scratch directory."
    /bin/rm -rf /$GAUSS_SCRDIR
    /bin/rm -rf ${scrhome}/*.rwf #u velkych vypoctu chceme umet restartovat z vln. fce,comment this
    /bin/rm -rf ${scrhome}/*.scr
@@ -38,9 +28,20 @@ function clean_scr {
    exit
 }
 
-
-trap clean_scr EXIT
 # The following should trap signal sent by qdel when submitted with qsub -notify option
 # For unknown reason, this does not work
 trap clean_scr SIGUSR2
+
+if [ -e "$1" ];then
+   mkdir -p $GAUSS_SCRDIR
+   echo "Running Gaussian job $1"
+   uname -n
+   date
+   $GAUSSEXE $1
+   clean_scr
+else
+   echo "`basename $0` input file does not exist."
+fi
+
+
 
