@@ -30,7 +30,10 @@ fi
 export JOBDIR=$(pwd)
 
 export QCSCRATCH=${JOBDIR}
-export QCLOCALSCR=/scratch/${USER}
+inp=$(basename $INPUT .inp)
+inp=$(basename $inp .com)
+export QCLOCALSCR=/scratch/${USER}/QCHEM-${inp}-${JOB_ID}
+mkdir $QCLOCALSCR
 
 if [[ ${NSLOTS} -eq 1 ]]; then
   source ${qcroot}/qcenv.sh
