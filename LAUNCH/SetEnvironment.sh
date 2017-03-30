@@ -222,35 +222,38 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 1.9-dev dev debug bhand trunk qmmm )
+         VERSIONS=( 1.9-dev 1.9 dev trunk )
       elif [[ $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( 1.9-dev dev debug bhand trunk )
-      elif [[ $node = "a25" ]];then
-         VERSIONS=( 1.9-dev 1.5K 1.5 dev debug bhand trunk )
+         VERSIONS=( 1.9-dev 1.9 dev trunk )
       elif [[ $cluster = "a324" ]];then
-         VERSIONS=( 1.9-dev 1.5K dev debug bhand trunk )
+         VERSIONS=( 1.9-dev 1.9 1.5K dev trunk )
       fi
-      export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+      if [[ $cluster = "a324" ]];then
+         export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/:$LD_LIBRARY_PATH
+      elif [[ $cluster = "as67gpu" ]];then
+         export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+      fi
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
-      TERA[debug]=$basedir_custom/terachem/terachem-dev/build_debug
-      TERA[bhand]=$basedir_custom/terachem/terachem-dev/build_bhand
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
+      TERA[1.9]=$basedir_custom/terachem/terachem-1.9/arch/TeraChem
       TERA[trunk]=/home/hollas/programes/TeraChem-dev/production/build
-      TERA[qmmm]=/home/hollas/programes/TeraChem-dev/production_qmmm/build
-      if [[ $version != "1.5K" && $version != "1.5" ]];then
+      if [[ $version != "1.5K" && $version != "1.5" && $version != "1.9" ]];then
          source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       fi
+      # TODO: Make SetTCVars.sh for each version and do not export things here...
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export PATH=$TeraChem/bin:$PATH
       export NBOEXE=$TeraChem/nbo6.exe
-      if [[ $version != "1.5" && $version != "1.5K" ]];then
+      if [[ $version = "1.9" ]];then
+         . $TeraChem/SetTCVars.sh
+      elif [[ $version != "1.5" && $version != "1.5K" ]];then
          export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
          export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
          export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
@@ -308,7 +311,8 @@ case "$program" in
       ;;
 
    "ORCA" )
-      VERSIONS=(3.0.3 3.0.2 3.0.0 )
+      VERSIONS=(3.0.3 4.0.0 3.0.2 3.0.0 )
+      ORCA[4.0.0]=$basedir_custom/orca/orca_4_0_0_linux_x86-64_openmpi_202/
       ORCA[3.0.0]=$basedir_custom/orca/orca_3_0_0_linux_x86-64_openmpi_165/
       ORCA[3.0.2]=$basedir_custom/orca/orca_3_0_2_linux_x86-64_openmpi_165/
       ORCA[3.0.3]=$basedir_custom/orca/orca_3_0_3_linux_x86-64_openmpi_165/
@@ -322,7 +326,11 @@ case "$program" in
       if [[ $cluster = "as67" ]];then
          export OPENMPI=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2
       else
-         export OPENMPI=$basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5
+         if [[ $version = "4.0.0" ]];then
+            export OPENMPI=$basedir/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2
+         else
+            export OPENMPI=$basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5
+         fi
       fi
       export PATH=${OPENMPI}/bin:${PATH}
       export LD_LIBRARY_PATH=${OPENMPI}/lib:${LD_LIBRARY_PATH}

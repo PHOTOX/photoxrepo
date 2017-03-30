@@ -72,7 +72,7 @@ if [[ -z $scrdir ]];then
    copyback=true
    input=$(basename $1 .inp)
    input=$(basename $input .com)
-   scrdir="/scratch/$USER/TERA-${inp}-${JOB_ID}"
+   scrdir="/scratch/$USER/TERA-${input}-${JOB_ID}"
    echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    mkdir $scrdir
    echo "scrdir not specified, using : $scrdir"
