@@ -176,8 +176,8 @@ class Spectrum(object):
          self.trans2intensity()
       self.finish_spectrum()
       self.origintensity = self.intensity
-      print "Original spectrum sigma:",self.sigma
-      print "Printing original spectra:"
+      print("Original spectrum sigma:",self.sigma)
+      print("Printing original spectra:")
       self.writeoutall(infile)
 
       self.nsample = self.subset
@@ -193,13 +193,13 @@ class Spectrum(object):
       self.finish_spectrum()
       d = self.calc_diff()
       dact = d
-      print "Initial sample : D-min =",d
+      print("Initial sample : D-min =",d)
       for i in range(self.cycles):
          #self.subsamplesact = self.subsamples
          #self.restsamplesact = self.restsamples
 	 #for j in range(int(self.subset*(self.cycles-i)/self.cycles)+1):
          #   self.swap_samples()
-	 self.select_subsetact()
+         self.select_subsetact()
          self.exc = list( self.exc_orig[i] for i in self.subsamplesact )
          self.trans = list( self.trans_orig[i] for i in self.subsamplesact )
          if self.notrans == True:
@@ -209,13 +209,13 @@ class Spectrum(object):
          self.finish_spectrum()
          dact = self.calc_diff()
          if dact <= d:
-	    self.subsamples = self.subsamplesact
-	    self.restsamples = self.restsamplesact
+            self.subsamples = self.subsamplesact
+            self.restsamples = self.restsamplesact
             d = dact
-	    print "Sample",i,": D-min =",d
+            print("Sample",i,": D-min =",d)
 #            self.writeout("nm","spectrum.test."+str(i))a
-      print "Reduced spectrum sigma:",self.sigma
-      print "Printing reduced spectra:"
+      print("Reduced spectrum sigma:",self.sigma)
+      print("Printing reduced spectra:")
       self.writeoutall(infile)
       self.writegeoms(infile)
 
@@ -272,7 +272,7 @@ class Spectrum(object):
    def finish_spectrum(self):
       self.energies = [ 0.0 for i in range(len(self.intensity)-1, -1, -1)]
       for i in range(len(self.intensity)-1, -1, -1):
-	 self.energies[i] = (self.maxe-i*self.de)
+         self.energies[i] = (self.maxe-i*self.de)
 
    def writeout(self, xunit, fileout):
       units = {}
@@ -313,7 +313,7 @@ Make up your mind and try again.")
    def writegeoms(self,infile):
       name = infile.split(".")[0]
       outfile = name+"."+str(self.nsample)+".geoms"
-      print "Printing geometries of reduced spetrum to",outfile
+      print("Printing geometries of reduced spetrum to",outfile)
       f = open(outfile, "w")
       for i in self.subsamples:
          f.write('%s' % (self.samples[i]))
