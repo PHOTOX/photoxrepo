@@ -24,7 +24,6 @@ indices=""	# file with indices of geometries to use. Leave empty for using all g
 gauss=0 # Uncomment for Gaussian broadening parameter in eV, set to 0 for automatic setting
 #lorentz=0.1 # Uncomment for Lorentzian broadening parameter in eV
 de=0.005     # Energy bin for histograms
-molar=false # Set to "true" to print intensities in molar units instead of absorption cross section
 ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole moments)
 subset=200    # number of most representative molecules to pick for the spectrum, set to 0 or comment afor not using this method
 cycles=100000	# number of cycles for geometries reduction, only valid with positive subset parameter
@@ -54,7 +53,8 @@ rm -f omegas.dat
 rawdata="$name.rawdata.$$.dat"
 
 function getData {
-   file=$name.$i.$filesuffix
+   index=$1
+   file=$name.$index.$filesuffix
    if  [[ -f $file ]];then
       $grep_function $file $rawdata $states
 
@@ -71,12 +71,12 @@ if [[ -n $indices ]] && [[ -f $indices ]]; then
    mapfile -t subsamples < $indices
    for i in "${subsamples[@]}"
    do
-      getData
+      getData $i
    done
 else
    while [[ $i -le $imax ]]
    do
-      getData
+      getData $i
       let i++
    done
 fi
@@ -103,9 +103,6 @@ fi
 if [[ $ioniz = "true" ]];then
    options=" --notrans "$options
 fi
-if [[ $molar = "true" ]];then
-   options=" --epsilon"$options
-fi 
 
 ./calc_spectrum.py -n $samples $options $rawdata
 

@@ -18,8 +18,6 @@ def read_cmd():
    parser.add_option('-d','--de',dest='de', type='float', default=0.02, help='Bin step in eV. Default = 0.02 ')
    parser.add_option('-s','--sigma',dest='sigma', type='float', help='Parameter for Gaussian broadening.')
    parser.add_option('-t','--tau',dest='tau', type='float', default=0.0, help='Parameter for Lorentzian broadening.')
-   parser.add_option('-e','--epsilon',dest='eps', action="store_true",default=False,
-   help='Print intensity in epsilon instead of a cross section.' )
 #  --smooth (perform runnning average?)
    parser.add_option('','--notrans',dest='notrans', action="store_true",default=False,
    help='No transition dipole moments. Spectrum will be normalized to unity. Useful for ionizations.' )
@@ -93,11 +91,9 @@ class Spectrum(object):
          self.intensity[index] += 1.0 / self.nsample / self.de
 
    def cross2eps(self): 
+      """Conversion to molar exctinction coefficient"""
       for i in range(len(self.intensity)):
          self.intensity[i] *= 6.022140e20 / math.log(10)
-      # TODO not sure how this works
-#      for int in self.intensity:
-#         int *= 6.022140e20 / math.log(10)
 
    def select_subset(self):
        self.subsamples = random.sample(range(1, len(self.exc), 1),self.subset)
@@ -266,7 +262,8 @@ class Spectrum(object):
          print("Error: Number of excitations does not match number of samples.")
          sys.exit(1)
 
-      self.maxe = max(self.exc)+3.0
+      self.maxe = max(self.exc)+0.5
+      self.minE = min(self.exc)-0.5
       f.close()
    
    def finish_spectrum(self):
@@ -282,6 +279,8 @@ class Spectrum(object):
       f = open(fileout, "w") 
 
       for i in range(len(self.intensity)-1, -1, -1):
+         if self.energies[i] < self.minE:
+            continue
          if xunit == "nm":
             if units[xunit]/self.energies[i] < 1000:
               f.write('%f %e \n' % (units[xunit]/self.energies[i], self.intensity[i]))
@@ -291,22 +290,20 @@ class Spectrum(object):
       f.close()
    
    def writeoutall(self,infile):
-      if options.eps:
-         if options.notrans:
-            print("Error in input: you did not provide intensities,\n\
-but yet you still want to convert to molar absorption coefficient.\n\
-Make up your mind and try again.")
-            sys.exit(1)
-         print("Converting cross section to molar absorption coefficient.")
-         self.cross2eps()
-         yunits="dm^3*mol^-1*cm^-1"
-      else:
-         yunits="cm^2*molecule^-1"
-
-      units = [ "ev", "nm", "cm"]
       name = infile.split(".")[0] # take the first part of the input file, before first dot
-      for un in units:
-         outfile="spec."+name+"."+un+"."+str(self.nsample)+".dat"
+
+      yunits="cm^2*molecule^-1"
+      xunits = [ "ev", "nm", "cm"]
+      for un in xunits:
+         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".cross.dat"
+         print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
+         self.writeout(un, outfile)
+
+      # Now convert to molar exctiction coefficient
+      self.cross2eps()
+      yunits="dm^3*mol^-1*cm^-1"
+      for un in xunits:
+         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".molar.dat"
          print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
          self.writeout(un, outfile)
 
@@ -402,6 +399,8 @@ class SpectrumBroad(Spectrum):
       f = open(fileout, "w") 
 
       for i in range(int( self.maxe/self.de )-1, -1, -1):
+         if self.energies[i] < self.minE:
+            continue
          if xunit == "nm":
             if units[xunit]/self.energies[i] < 1000:
               f.write('%f %e \n' % (units[xunit]/self.energies[i], self.intensity[i] ))
@@ -437,3 +436,5 @@ else:
       spectrum.trans2intensity()
    spectrum.finish_spectrum()
    spectrum.writeoutall(infile)
+
+
