@@ -371,14 +371,6 @@ class SpectrumBroad(Spectrum):
             self.int_sigma[i] /= 2
             self.int_tau[i] /= 2
 
-   def cross2eps(self):
-      if self.sigma > 0.0:
-         for i in range(len(self.int_sigma)):
-            self.int_sigma[i] *= 6.022140e20 / math.log(10)
-      if self.tau > 0.0:
-         for int in int_tau:
-            int *= 6.022140e20 / math.log(10)
-
    def normalize(self):
       if(self.sigma == 0):
          self.setSigma()
