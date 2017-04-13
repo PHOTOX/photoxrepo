@@ -10,21 +10,24 @@
 # extractG09.sh or similar
 
 ########## SETUP #####
-name=cyclo
-states=5       # number of excited states
+name=CH2OO_caspt2_adc3_cc-pVDZ
+states=2       # number of excited states
                # (ground state does not count)
 istart=1       # Starting index
-imax=1000      # number of calculations
-grep_function="grep_G09_EOM" # this function parses the outputs of the calculations
+imax=677      # number of calculations
+grep_function="grep_QC_ADC" # this function parses the outputs of the calculations
                # It is imported e.g. from extractG09.sh
-filesuffix="log" # i.e. "com.out" or "log"
+filesuffix="com.out" # i.e. "com.out" or "log"
+indices=""	# file with indices of geometries to use. Leave empty for using all geometries from istart to imax
 
 ## SETUP FOR SPECTRA GENERATION ## 
-#gauss=0.3   # Uncomment for Gaussian broadening parameter in eV
+gauss=0 # Uncomment for Gaussian broadening parameter in eV, set to 0 for automatic setting
 #lorentz=0.1 # Uncomment for Lorentzian broadening parameter in eV
-de=0.02     # Energy bin for histograms
+de=0.005     # Energy bin for histograms
 molar=false # Set to "true" to print intensities in molar units instead of absorption cross section
 ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole moments)
+subset=200    # number of most representative molecules to pick for the spectrum, set to 0 or comment afor not using this method
+cycles=100000	# number of cycles for geometries reduction, only valid with positive subset parameter
 ##############
 
 # Import grepping functions
@@ -47,22 +50,36 @@ fi
 
 i=$istart
 samples=0
-rm -f $name.rawdata.dat omegas.dat
-while [[ $i -le $imax ]]
-do
+rm -f omegas.dat
+rawdata="$name.rawdata.$$.dat"
 
+function getData {
    file=$name.$i.$filesuffix
+   if  [[ -f $file ]];then
+      $grep_function $file $rawdata $states
 
-   $grep_function "$file" $name.rawdata.dat $states
-
-   if [[ $? -eq "0" ]];then
-      let samples++
-      echo -n "$i "
+      if [[ $? -eq "0" ]];then
+         if [[ ! -z $subset ]] && [[ $subset > 0 ]];then
+                echo $file >> $rawdata
+         fi
+         let samples++
+         echo -n "$i "
+      fi
    fi
-
-   let i++
-
-done
+}
+if [[ -n $indices ]] && [[ -f $indices ]]; then
+   mapfile -t subsamples < $indices
+   for i in "${subsamples[@]}"
+   do
+      getData
+   done
+else
+   while [[ $i -le $imax ]]
+   do
+      getData
+      let i++
+   done
+fi
 
 echo
 echo Number of samples: $samples
@@ -77,6 +94,12 @@ fi
 if [[ ! -z $lorentz ]];then
    options=" -t $lorentz "$options
 fi
+if [[ ! -z $subset ]] && (( $subset > 0 ));then
+   options=" -S $subset "$options
+   if [[ ! -z $cycles ]] && (( $cycles > 0 ));then
+      options=" -c $cycles "$options
+   fi
+fi
 if [[ $ioniz = "true" ]];then
    options=" --notrans "$options
 fi
@@ -84,5 +107,5 @@ if [[ $molar = "true" ]];then
    options=" --epsilon"$options
 fi 
 
-./calc_spectrum.py -n $samples $options $name.rawdata.dat
+./calc_spectrum.py -n $samples $options $rawdata
 
