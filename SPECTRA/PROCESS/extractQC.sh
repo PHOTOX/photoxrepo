@@ -4,10 +4,11 @@
 
 # Available public functions are:
 # grep_QC_TUNOPT
+# grep_QC_EOMIP
+# grep_QC_ADC
 
 # TODO: This is only a stub
 # grep_QC_TDDFT
-# grep_QC_EOMIP
 
 # This function extracts MO energies for simulations of photoionization spectra
 # using tuned LRC functionals. It works in conjuction with the QCHEM tuning script.
@@ -38,6 +39,44 @@ function grep_QC_TUNOPT {
    # Collect optimal tuning parameters
    grep omega $in | awk '{print $2}' >> omegas.dat
 
+   return 0
+}
+
+function grep_QC_ADC {
+   local in=$1
+   local numstates=$3
+   local out=$2
+   local nst4
+   let nst4=22*numstates+3
+
+   checkQC $in
+   if [[ "$?" -ne "0" ]];then
+      return 1
+   fi
+
+   grep -A $nst4 -e 'Excited State Summary' $in  |\
+
+   awk -v numstates=$numstates 'BEGIN{
+        i=1
+	j=1
+	}
+        {
+        if ($1 == "Excitation" && $2 == "energy:" ) {
+                en[i]=$3
+                i++
+        }
+        if ($1 == "Trans." && $2 == "dip." ) {
+                dx[j]=substr($6, 1, length($6)-1); dy[j]=substr($7, 1, length($7)-1); dz[j]=substr($8, 1, length($8)-1)
+		j++
+        }
+        }
+        END{
+        for (i=1; i<=numstates; i++) {
+                print en[i]
+                print dx[i],dy[i],dz[i]
+        }
+        }' >> $out
+   
    return 0
 }
 
