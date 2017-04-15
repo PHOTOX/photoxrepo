@@ -95,19 +95,6 @@ class Spectrum(object):
       for i in range(len(self.intensity)):
          self.intensity[i] *= 6.022140e20 / math.log(10)
 
-   def select_subset(self):
-       self.subsamples = random.sample(range(1, len(self.exc), 1),self.subset)
-       self.restsamples = list(set(range(1, len(self.exc), 1)) - set(self.subsamples))
-  
-   def select_subsetact(self):
-       self.subsamplesact = random.sample(range(1, len(self.exc_orig), 1),self.subset)
-       self.restsamplesact = list(set(range(1, len(self.exc_orig), 1)) - set(self.subsamplesact))
- 
-   def swap_samples(self):
-       random_subindex = random.randrange(len(self.subsamplesact))
-       random_restindex = random.randrange(len(self.restsamplesact))
-       self.subsamplesact[random_subindex], self.restsamplesact[random_restindex] = self.restsamplesact[random_restindex], self.subsamplesact[random_subindex]
-
    def KStest(self):
       forig = 0.0
       fact = 0.0
@@ -165,28 +152,29 @@ class Spectrum(object):
          d = self.intdiffsum()
       return d
 
-   def reduce_geoms(self,infile):
-      if self.notrans == True:
-         self.normalize()
-      else:
-         self.trans2intensity()
-      self.finish_spectrum()
-      self.origintensity = self.intensity
-      print("Original spectrum sigma:",self.sigma)
-      print("Printing original spectra:")
-      self.writeoutall(infile)
+   def select_subset(self):
+       self.subsamples = random.sample(range(1, len(self.exc), 1),self.subset)
+       self.restsamples = list(set(range(1, len(self.exc), 1)) - set(self.subsamples))
+  
+   def select_subsetact(self):
+       self.subsamplesact = random.sample(range(1, len(self.exc_orig), 1),self.subset)
+       self.restsamplesact = list(set(range(1, len(self.exc_orig), 1)) - set(self.subsamplesact))
+ 
+   def swap_samples(self):
+       random_subindex = random.randrange(len(self.subsamplesact))
+       random_restindex = random.randrange(len(self.restsamplesact))
+       self.subsamplesact[random_subindex], self.restsamplesact[random_restindex] = self.restsamplesact[random_restindex], self.subsamplesact[random_subindex]
 
-      self.nsample = self.subset
-      self.select_subset()
-      self.exc_orig = self.exc
-      self.trans_orig = self.trans
-      self.exc = list( self.exc_orig[i] for i in self.subsamples )
-      self.trans = list( self.trans_orig[i] for i in self.subsamples )
-      if self.notrans == True:
-         self.normalize()
+   def SAprob(dold, dnew, temp):
+      if dnew < dold:
+         return 1.0
       else:
-         self.trans2intensity()
-      self.finish_spectrum()
+         return math.exp((dold - dnew) / temp)
+
+   def SAtemp(temp):
+      return temp*0.97
+
+   def random_search(self):
       d = self.calc_diff()
       dact = d
       print("Initial sample : D-min =",d)
@@ -210,6 +198,29 @@ class Spectrum(object):
             d = dact
             print("Sample",i,": D-min =",d)
 #            self.writeout("nm","spectrum.test."+str(i))a
+
+   def reduce_geoms(self,infile):
+      if self.notrans == True:
+         self.normalize()
+      else:
+         self.trans2intensity()
+      self.finish_spectrum()
+      self.origintensity = self.intensity[:]
+      print("Original spectrum sigma:",self.sigma)
+      print("Printing original spectra:")
+      self.writeoutall(infile)
+      self.nsample = self.subset
+      self.select_subset()
+      self.exc_orig = self.exc
+      self.trans_orig = self.trans
+      self.exc = list( self.exc_orig[i] for i in self.subsamples )
+      self.trans = list( self.trans_orig[i] for i in self.subsamples )
+      if self.notrans == True:
+         self.normalize()
+      else:
+         self.trans2intensity()
+      self.finish_spectrum()
+      self.random_search()
       print("Reduced spectrum sigma:",self.sigma)
       print("Printing reduced spectra:")
       self.writeoutall(infile)
@@ -300,12 +311,14 @@ class Spectrum(object):
          self.writeout(un, outfile)
 
       # Now convert to molar exctiction coefficient
+      helpints = self.intensity[:]
       self.cross2eps()
       yunits="dm^3*mol^-1*cm^-1"
       for un in xunits:
          outfile="absspec."+name+"."+un+"."+str(self.nsample)+".molar.dat"
          print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
          self.writeout(un, outfile)
+      self.intensity = helpints
 
    def writegeoms(self,infile):
       name = infile.split(".")[0]
