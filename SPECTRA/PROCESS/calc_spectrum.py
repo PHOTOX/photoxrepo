@@ -286,7 +286,7 @@ class Spectrum(object):
             for j in range(self.jobs):
                self.pid = str(os.getpid())+"_"+str(j);
                random.seed()
-               random.jumpahead(self.pid)
+               random.jumpahead(os.getpid())
                d = self.SA()
                toprint = str(self.pid)+":\tFinal D-min = "+str(d)
                toprint += "\n\tReduced spectrum sigma: "+str(self.sigma)
