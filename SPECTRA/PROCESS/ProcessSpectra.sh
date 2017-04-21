@@ -10,14 +10,14 @@
 # extractG09.sh or similar
 
 ########## SETUP #####
-name=CH2OO_caspt2_adc3_cc-pVDZ
+name=caspt2_pbepbe
 states=2       # number of excited states
                # (ground state does not count)
 istart=1       # Starting index
 imax=677      # number of calculations
-grep_function="grep_QC_ADC" # this function parses the outputs of the calculations
+grep_function="grep_G09_TDDFT" # this function parses the outputs of the calculations
                # It is imported e.g. from extractG09.sh
-filesuffix="com.out" # i.e. "com.out" or "log"
+filesuffix="log" # i.e. "com.out" or "log"
 indices=""	# file with indices of geometries to use. Leave empty for using all geometries from istart to imax
 
 ## SETUP FOR SPECTRA GENERATION ## 
@@ -25,8 +25,13 @@ gauss=0 # Uncomment for Gaussian broadening parameter in eV, set to 0 for automa
 #lorentz=0.1 # Uncomment for Lorentzian broadening parameter in eV
 de=0.005     # Energy bin for histograms
 ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole moments)
-subset=200    # number of most representative molecules to pick for the spectrum, set to 0 or comment afor not using this method
-cycles=100000	# number of cycles for geometries reduction, only valid with positive subset parameter
+
+## SETUP FOR REDUCTION OF SPECTRA
+subset=50    # number of most representative molecules to pick for the reduced spectrum, set to 0 or comment for not using this method
+cycles=100	# number of cycles for geometries reduction. The larger number, the better result. One or more hundreds is a sensible choice. Only valid with positive subset parameter.
+ncores=4      # number of cores used for parallel execution for spectrum reduction. Only valid with positive subset parameter.
+jobs_per_core=3         # number o reduction jobs per one core. Only valid with positive subset parameter.
+# Total number of reduction jobs is equal to ncores*jobs_per_core. 8-12 jobs should do the work. It is more efficient to execute more jobs and take the best result rather than increase the cycles parameter.
 ##############
 
 # Import grepping functions
@@ -98,6 +103,12 @@ if [[ ! -z $subset ]] && (( $subset > 0 ));then
    options=" -S $subset "$options
    if [[ ! -z $cycles ]] && (( $cycles > 0 ));then
       options=" -c $cycles "$options
+   fi
+   if [[ ! -z $ncores ]] && (( $ncores > 0 ));then
+      options=" -j $ncores "$options
+   fi
+   if [[ ! -z $jobs_per_core ]] && (( $jobs_per_core > 0 ));then
+      options=" -J $jobs_per_core "$options
    fi
 fi
 if [[ $ioniz = "true" ]];then

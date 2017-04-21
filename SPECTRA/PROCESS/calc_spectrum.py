@@ -6,7 +6,8 @@ import math
 import sys
 import numpy
 import random
-
+import time
+import os
 
 def read_cmd():
    """Function for reading command line options. Returns tuple options, args."""
@@ -14,7 +15,9 @@ def read_cmd():
    parser = OptionParser(usage)
    parser.add_option('-n','--nsample',dest='nsample', type='int', default=1, help='Number of samples.')
    parser.add_option('-S','--subset',dest='subset', type='int', default=0, help='Number of representative molecules.')
-   parser.add_option('-c','--cycles',dest='cycles', type='int', default=1000, help='Number of cycles for geometries reduction.')
+   parser.add_option('-c','--cycles',dest='cycles', type='int', default=100, help='Number of cycles for geometries reduction.')
+   parser.add_option('-j','--ncores',dest='ncores', type='int', default=1, help='Number of cores for parallel execution of geometries reduction.')
+   parser.add_option('-J','--jobspercore',dest='jobs', type='int', default=1, help='Number of reduction jobs per one core.')
    parser.add_option('-d','--de',dest='de', type='float', default=0.02, help='Bin step in eV. Default = 0.02 ')
    parser.add_option('-s','--sigma',dest='sigma', type='float', help='Parameter for Gaussian broadening.')
    parser.add_option('-t','--tau',dest='tau', type='float', default=0.0, help='Parameter for Lorentzian broadening.')
@@ -52,7 +55,7 @@ def weightedDev(values,weights):
 class Spectrum(object):
    """Base class spectrum for reflection principle without broadening"""
 
-   def __init__(self, nsample, deltaE, notrans, subset, cycles):
+   def __init__(self, nsample, deltaE, notrans, subset, cycles, ncores, jobs):
       self.trans = []
       self.intensity = []
       self.exc = []
@@ -68,6 +71,9 @@ class Spectrum(object):
       self.de = deltaE # in eV
       self.subset = subset
       self.cycles = cycles
+      self.ncores = ncores
+      self.jobs = jobs
+      self.pid = os.getpid()
       if notrans == True:
          self.notrans = True
 
@@ -153,8 +159,8 @@ class Spectrum(object):
       return d
 
    def select_subset(self):
-       self.subsamples = random.sample(range(1, len(self.exc), 1),self.subset)
-       self.restsamples = list(set(range(1, len(self.exc), 1)) - set(self.subsamples))
+       self.subsamples = random.sample(range(1, len(self.exc_orig), 1),self.subset)
+       self.restsamples = list(set(range(1, len(self.exc_orig), 1)) - set(self.subsamples))
   
    def select_subsetact(self):
        self.subsamplesact = random.sample(range(1, len(self.exc_orig), 1),self.subset)
@@ -165,24 +171,84 @@ class Spectrum(object):
        random_restindex = random.randrange(len(self.restsamplesact))
        self.subsamplesact[random_subindex], self.restsamplesact[random_restindex] = self.restsamplesact[random_restindex], self.subsamplesact[random_subindex]
 
-   def SAprob(dold, dnew, temp):
-      if dnew < dold:
-         return 1.0
+   def SA(self,test=0):
+      pi = 0.90
+      pf = 0.10
+      d = self.calc_diff()
+      if test == 1:
+         it = 1
+         diffmax = 0
+         diffmin = d
       else:
-         return math.exp((dold - dnew) / temp)
-
-   def SAtemp(temp):
-      return temp*0.97
+         self.select_subset()
+         self.exc = list( self.exc_orig[i] for i in self.subsamples )
+         self.trans = list( self.trans_orig[i] for i in self.subsamples )
+         if self.notrans == True:
+            self.normalize()
+         else:
+            self.trans2intensity()
+         self.finish_spectrum()
+         itmin = 1
+         itmax = self.subset
+         itc = math.exp((math.log(itmax)-math.log(itmin))/self.cycles)
+         it = itmin
+         start = time.time()
+         ti,tf = self.SA(1)
+         end = time.time()
+         m,s = divmod(int(round((itmax+itmin)*(end-start)/2)), 60)
+         h,m = divmod(m, 60)
+         tc = math.exp((math.log(tf)-math.log(ti))/self.cycles)
+         temp = ti
+         toprint = str(self.pid)+":\tInitial temperature = "+str(ti)+", Final temperature = "+str(tf)+", Temperature coefficient = "+str(tc)
+         toprint += "\n\tMarkov Chain Length coefficient = "+str(itc)+", Initial D-min = "+str(d)
+         toprint += "\n\tEstimated run time: "+str(h)+" hours "+str(m)+" minutes "+str(s)+" seconds"
+         print(toprint)
+         sys.stdout.flush()
+      dact = d
+      for j in range(self.cycles):
+         for k in range(int(round(it))): 
+            self.subsamplesact = self.subsamples[:]
+            self.restsamplesact = self.restsamples[:]
+            self.swap_samples()
+            self.exc = list( self.exc_orig[i] for i in self.subsamplesact )
+            self.trans = list( self.trans_orig[i] for i in self.subsamplesact )
+            if self.notrans == True:
+               self.normalize()
+            else:
+               self.trans2intensity()
+            self.finish_spectrum()
+            dact = self.calc_diff()
+            if test == 1:
+               prob = 1
+               if dact > d:
+                  if (dact-d) > diffmax:
+                     diffmax = dact-d
+                  elif (dact-d) < diffmin:
+                     diffmin = dact-d
+            else:
+               if dact < d:
+                  prob = 1.0
+               else:
+                  prob = math.exp((d - dact)/ temp)
+#            print("d - dact"+str(d - dact)+"temp"+str(temp)+"prob"+str(prob))
+            if prob >= random.random():
+               self.subsamples = self.subsamplesact
+               self.restsamples = self.restsamplesact
+               d = dact
+#               print("Sample"+str(j)+"Round"+str(k)+": D-min ="+str(d)+"Temperature : T = "+str(temp))
+         if test == 0:
+            temp *= tc
+            it *= itc
+      if test == 1:
+         return -diffmax/math.log(pi), -diffmin/math.log(pf)
+      else:
+         return d
 
    def random_search(self):
       d = self.calc_diff()
+      print("Initial sample : D-min = "+str(d))
       dact = d
-      print("Initial sample : D-min =",d)
       for i in range(self.cycles):
-         #self.subsamplesact = self.subsamples
-         #self.restsamplesact = self.restsamples
-	 #for j in range(int(self.subset*(self.cycles-i)/self.cycles)+1):
-         #   self.swap_samples()
          self.select_subsetact()
          self.exc = list( self.exc_orig[i] for i in self.subsamplesact )
          self.trans = list( self.trans_orig[i] for i in self.subsamplesact )
@@ -196,8 +262,7 @@ class Spectrum(object):
             self.subsamples = self.subsamplesact
             self.restsamples = self.restsamplesact
             d = dact
-            print("Sample",i,": D-min =",d)
-#            self.writeout("nm","spectrum.test."+str(i))a
+            print("Sample"+str(i)+": D-min ="+str(d))
 
    def reduce_geoms(self,infile):
       if self.notrans == True:
@@ -205,27 +270,34 @@ class Spectrum(object):
       else:
          self.trans2intensity()
       self.finish_spectrum()
+      toprint = "Original spectrum sigma: "+str(self.sigma)
+      toprint += "\nPrinting original spectra:"
+      self.writeoutall(infile,toprint)
+      sys.stdout.flush()
       self.origintensity = self.intensity[:]
-      print("Original spectrum sigma:",self.sigma)
-      print("Printing original spectra:")
-      self.writeoutall(infile)
-      self.nsample = self.subset
-      self.select_subset()
       self.exc_orig = self.exc
       self.trans_orig = self.trans
-      self.exc = list( self.exc_orig[i] for i in self.subsamples )
-      self.trans = list( self.trans_orig[i] for i in self.subsamples )
-      if self.notrans == True:
-         self.normalize()
-      else:
-         self.trans2intensity()
-      self.finish_spectrum()
-      self.random_search()
-      print("Reduced spectrum sigma:",self.sigma)
-      print("Printing reduced spectra:")
-      self.writeoutall(infile)
-      self.writegeoms(infile)
+      self.nsample = self.subset
 
+      jobs = []
+      for i in range(self.ncores):
+         pid = os.fork()
+         if pid == 0:
+            for j in range(self.jobs):
+               self.pid = str(os.getpid())+"_"+str(j);
+               random.seed()
+               random.jumpahead(self.pid)
+               d = self.SA()
+               toprint = str(self.pid)+":\tFinal D-min = "+str(d)
+               toprint += "\n\tReduced spectrum sigma: "+str(self.sigma)
+               toprint += "\n\tPrinting reduced spectra:"
+               self.writeoutall(infile,toprint)
+               self.writegeoms(infile)
+               sys.stdout.flush()
+            os._exit(0)
+         jobs.append(pid)
+      for job in jobs:
+         os.waitpid(job,0)
 
    def read_data(self, infile):
       f = open(infile, "r") 
@@ -300,14 +372,15 @@ class Spectrum(object):
 
       f.close()
    
-   def writeoutall(self,infile):
+   def writeoutall(self,infile,message=""):
       name = infile.split(".")[0] # take the first part of the input file, before first dot
 
       yunits="cm^2*molecule^-1"
       xunits = [ "ev", "nm", "cm"]
+      toprint = message
       for un in xunits:
-         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".cross.dat"
-         print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
+         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".cross."+str(self.pid)+".dat"
+         toprint += "\n\tPrinting spectrum in units [ "+un+", "+yunits+"] to "+outfile
          self.writeout(un, outfile)
 
       # Now convert to molar exctiction coefficient
@@ -315,15 +388,16 @@ class Spectrum(object):
       self.cross2eps()
       yunits="dm^3*mol^-1*cm^-1"
       for un in xunits:
-         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".molar.dat"
-         print("Printing spectrum in units [ "+un+", "+yunits+"] to "+outfile )
+         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".molar."+str(self.pid)+".dat"
+         toprint += "\n\tPrinting spectrum in units [ "+un+", "+yunits+"] to "+outfile
          self.writeout(un, outfile)
+      print(toprint)
       self.intensity = helpints
 
    def writegeoms(self,infile):
       name = infile.split(".")[0]
-      outfile = name+"."+str(self.nsample)+".geoms"
-      print("Printing geometries of reduced spetrum to",outfile)
+      outfile = name+"."+str(self.nsample)+"."+str(self.pid)+".geoms"
+      print(str(self.pid)+":\tPrinting geometries of reduced spectrum to "+outfile)
       f = open(outfile, "w")
       for i in self.subsamples:
          f.write('%s' % (self.samples[i]))
@@ -333,7 +407,7 @@ class Spectrum(object):
 class SpectrumBroad(Spectrum):
    """Derived class for spectra with empirical gaussian and/or lorentzian broadening"""
 
-   def __init__(self, nsample, deltaE, sigma, tau, notrans, subset, cycles):
+   def __init__(self, nsample, deltaE, sigma, tau, notrans, subset, cycles, ncores, jobs):
       self.trans = []
       self.intensity = []
       self.exc = []
@@ -353,6 +427,9 @@ class SpectrumBroad(Spectrum):
       self.de = deltaE # in eV
       self.subset = subset
       self.cycles = cycles
+      self.ncores = ncores
+      self.jobs = jobs
+      self.pid = os.getpid()
       if notrans == True:
          self.notrans = True
 
@@ -423,21 +500,15 @@ class SpectrumBroad(Spectrum):
       f.close()
 
 
-
-
-
 options, args = read_cmd()
 try:
    infile = args[0]
 except:
    print("You did not specified input file. Type -h for help."); sys.exit(1)
-
-
-
 if options.tau > 0.0 or options.sigma is not None:
-   spectrum = SpectrumBroad(options.nsample, options.de, options.sigma, options.tau, options.notrans, options.subset, options.cycles)
+   spectrum = SpectrumBroad(options.nsample, options.de, options.sigma, options.tau, options.notrans, options.subset, options.cycles, options.ncores, options.jobs)
 else:
-   spectrum = Spectrum(options.nsample, options.de, options.notrans,options.subset, options.cycles)
+   spectrum = Spectrum(options.nsample, options.de, options.notrans,options.subset, options.cycles, options.ncores, options.jobs)
 
 spectrum.read_data(infile)
 if spectrum.subset > 0:
@@ -449,5 +520,4 @@ else:
       spectrum.trans2intensity()
    spectrum.finish_spectrum()
    spectrum.writeoutall(infile)
-
 
