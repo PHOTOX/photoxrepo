@@ -10,11 +10,11 @@
 # extractG09.sh or similar
 
 ########## SETUP #####
-name=caspt2_pbepbe
+name=CH3CH3COO_pbepbe_pbepbe
 states=2       # number of excited states
                # (ground state does not count)
 istart=1       # Starting index
-imax=677      # number of calculations
+imax=1010      # number of calculations
 grep_function="grep_G09_TDDFT" # this function parses the outputs of the calculations
                # It is imported e.g. from extractG09.sh
 filesuffix="log" # i.e. "com.out" or "log"
@@ -29,9 +29,9 @@ ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole mo
 ## SETUP FOR REDUCTION OF SPECTRA
 subset=50    # number of most representative molecules to pick for the reduced spectrum, set to 0 or comment for not using this method
 cycles=100	# number of cycles for geometries reduction. The larger number, the better result. One or more hundreds is a sensible choice. Only valid with positive subset parameter.
-ncores=4      # number of cores used for parallel execution for spectrum reduction. Only valid with positive subset parameter.
-jobs_per_core=3         # number o reduction jobs per one core. Only valid with positive subset parameter.
-# Total number of reduction jobs is equal to ncores*jobs_per_core. 8-12 jobs should do the work. It is more efficient to execute more jobs and take the best result rather than increase the cycles parameter.
+ncores=10      # number of cores used for parallel execution for spectrum reduction. Only valid with positive subset parameter.
+jobs_per_core=1         # number o reduction jobs per one core. Only valid with positive subset parameter.
+# Total number of reduction jobs is equal to ncores*jobs_per_core. 8-16 jobs should do the work. It is more efficient to execute more jobs and take the best result rather than increase the cycles parameter.
 ##############
 
 # Import grepping functions

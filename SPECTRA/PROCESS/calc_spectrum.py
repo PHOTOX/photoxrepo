@@ -172,11 +172,11 @@ class Spectrum(object):
        self.subsamplesact[random_subindex], self.restsamplesact[random_restindex] = self.restsamplesact[random_restindex], self.subsamplesact[random_subindex]
 
    def SA(self,test=0):
-      pi = 0.90
-      pf = 0.10
-      d = self.calc_diff()
+      pi = 0.70
+      pf = 0.30
       if test == 1:
          it = 1
+         d = self.calc_diff()
          diffmax = 0
          diffmin = d
       else:
@@ -188,8 +188,16 @@ class Spectrum(object):
          else:
             self.trans2intensity()
          self.finish_spectrum()
-         itmin = 1
-         itmax = self.subset
+         d = self.calc_diff()
+         if self.subset>=8:
+            itmax = self.subset/4
+         elif self.subset>=4:
+            itmax = self.subset/2
+         elif self.subset>=2:
+            itmax = self.subset
+         else:
+            itmax = 2*self.subset
+         itmin = itmax/2
          itc = math.exp((math.log(itmax)-math.log(itmin))/self.cycles)
          it = itmin
          start = time.time()
