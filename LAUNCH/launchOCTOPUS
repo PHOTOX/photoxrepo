@@ -29,7 +29,7 @@ fi
 
 #which queue
 cluster=$(uname -a | awk {'print $2'})
-
+if [[ ! -n "$3" ]]; then
 if [ "$cluster" = "as67-1" ]; then
    queue='sq-8-16'
 elif [ "$cluster" == "403-a324-01" ]; then
@@ -37,28 +37,32 @@ elif [ "$cluster" == "403-a324-01" ]; then
 elif [ "$cluster" = "403-as67-01" ]; then
    queue='nq'
 fi
+else
+queue=$3
+fi
 
 #parallelization
 if [[ $nproc -gt "1" ]]; then
 cat > r.$name << EOF
 #!/bin/bash
 
+source $octopuslibs
 #$ -V
 #$ -cwd
 #$ -e .
 #$ -o .
-#$ -pe mpi $nproc 
+#$ -pe shm $nproc 
 #$ -notify
-export OMP_NUM_THREADS=1  
 
+export OMP_NUM_THREADS=1
 OCTOPUS $name
 EOF
 
 echo "Launching parallel OCTOPUS 6.0 job for $input using $nproc processors."
 echo "Results will be saved to $name.out, JOB information in $name.log"
-echo "qsub -cwd -V -q $queue -pe mpi $nproc r.$name"
+echo "qsub -cwd -V -q $queue -pe shm $nproc r.$name"
 echo "-----------------------------------------"
-qsub -cwd -V -q $queue -pe mpi $nproc r.$name
+qsub -cwd -V -q $queue r.$name
 
   else 
 cat > r.$name << EOF
