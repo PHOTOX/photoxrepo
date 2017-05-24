@@ -10,11 +10,11 @@ export INPFILE=$input.$JOB_ID
 export LOGFILE=$input.log
 export OUTFILE=$input.out
 
-input=$(basename $input .inp)
-input=$(basename $input .com)
+name=$(basename $input .inp)
+name=$(basename $input .com)
 
 
-export SCRATCH=${scratch}/NWCHEM-$input-${JOB_ID}
+export SCRATCH=${scratch}/NWCHEM-$name-${JOB_ID}
 export WORKDIR=$PWD
 mkdir -p ${SCRATCH}
 
