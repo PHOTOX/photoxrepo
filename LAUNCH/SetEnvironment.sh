@@ -449,8 +449,10 @@ case "$program" in
       if [[ ! -d "/scratch/$USER/nwchem_scratch" ]];then
          mkdir /scratch/$USER/nwchem_scratch
       fi
-      if [[ ! -f "/home/$USER/.nwchemrc" ]];then
-         cat > "/home/$USER/.nwchemrc" << EOF
+
+      # Let's recreate this file with each launch
+      # which alleviates some problems. Still not great though...
+      cat > "/home/$USER/.nwchemrc" << EOF
  nwchem_basis_library $nwchemroot/basis/libraries/
  nwchem_nwpw_library $nwchemroot/nwpw/libraryps/
  ffield amber
@@ -462,7 +464,6 @@ case "$program" in
  charmm_s $nwchemroot/data/charmm_s/
  charmm_x $nwchemroot/data/charmm_x/
 EOF
-      fi
       ;;
 
    * ) 
