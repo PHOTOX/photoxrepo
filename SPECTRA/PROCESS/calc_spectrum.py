@@ -308,7 +308,6 @@ class Spectrum(object):
          os.waitpid(job,0)
 
    def read_data(self, infile):
-      f = open(infile, "r") 
       i = 0
       with open(infile, "r") as f:
          for line in f:
