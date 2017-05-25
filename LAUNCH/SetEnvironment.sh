@@ -111,7 +111,8 @@ declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TE
 case "$program" in
    "ABIN" )
       VERSIONS=(1.0 1.0-mpi 1.0-cp2k mpi cp2k)
-      if [[ ! set_version ]];then
+      set_version
+      if [[ $? -ne 0 ]];then
          return 1
       fi
       if [[ $version = mpi ]];then
@@ -123,10 +124,15 @@ case "$program" in
       ABIN[1.0]=$abinroot/abin.v1.0
       ABIN[1.0-mpi]=$abinroot/abin.v1.0-mpi
       ABIN[1.0-cp2k]=$abinroot/abin.v1.0-cp2k
+      ABIN[cp2k]=$abinroot/abin.cp2k
 
       export ABINEXE=${ABIN[$version]}
       if [[ $version = 1.0-mpi || $version = 1.0-cp2k ]];then
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+      elif [[ $version = cp2k ]];then
+         # TODO: this will be different for ARGON
+         source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2-settings.sh
+         export MPIRUN=/usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2/bin/mpirun
       fi
       ;;
    "MOLPRO" )
@@ -227,7 +233,7 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 1.9-dev 1.9 dev trunk )
+         VERSIONS=( 1.9-dev 1.9 dev trunk azurin )
       elif [[ $node = "a32" || $node = "a33" ]];then
          VERSIONS=( 1.9-dev 1.9 dev trunk )
       elif [[ $cluster = "a324" ]];then
@@ -245,6 +251,7 @@ case "$program" in
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
       #DH temporary hack
       TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_07092016_7d58b0c7f8b2
+      TERA[azurin]=$basedir_custom/terachem/terachem-dev/build_azurin
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
@@ -275,7 +282,7 @@ case "$program" in
 
    "CP2K" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 2.7-trunk 3.0-trunk 2.6.2 2.5 )
+         VERSIONS=(4.1 2.7-trunk 3.0-trunk 2.6.2 2.5 )
          base=/home/hollas/build-fromfrank/
          CP2K[2.5]=$base/cp2k/2_5_12172014/
       elif [[ $cluster = "a324" ]];then
@@ -299,9 +306,13 @@ case "$program" in
          . $base/libxc/2.1.2-icc/env.sh
          . $base/openmpi/1.6.5-icc/env.sh
          . $base/fftw/3.3.4-icc/env.sh
-         MPIRUN=mpirun
+         export MPIRUN=mpirun
+      elif [[ $version = "4.1" ]];then
+         source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2-settings.sh
+         CP2K[4.1]=$basedir_custom/cp2k/cp2k-4.1/cp2k-4.1/exe/Linux-x86-64-gfortran_openmpi_mkl/
+         export MPIRUN=/usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2/bin/mpirun
       else
-         MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+         export MPIRUN=/home/hollas/programes/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
          CP2K[2.6.2]=/home/hollas/programes/src/cp2k-2.6.2/exe/Linux-x86-64-gfortran-mkl/
          CP2K[2.7-trunk]=/home/hollas/programes/src/cp2k-trunk/cp2k/exe/Linux-x86-64-gfortran-mkl-noplumed/
          CP2K[3.0-trunk]=$basedir_custom/cp2k/cp2k-3.0-trunk/src/cp2k/exe/Linux-x86-64-intel-mkl-noplumed/
@@ -310,7 +321,7 @@ case "$program" in
       export cp2kroot=${CP2K[$version]}
       export cp2k_mpiroot=${CP2K[$version]}
       export CP2KEXE_MPI=$cp2k_mpiroot/cp2k.popt
-      if [[ $cluster = "as67gpu" ]];then 
+      if [[ $cluster = "as67gpu" && $version != "4.1" ]];then 
          export CP2KEXE=$cp2kroot/cp2k.sopt
       else
          export CP2KEXE=$cp2k_mpiroot/cp2k.popt # Frank does not have an sopt version

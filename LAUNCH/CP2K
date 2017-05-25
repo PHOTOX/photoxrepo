@@ -27,8 +27,18 @@ if [[ -d $SCRDIR ]];then
    exit 1
 fi
 
+node=$(uname -n)
+date
+echo "NODE  $node" > job.log.${JOB_ID}
+echo "SCRATCH  $SCRDIR" >> job.log.${JOB_ID}
+
 mkdir $SCRDIR
-cp $DIR/* $SCRDIR
+
+coord_file=$(grep COORD_FILE_NAME $input | awk '{print $2}')
+basis_file=$(grep BASIS_SET_FILE_NAME $input | awk '{print $2}')
+corepot_file=$(grep POTENTIAL_FILE_NAME $input | awk '{print $2}')
+
+cp -f $DIR/$input $DIR/$coord_file $DIR/$basis_file $DIR/$corepot_file $SCRDIR
 cd $SCRDIR
 
 if [[ $nproc -gt 1 ]];then
@@ -37,7 +47,9 @@ else
    $CP2KEXE $input > $DIR/$input.out
 fi
 
-cp -up * $DIR
+cd ../
+
+cp -pr $SCRDIR $DIR
 
 if [[ $? -ne "0" ]];then
   echo "Error when copying the data from scratch back to the server."
@@ -46,6 +58,5 @@ if [[ $? -ne "0" ]];then
   exit 1
 fi
 
-cd ../
 rm -r $SCRDIR
 
