@@ -110,9 +110,14 @@ declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TE
 
 case "$program" in
    "ABIN" )
-      VERSIONS=(1.0 1.0-mpi 1.0-cp2k)
+      VERSIONS=(1.0 1.0-mpi 1.0-cp2k mpi cp2k)
       if [[ ! set_version ]];then
          return 1
+      fi
+      if [[ $version = mpi ]];then
+         version=1.0-mpi
+      elif [[ $version = cp2k ]];then
+         version=1.0-cp2k
       fi
       abinroot=$PHOTOX/bin
       ABIN[1.0]=$abinroot/abin.v1.0
@@ -120,7 +125,7 @@ case "$program" in
       ABIN[1.0-cp2k]=$abinroot/abin.v1.0-cp2k
 
       export ABINEXE=${ABIN[$version]}
-      if [[ $version = 1.0-mpi ]];then
+      if [[ $version = 1.0-mpi || $version = 1.0-cp2k ]];then
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
       fi
       ;;
@@ -238,6 +243,8 @@ case "$program" in
          return 1
       fi
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
+      #DH temporary hack
+      TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_07092016_7d58b0c7f8b2
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
@@ -327,7 +334,11 @@ case "$program" in
          export OPENMPI=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2
       else
          if [[ $version = "4.0.0" ]];then
-            export OPENMPI=$basedir/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2
+            if [[ $cluster = "a324" ]];then
+               export OPENMPI=$basedir/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5
+            else
+               export OPENMPI=$basedir/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2
+            fi
          else
             export OPENMPI=$basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5
          fi

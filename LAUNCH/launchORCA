@@ -46,15 +46,18 @@ fi
 
 # Assuming the comment is not closed by second #
 #nproc=$(awk -F [#] '{print $1}' | egrep '! *PAL[2-8]' | awk -F "PAL" '{print $2}'  )
-nproc=$(awk -F "#" '{print $1}'  $input | egrep -i '! *PAL[2-8]' | awk -F "PAL" '{print $2}' | awk '{print $1}')
+nproc=$(awk -F "#" '{print $1}'  $input | egrep -i '! *PAL[2-8]' | awk -F "PAL" '{print $2}' | awk '{printf("%d", $1)}')
+
 
 # There is also the second possible syntax
 if [[ $nproc = "" ]];then
-   nproc=$(awk -F "#" '{print $1}'  $input | egrep -i 'nprocs' | awk -F "nprocs *=* *" '{print $2}' | awk '{print $1}')
+   nproc=$(awk -F "#" '{print $1}'  $input | egrep -i 'nprocs' | awk -F "nprocs *=* *" '{print $2}' | awk '{printf("%d", $1)}')
 fi
 if [[ $nproc = "" ]];then
    nproc=1
 fi
+
+
 
 name=$(basename $input .inp)
 name=$(basename $name .com)

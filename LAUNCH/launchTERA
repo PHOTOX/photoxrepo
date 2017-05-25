@@ -69,12 +69,12 @@ if [[ $index -ne $NUMPARAMS ]];then
    PrintHelp
 fi
 
-if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970 ]];then
+if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970|gtx980 ]];then
    echo "$queue is not a valid GPU queue."
    error=1
 fi
 
-if [[ "$queue" =~ gtx970 && "$version" =~ ^1.5 ]];then
+if [[ "$queue" =~ gtx9[78]0 && "$version" =~ ^1.5 ]];then
    echo "You need to use development version of TeraChem on GTX970 cards."
    echo "Provide the "dev" parameter or use differrent queue."
    error=1
@@ -89,6 +89,7 @@ gpucards=( m2090 gtx690 gtx970 titan nq-gpu )
 gpumax[aq-gpu-m2090]=2
 gpumax[aq-gpu-gtx690]=4
 gpumax[aq-gpu-gtx970]=2
+gpumax[aq-gpu-gtx980]=2
 gpumax[aq-gpu-titan]=4
 gpumax[nq-gpu]=4
 
