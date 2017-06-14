@@ -127,9 +127,9 @@ case "$program" in
       ABIN[cp2k]=$abinroot/abin.cp2k
 
       export ABINEXE=${ABIN[$version]}
-      if [[ $version = 1.0-mpi || $version = 1.0-cp2k ]];then
+      if [[ "$version" = "1.0-mpi" || "$version" = "1.0-cp2k" ]];then
          export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
-      elif [[ $version = cp2k ]];then
+      elif [[ "$version" = "1.1-cp2k" ]];then
          # TODO: this will be different for ARGON
          source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2-settings.sh
          export MPIRUN=/usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2/bin/mpirun
@@ -241,16 +241,23 @@ case "$program" in
       fi
       if [[ $cluster = "a324" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/:$LD_LIBRARY_PATH
+         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.3.0/arch/x86_64/anaconda3/pkgs/openmm-7.1.1-py36_0/lib/
       elif [[ $cluster = "as67gpu" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.1.1/arch/x86_64/pkgs/openmm-7.0.1-py35_0/lib/
       fi
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
+
+      # OpenMM library for QM/MM in development version of TC
+      export LD_LIBRARY_PATH=$OPENMMLIB:$OPENMMLIB/plugins:$LD_LIBRARY_PATH
+      export OPENMM_PLUGIN_DIR=$OPENMMLIB/plugins
+
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
       #DH temporary hack
-      TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_07092016_7d58b0c7f8b2
+      TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_06092016_7d58b0c7f8b2
       TERA[azurin]=$basedir_custom/terachem/terachem-dev/build_azurin
       TERA[1.5]=$basedir_custom/terachem/terachem-1.5
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K

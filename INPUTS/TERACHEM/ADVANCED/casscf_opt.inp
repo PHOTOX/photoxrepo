@@ -1,0 +1,19 @@
+basis 		6-31g
+charge   	1	
+spinmult	1
+method 		rhf
+closed         2
+active         8
+casscf          yes
+coordinates	methaniminium.xyz
+units 		angstrom
+gpus		1
+run 		minimize
+
+# Which state do you want to optimize?
+# States are counted from ZERO! e.g. ground state is 0
+castarget      1
+
+# How many singlet states for SA-CASSCF?
+cassinglets    5
+end
