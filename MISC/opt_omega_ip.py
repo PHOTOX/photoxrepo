@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+sys.path.append(os.getcwd())
 import abinitio_driver as driver
 from abinitio_driver import AUtoEV
 import scipy.optimize as opt
@@ -18,23 +19,29 @@ except:
 
 # Initial input files for ground and ionized state should be in files:
 # optomega_gs.inp and optomega_is.inp
-# This file can be directly submitted to the queue
+#              OR
+# optomega_scf.inp and optomega_na.inp in case you choose the "QCHEM_IEDC" PROGRAM option"
+# This file can be directly submitted to the queue: qsub -V -cwd opt_omega_ip.py aq/nq
 
+#For further details see our wiki pages...
 
 ####### USER INPUT PARAMETERS ############################
 
 #PROGRAM = "QCHEM"
-PROGRAM = "TERACHEM"
-METHOD = 0
+PROGRAM = "QCHEM_PCM"
+#PROGRAM = "QCHEM_IEDC"
+#PROGRAM = "QCHEM_IEDC_PCM"
+#PROGRAM = "TERACHEM"
+METHOD = 1
 # 0 - minimization
 # 1 - interpolation
 # 2 - read omega-deltaIP function from file omegas.dat and interpolate
 
 # Options for interpolation
-MIN_OMEGA =  300
-BEST_GUESS = 400
-MAX_OMEGA =  500
-STEP      =  50
+MIN_OMEGA =  200
+BEST_GUESS = 300
+MAX_OMEGA =  400
+STEP      =  20
 # for interpolation, one needs at least 2 starting points
 # i.e. (MAX_OMEGA-MIN_OMEGA)/STEP >=2
 # of course, this inequality should hold as well: MIN_OMEGA <  BEST_GUESS < MAX_OMEGA
@@ -44,8 +51,8 @@ STEP      =  50
 THR_OMEGA = 10.000  # absolute accuracy, omega*1000
 MAXITER   = 20
 # These are bounds for the minimizer, can be tighter if you know where to look
-MIN_OMEGA_DEF = 100
-MAX_OMEGA_DEF = 800
+MIN_OMEGA_DEF = 10
+MAX_OMEGA_DEF = 250
 
 ####### END OF USER INPUT #########################################
 
@@ -90,7 +97,13 @@ def f_optomega_ip(omega):
       dr = driver.Abinitio_driver_terachem()
    elif PROGRAM == "QCHEM":
       dr = driver.Abinitio_driver_qchem()
-
+   elif PROGRAM == "QCHEM_PCM":
+      dr = driver.Abinitio_driver_qchem_pcm()
+   elif PROGRAM == "QCHEM_IEDC":
+      dr = driver.Abinitio_driver_qchem_IEDC_gas()
+   elif PROGRAM == "QCHEM_IEDC_PCM":
+      dr = driver.Abinitio_driver_qchem_IEDC_pcm()
+   
    IP_dscf, IP_koop = dr.compute_ip(omega/1000.)
 
    f = (IP_dscf - IP_koop)**2
@@ -105,7 +118,13 @@ def interpolate(min_omega, max_omega, step, best_guess):
       dr = driver.Abinitio_driver_terachem()
    elif PROGRAM == "QCHEM":
       dr = driver.Abinitio_driver_qchem()
-    
+   elif PROGRAM == "QCHEM_PCM":
+      dr = driver.Abinitio_driver_qchem_pcm()
+   elif PROGRAM == "QCHEM_IEDC":
+      dr = driver.Abinitio_driver_qchem_IEDC_gas()
+   elif PROGRAM == "QCHEM_IEDC_PCM":
+      dr = driver.Abinitio_driver_qchem_IEDC_pcm()
+            
    deltaIP = []
    omegas  = []
    # Initial points for interpolation, determined by the user via MAX_OMEGA, MIN_OMEGA and STEP
@@ -232,13 +251,19 @@ if METHOD == 2:
 print("Recomputing with final omega...")
 
 if PROGRAM == "TERACHEM":
-    dr = driver.Abinitio_driver_terachem()
+   dr = driver.Abinitio_driver_terachem()
 if PROGRAM == "QCHEM":
-    dr = driver.Abinitio_driver_qchem()
+   dr = driver.Abinitio_driver_qchem()
+if PROGRAM == "QCHEM_PCM":
+   dr = driver.Abinitio_driver_qchem_pcm()
+if PROGRAM == "QCHEM_IEDC":
+   dr = driver.Abinitio_driver_qchem_IEDC_gas()
+if PROGRAM == "QCHEM_IEDC_PCM":
+   dr = driver.Abinitio_driver_qchem_IEDC_pcm()
 
 IP_dscf, IP_koop = dr.compute_ip(omega/1000.)
 err   = IP_dscf - IP_koop
 print("Final IP_dscf:",IP_dscf*AUtoEV)
-print("Final IP_koop:",IP_koop*AUtoEV)
+print("Final IP_exc_na:",IP_koop*AUtoEV)
 print("Final deltaIP:",err*AUtoEV)
     

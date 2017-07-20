@@ -5,7 +5,7 @@ import os
 
 # TODO: Implement check for SCF convergence for QCHEM
 
-TERA_VERSION = "dev"
+TERA_VERSION = "1.9-dev"
 QCHEM_VERSION = "4.3"
 CHECK_SCF = True
 
@@ -28,6 +28,8 @@ class Abinitio_driver():
 
    BASEFILE_GS = "optomega_gs.inp"
    BASEFILE_IS = "optomega_is.inp"
+   
+   #DH: Currently not used. WTF?
    def zero_counter():
       global __counter__
       global __LAST_SCRDIR_RESTRICTED__
@@ -35,6 +37,7 @@ class Abinitio_driver():
       __LAST_SCRDIR_RESTRICTED__  = ""
       __LAST_SCRDIR_UNRESTRICTED__ = ""
       __counter__ = 0
+
 
    def prepare_input_wrapper(self, basefile, inpfile):
       """This function hides the logic of where to get the initial WF guess.
@@ -55,8 +58,9 @@ class Abinitio_driver():
           else:
              __LAST_SCRDIR_UNRESTRICTED__ = self.prepare_input(basefile, inpfile)
 
+
    def compute_ip(self, omega):
-      """This driver function should be the same for all drivers.
+      """This is a basic driver function.
       Expecting omega in atomic units."""
       global __counter__
       global AUtoEV
@@ -65,7 +69,7 @@ class Abinitio_driver():
       self.omega = omega
 
       # First, calculate ground state
-      inpfile = "gs."+str(__counter__)+".inp"
+      inpfile = "gp."+str(__counter__)+".inp"
       self.prepare_input_wrapper(self.BASEFILE_GS, inpfile)
       outfile, outfile2 = self.run_energy(inpfile)
       en_scf_gs = self.get_energy_scf(outfile)
@@ -229,7 +233,7 @@ class Abinitio_driver_qchem(Abinitio_driver):
              if not len(l):
                 continue
              if read_spin:
-                if l[1] > 1:
+                if int(l[1]) > 1:
                    # for non-singlet multiplicity, unrestricted is default
                    rest = False
                 read_spin = False
@@ -305,8 +309,8 @@ class Abinitio_driver_qchem(Abinitio_driver):
                 en_homo = float(MO_energies[-1])
                 return en_homo
             elif read:
-                MO_energies = line_last
                 line_last = l
+                MO_energies = line_last
       print("ERROR: Could not find HOMO energy in file "+outfile)
       exit(1)
 
@@ -324,10 +328,261 @@ class Abinitio_driver_qchem(Abinitio_driver):
          else:
             scrdir = self.SCRDIR_R
       if not DRY_RUN:
-         call(["QCHEM", inpfile, QCHEM_VERSION, "openmp", scrdir])
+         call(["QCHEM", inpfile, "openmp", QCHEM_VERSION, scrdir])
       # return the names of output files
       # first should contain SCF energy
       # second should contain HOMO energy
       return outfile, outfile
 
+
+class Abinitio_driver_qchem_pcm(Abinitio_driver_qchem):
+
+   def get_deltascf(self, outfile):
+      """Get deltaSCF from optomega_scf.inp.out
+      Readin"""
+      with open(outfile, "r") as f:
+         en_dscf = []
+         for line in f:
+            l = line.split()
+            if len(l) < 9:
+               continue
+            #TODO need to check SCF convergence somehow
+#            if line[0] == "SCF" and line[1] == "did":
+#               print("ERROR: SCF did not converge!"+outfile)
+#               exit(1)
+            if l[0] == "SCF" and l[1] == "energy":
+               orb = float(l[8])
+               en_dscf.append(orb)
+         en_scf = en_dscf[1] - en_dscf[0]
+         return en_scf
+      print("ERROR: Could not find SCF energy in file "+outfile)
+      exit(1)
+
+   def run_energy(self, inpfile):
+      #user = os.environ["USER"]
+      #os.environ["QCLOCALSCR"] = "/home/"+user
+      #os.environ["QCSCRATCH"] = self.scrdir
+      outfile = inpfile+".out"
+      if self.is_restricted(inpfile):
+         scrdir = self.SCRDIR_R
+      else:
+         if os.path.isdir(self.SCRDIR_U):
+            scrdir = self.SCRDIR_U
+         else:
+            scrdir = self.SCRDIR_R
+      if not DRY_RUN:
+         call(["QCHEM", inpfile, "openmp", QCHEM_VERSION, scrdir])
+      # return the names of output files
+      # first should contain SCF energy
+      # second should contain HOMO energy
+      return outfile
+
+   def compute_ip(self, omega):
+      """This driver function should be the same for all drivers.
+      Expecting omega in atomic units."""
+      global __counter__
+      global AUtoEV
+      global __LAST_SCRDIR_RESTRICTED__
+      global __LAST_SCRDIR_UNRESTRICTED__
+      self.omega = omega
+      self.BASEFILE_GS = "optomega_scf.inp"
+
+      # First, calculate ground state
+      inpfile = "scf."+str(__counter__)+".inp"
+      self.prepare_input_wrapper(self.BASEFILE_GS, inpfile)
+      outfile = self.run_energy(inpfile)
+      en_scf = self.get_deltascf(outfile)
+      en_homo   = self.get_energy_homo(outfile)
+
+      ip_koop = -en_homo
+      ip_dscf = en_scf
+      err   = ip_dscf - ip_koop
+
+      with open("omegas.dat", "a") as f:
+          if __counter__ == 0:
+              f.write("# omega  deltaIP    dSCF    Koop\n")
+          string = str(round(omega,4))+"  "
+          string += str(round(err*AUtoEV,4))+"  "
+          string += str(round(ip_dscf*AUtoEV,4))+"  "
+          string += str(round(ip_koop*AUtoEV,4))+"\n"
+          f.write(string)
+
+      __counter__ += 1
+
+      return ip_dscf, ip_koop
+
+
+class Abinitio_driver_qchem_IEDC_gas(Abinitio_driver_qchem):
+
+   def __init__(self):
+      self.SCRDIR_NA = ""
+
+   def get_energy_scf(self, outfile):
+      """Get SCF energy from standard QCHEM output file"""
+      en_scf = []
+      with open(outfile, "r") as f:
+         for line in f:
+            l = line.split()
+            if len(l) < 9:
+               continue
+            #TODO need to check SCF convergence somehow
+#            if line[0] == "SCF" and line[1] == "did":
+#               print("ERROR: SCF did not converge!"+outfile)
+#               exit(1)
+            if l[0] == "SCF" and l[1] == "energy":
+               en_scf.append(float(l[8]))
+
+      if len(en_scf) != 2:
+         print("ERROR: Could not find SCF energy in file "+outfile)
+      return en_scf[0], en_scf[1]
+      exit(1)
+
+   def prepare_input(self, basefile, inpfile, wfguess=False):
+       global __counter__
+       if DRY_RUN:
+           return self.SCRDIR_R
+       
+       with open(basefile,"r") as bf:
+           with open(inpfile,"w") as of:
+               for line in bf:
+                   l = line.split()
+                   if not len(l):
+                      continue
+                   if l[0].upper() == "OMEGA":
+                       of.write("OMEGA "+str(int(self.omega*1000))+"\n")
+                   elif l[0].upper() == "$REM" and wfguess:
+                       of.write(line)
+                       of.write("scf_guess  read\n")
+                   else:
+                       of.write(line)
+
+
+   def get_energy_exc(self, outfile):
+      """ Excitation energy from standard QCHEM output file"""
+      with open(outfile, "r") as f:
+         for line in f:
+            l = line.split()
+            if not len(l):
+               continue
+            if l[0] == "Excited" and l[1] == "state" and l[2] == "1:":
+               en_exc1 = float(l[-1])
+               return en_exc1
+      exit(1)
+
+   def run_energy(self, inpfile,scrdir=""):
+      outfile = inpfile+".out"
+      if self.SCRDIR_NA == "":
+         call(["QCHEM", inpfile, "openmp", QCHEM_VERSION])
+      else:
+         call(["QCHEM", inpfile, "openmp", QCHEM_VERSION,scrdir])
+      return outfile, outfile
+
+   def compute_ip(self, omega):
+      global __counter__
+      global AUtoEV
+      self.omega = omega
+      omega2 = omega*1000
+      self.BASEFILE_GS = "optomega_scf.inp"
+      self.BASEFILE_IS = "optomega_na.inp"
+
+      # First, calculate the deltaSCF (no scratch directory)
+      inpfile = "scf."+str(__counter__)+".inp"
+      self.prepare_input(self.BASEFILE_GS, inpfile)
+      outfile, outfile2 = self.run_energy(inpfile)
+      en_scf_gs, en_scf_is = self.get_energy_scf(outfile)
+
+      # Now get the excitation energy from your molecule to the sodium atom
+      inpfile = "na."+str(__counter__)+".inp"
+      if self.SCRDIR_NA == "":
+         self.prepare_input(self.BASEFILE_IS, inpfile)
+      else:
+         self.prepare_input(self.BASEFILE_IS, inpfile, True)
+      self.SCRDIR_NA = "scr-na"
+      outfile, outfile2 = self.run_energy(inpfile, self.SCRDIR_NA)
+      en_exc = self.get_energy_exc(outfile)
+
+      # Formula for the electron affinity of sodium (from a non-linear curve fitting)
+      
+      # TODO: This is only for wPBE in QCHEM
+      # Here we need to check that the user is using this functional
+      # In future, fit different functions for different LRC functionals
+      en_na = 5.48189E-18*omega2**6 - 2.19447E-14*omega2**5 + 3.52876E-11*omega2**4 - 2.85971E-08*omega2**3 + 1.15573E-05*omega2**2 - 0.00159731*omega2 - 5.28213
+
+      ip_exc_na = en_exc - en_na
+      ip_dscf = en_scf_is - en_scf_gs
+      err   = ip_dscf - ip_exc_na/AUtoEV
+
+      with open("omegas.dat", "a") as f:
+          if __counter__ == 0:
+              f.write("# omega  deltaIP    dSCF    exc_EAna\n")
+          string = str(round(omega,4))+"  "
+          string += str(round(err*AUtoEV,4))+"  "
+          string += str(round(ip_dscf*AUtoEV,4))+"  "
+          string += str(round(ip_exc_na,4))+"\n"
+          f.write(string)
+
+      __counter__ += 1
+
+      return ip_dscf, ip_exc_na/AUtoEV
+
+
+class Abinitio_driver_qchem_IEDC_pcm(Abinitio_driver_qchem_IEDC_gas):
+
+   def get_correction(self, outfile):
+      """ Excitation energy correction from standard QCHEM output file"""
+      with open(outfile, "r") as f:
+        for line in f:
+           l = line.split()
+           if not len(l):
+              continue
+           if l[0] == "Excitation" and l[1] == "energy" and l[2] == "correction":
+              en_exc1_corr = float(l[-2])
+              return en_exc1_corr
+              exit(1)
+
+   def compute_ip(self, omega):
+      global __counter__
+      global AUtoEV
+      self.omega = omega
+      omega2 = omega*1000
+      self.BASEFILE_GS = "optomega_scf.inp"
+      self.BASEFILE_IS = "optomega_na.inp"
+
+      # First, calculate the deltaSCF (no scratch directory)
+      inpfile = "scf."+str(__counter__)+".inp"
+      self.prepare_input(self.BASEFILE_GS, inpfile)
+      outfile, outfile2 = self.run_energy(inpfile)
+      en_scf_gs, en_scf_is = self.get_energy_scf(outfile)
+
+      # Now get the excitation energy from your molecule to the sodium atom
+      inpfile = "na."+str(__counter__)+".inp"
+      if self.SCRDIR_NA == "":
+         self.prepare_input(self.BASEFILE_IS, inpfile)
+      else:
+         self.prepare_input(self.BASEFILE_IS, inpfile, True)
+      self.SCRDIR_NA = "scr-na"
+      outfile, outfile2 = self.run_energy(inpfile, self.SCRDIR_NA)
+      en_exc = self.get_energy_exc(outfile)
+      corr = self.get_correction(outfile)
+
+      # Formula for the electron affinity of sodium (from a non-linear curve fitting)
+      en_na = 7.49622E-18*omega2**6 - 2.8015E-14*omega2**5 + 4.20657E-11*omega2**4 - 3.1882E-08*omega2**3 + 1.20929E-05*omega2**2 - 0.00157115*omega2 - 1.38342
+
+      ip_exc_na = en_exc - en_na + corr
+      ip_dscf = en_scf_is - en_scf_gs
+      err   = ip_dscf - ip_exc_na/AUtoEV
+
+      with open("omegas.dat", "a") as f:
+          if __counter__ == 0:
+              f.write("# omega  deltaIP    dSCF    exc_EAna\n")
+          string = str(round(omega,4))+"  "
+          string += str(round(err*AUtoEV,4))+"  "
+          string += str(round(ip_dscf*AUtoEV,4))+"  "
+          string += str(round(ip_exc_na,4))+"\n"
+      #    string += str(round(en_na,4))+"\n"
+          f.write(string)
+
+      __counter__ += 1
+
+      return ip_dscf, ip_exc_na/AUtoEV
 
