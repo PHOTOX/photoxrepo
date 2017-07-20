@@ -77,23 +77,24 @@ if [[ -z $scrdir ]];then
    mkdir $scrdir
    echo "scrdir not specified, using : $scrdir"
 
+   input=$scrdir/$1
+   cp $1 $input
+
    # Create auxiliary input file and copy files to scratch
-   echo "memcheck no" > $scrdir/$1
+   # The following should no longer be necessary with new terachem
+   # echo "memcheck no" > $scrdir/$1
    for f in ${keyfiles[@]};do
       if [[ ! -z ${file[$f]} && ! -z ${file2[$f]} ]];then
          # for "guess" keyword
-         echo "$f ${filename[$f]} ${filename2[$f]}" >> $scrdir/$1
+         sed -i "s/^[[:blank:]]*$f.*$/$f ${filename[$f]} ${filename2[$f]} /" $input
          cp ${file[$f]} $scrdir/${filename[$f]}
          cp ${file2[$f]} $scrdir/${filename2[$f]}
       elif [[ ! -z ${file[$f]} ]];then
-         echo "$f ${filename[$f]}" >> $scrdir/$1
+         sed -i "s/^[[:blank:]]*$f.*$/$f ${filename[$f]}/" $input
          cp ${file[$f]} $scrdir/${filename[$f]}
       fi
    done
 
-   # TeraChem ignores duplicate keywords, so cat is sufficient
-   cat $1 >> $scrdir/$1
-   echo "end" >> $scrdir/$1
    cd $scrdir
 
 elif [ -e $scrdir ];then
