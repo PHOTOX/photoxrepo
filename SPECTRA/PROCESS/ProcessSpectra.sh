@@ -27,7 +27,7 @@ de=0.005     # Energy bin for histograms
 ioniz=false # Set to "true" for ionization spectra (i.e. no transition dipole moments)
 
 ## SETUP FOR REDUCTION OF SPECTRA
-subset=50    # number of most representative molecules to pick for the reduced spectrum, set to 0 or comment for not using this method
+subset=0    # number of most representative molecules to pick for the reduced spectrum, set to 0 or comment for not using this method
 cycles=100	# number of cycles for geometries reduction. The larger number, the better result. One or more hundreds is a sensible choice. Only valid with positive subset parameter.
 ncores=10      # number of cores used for parallel execution for spectrum reduction. Only valid with positive subset parameter.
 jobs_per_core=1         # number o reduction jobs per one core. Only valid with positive subset parameter.
