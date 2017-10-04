@@ -69,6 +69,7 @@ cat >r.$name << EOF
 #$ -e .
 #$ -o .
 #$ -V
+#$ -notify
 
 ORCA $input $version
 EOF

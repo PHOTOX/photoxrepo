@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script far running QCHEM calculations
+# Script for running QCHEM calculations
 # Serial mode or using parallel OpenMP.
 # For parallel MPI version, the second parametr must be "mpi".
-# Different methods are parallelized with OpenMP or MPI. See the manual.
+# Different methods are parallelized with OpenMP or MPI. See the QCHEM manual.
 
 if [ "$#" -lt 1 ] ; then
    echo "Usage: $(/usr/bin/basename $0) <input_file> [par_type] [version] [SAVEWF]"

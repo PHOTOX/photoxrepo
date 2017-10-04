@@ -2,6 +2,24 @@
 # Simple script that fetches data from scratch to the current working directory.
 # Expects the presence of file job.log.${JOB_ID}.
 
+function PrintHelp {
+	echo "SYNTAX: fetch.sh JOB_ID"
+        echo "This script copies the scratch directory"
+        echo "of currently running job to the current working directory."
+        echo "You must specify the job ID given by the queuing system. "
+        echo "File job.log.\${JOBID} must exist."
+	exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+       echo "Illegal number of parameters!"
+       PrintHelp
+fi
+
+if [[ $1 = "-h" || $1 = "--help" ]];then
+   PrintHelp
+fi
+
 if [[ -z $1 ]];then
    # This is for MD jobs where we assume
    # that there is only one job in the directory

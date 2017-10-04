@@ -34,13 +34,34 @@ echo "SCRATCH  $SCRDIR" >> job.log.${JOB_ID}
 
 mkdir $SCRDIR
 
-coord_file=$(grep COORD_FILE_NAME $input | awk '{print $2}')
-basis_file=$(grep BASIS_SET_FILE_NAME $input | awk '{print $2}')
-corepot_file=$(grep POTENTIAL_FILE_NAME $input | awk '{print $2}')
+coord_file=$(grep -i "COORD_FILE_NAME " $input | awk '{printf("%s\n",$2)}')
+corepot_file=$(grep -i "POTENTIAL_FILE_NAME " $input | awk '{print $2}')
 
-cp -f $DIR/$input $DIR/$coord_file $DIR/$basis_file $DIR/$corepot_file $SCRDIR
+# Unfortunatelly, BASIS_SET_FILE_NAME can be repeated (e.g. for ADMM basis set)
+# The following is a very UGLY solution working only for max 2 basis sets
+basis_file1=$(grep -i "BASIS_SET_FILE_NAME " $input  | head -1 |  awk '{print $2}')
+basis_file2=$(grep -i "BASIS_SET_FILE_NAME " $input  | tail -1 |  awk '{print $2}')
+
+# When restarting with wavefunction...
+wfn_file=$(grep -i "PROJECT " $input | awk '{print $2"-RESTART.wfn"}')
+
+cp ${input} $SCRDIR
+cp ${coord_file} $SCRDIR
+if [[ -f "$basis_file1" ]];then
+   cp ${basis_file1} $SCRDIR
+fi
+if [[ -f "$basis_file2" ]];then
+   cp ${basis_file2} $SCRDIR
+fi
+if [[ -f "$corepot_file" ]];then
+   cp ${corepot_file} $SCRDIR
+fi
+if [[ -f "$wfn_file" ]];then
+   cp ${wfn_file} $SCRDIR
+fi
+
 cd $SCRDIR
-
+ 
 if [[ $nproc -gt 1 ]];then
    $MPIRUN -np $nproc $CP2KEXE_MPI $input > $DIR/$input.out
 else

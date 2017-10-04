@@ -29,7 +29,6 @@ function clean_scr {
 }
 
 # The following should trap signal sent by qdel when submitted with qsub -notify option
-# For unknown reason, this does not work
 trap clean_scr SIGUSR2
 
 if [ -e "$1" ];then
