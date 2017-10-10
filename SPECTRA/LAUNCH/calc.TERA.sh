@@ -1,7 +1,10 @@
 #!/bin/bash
-# Script for creating G09 inputs.
+# Script for creating TeraChem inputs.
 # Called within script RecalcGeoms.sh
-# Three arguments are passed to this script: input geometry, name of the input file and number of processors
+# Three arguments are passed to this script: 
+#  1. input geometry 
+#  2. name of the input file that this script needs to create
+#  3. number of processors
 
 # SETUP #################################
 charge=1             # molecular charge
@@ -10,17 +13,20 @@ spin=1               # molecular spin
 
 # For typical G09 jobs, don't modify anything below.
 geometry=$1
-output=$2
+input=$2
 nproc=$3              # number of processors
 
-cp $geometry  $output.xyz
+cp $geometry  $input.xyz
 
-cat > $output <<EOF
+cat > $input <<EOF
+# coordinates file
+coordinates	$input.xyz	
+
+# scratch directory
+scratch     scr_$input
 
 # basis set: 6-31G**
 basis		6-31++gss
-# coordinates file
-coordinates	$output.xyz	
 # molecule charge
 charge          1
 # SCF method (rhf/blyp/b3lyp/etc...)
@@ -35,7 +41,6 @@ run		energy
 cis		yes
 cisnumstates	7
 gpus 		1
-
 end
 EOF
 
