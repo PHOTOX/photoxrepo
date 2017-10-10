@@ -44,6 +44,8 @@ basis_file2=$(grep -i "BASIS_SET_FILE_NAME " $input  | tail -1 |  awk '{print $2
 
 # When restarting with wavefunction...
 wfn_file=$(grep -i "PROJECT " $input | awk '{print $2"-RESTART.wfn"}')
+#When restarting with real time propagation
+wfn_rtpfile=$(grep -i "PROJECT " $input | awk '{print $2"-RESTART.rtpwfn"}')
 
 cp ${input} $SCRDIR
 cp ${coord_file} $SCRDIR
@@ -58,6 +60,9 @@ if [[ -f "$corepot_file" ]];then
 fi
 if [[ -f "$wfn_file" ]];then
    cp ${wfn_file} $SCRDIR
+fi
+if [[ -f "$wfn_rtpfile" ]];then
+   cp ${wfn_rtpfile} $SCRDIR
 fi
 
 cd $SCRDIR
