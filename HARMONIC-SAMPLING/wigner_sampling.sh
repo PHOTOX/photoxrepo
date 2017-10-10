@@ -13,7 +13,7 @@ iseed=10066077 #random seed
 
 inputdeck=input.com
 
-MyIRandom $iseed $ntrajs > iran.dat
+abin-randomint $iseed $ntrajs > iran.dat
 if [[ $? -ne "0" ]];then
    echo "Error during random number generation.Exiting now..."
    exit 1
