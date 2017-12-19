@@ -377,7 +377,7 @@ case "$program" in
          export MOLPRO=$(readlink -f ${basedir}/molpro/molpro2012.1/arch/x86_64-intel_12.0.5.220/molpros_2012_1_Linux_x86_64_i8)
       fi
       export SHARC=/home/hollas/programes/src/sharc/bin/
-      export SCRADIR=/scratch/$USER/scr-sharc-generic_$$
+      export SCRADIR=/scratch/$USER/scr-sharc-generic_${JOBID}
       echo "Don't forget to set your own unique SCRADIR"
       echo "export SCRADIR=/scratch/$USER/scr-sharc-yourjob/"
       ;;
@@ -422,19 +422,22 @@ case "$program" in
       ;;
 
    "QCHEM" )
-      VERSIONS=(4.3 4.1)
+      VERSIONS=( 4.3 5.0 4.1)
       if [[ $cluster = "as67" ]];then
+         QCHEM[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-multicore
          QCHEM[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
-         source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
+         #source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
+         QCHEM[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-multicore
          QCHEM[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
          source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         #source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5-settings.sh     
       fi
       set_version
       if [[ $? -ne 0 ]];then
