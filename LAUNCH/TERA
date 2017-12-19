@@ -17,7 +17,7 @@ inp=$1
 #numgpus=$(egrep -e '^[[:blank:]]*gpus[[:blank:]]+' $1 | head -1 | awk '{print $2}')
 
 keyfiles=( coordinates qmmm guess plumedfile pcm_read fon_guess \
-  pcm_radii_file restartmd casguess )
+  pcm_radii_file restartmd casguess qmindices prmtop )
 declare -A file filename file2 filename2
 
 for f in ${keyfiles[@]};do

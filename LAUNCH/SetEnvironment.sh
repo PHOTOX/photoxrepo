@@ -336,7 +336,7 @@ case "$program" in
       ;;
 
    "ORCA" )
-      VERSIONS=(3.0.3 4.0.0 3.0.2 3.0.0 )
+      VERSIONS=(4.0.0 3.0.3 3.0.2 3.0.0 )
       ORCA[4.0.0]=$basedir_custom/orca/orca_4_0_0_linux_x86-64_openmpi_202/
       ORCA[3.0.0]=$basedir_custom/orca/orca_3_0_0_linux_x86-64_openmpi_165/
       ORCA[3.0.2]=$basedir_custom/orca/orca_3_0_2_linux_x86-64_openmpi_165/
@@ -423,8 +423,10 @@ case "$program" in
 
    "QCHEM" )
       VERSIONS=( 4.3 5.0 4.1)
+      # TODO version 5.0 MPI only on NEON so far, path in ARGON is different
       if [[ $cluster = "as67" ]];then
          QCHEM[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-multicore
+         QCHEM_MPI[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-openmpi
          QCHEM[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.3]=$basedir/common/qchem/qchem-4.3/arch/x86_64
@@ -432,12 +434,17 @@ case "$program" in
          #source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
          QCHEM[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-multicore
+         QCHEM_MPI[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-openmpi
          QCHEM[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
-         source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         #source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
          #source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5-settings.sh     
+         #source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
+         #source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5-settings.sh     
+         source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-intel_13.1.0.146-settings.sh
+         #source /usr/local/programs/common/openmpi/openmpi-1.10.7/arch/x86_64-intel_*-settings.sh
       fi
       set_version
       if [[ $? -ne 0 ]];then
@@ -474,16 +481,16 @@ case "$program" in
       # Let's recreate this file with each launch
       # which alleviates some problems. Still not great though...
       cat > "/home/$USER/.nwchemrc" << EOF
- nwchem_basis_library $nwchemroot/basis/libraries/
- nwchem_nwpw_library $nwchemroot/nwpw/libraryps/
+ nwchem_basis_library $nwchemroot/src/basis/libraries/
+ nwchem_nwpw_library $nwchemroot/src/nwpw/libraryps/
  ffield amber
- amber_1 $nwchemroot/data/amber_s/
- amber_2 $nwchemroot/data/amber_q/
- amber_3 $nwchemroot/data/amber_x/
- amber_4 $nwchemroot/data/amber_u/
- spce   $nwchemroot/data/solvents/spce.rst
- charmm_s $nwchemroot/data/charmm_s/
- charmm_x $nwchemroot/data/charmm_x/
+ amber_1 $nwchemroot/src/data/amber_s/
+ amber_2 $nwchemroot/src/data/amber_q/
+ amber_3 $nwchemroot/src/data/amber_x/
+ amber_4 $nwchemroot/src/data/amber_u/
+ spce   $nwchemroot/src/data/solvents/spce.rst
+ charmm_s $nwchemroot/src/data/charmm_s/
+ charmm_x $nwchemroot/src/data/charmm_x/
 EOF
       ;;
 
