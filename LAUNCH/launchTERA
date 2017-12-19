@@ -113,7 +113,7 @@ fi
 
 
 keyfiles=( coordinates qmmm guess plumedfile pcm_read fon_guess \
-  pcm_radii_file restartmd casguess )
+  pcm_radii_file restartmd casguess qmindices prmtop )
 
 # Check for presence of input files
 for f in ${keyfiles[@]};do
