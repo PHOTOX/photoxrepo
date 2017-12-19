@@ -61,7 +61,7 @@ cat > r.$name << EOF
 #$ -cwd
 #$ -e .
 #$ -o .
-#$ -V
+#$ -V -notify
 
 NWCHEM $input $nproc $version
 EOF

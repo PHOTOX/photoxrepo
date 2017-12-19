@@ -11,7 +11,7 @@ export LOGFILE=$input.log
 export OUTFILE=$input.out
 
 name=$(basename $input .inp)
-name=$(basename $input .com)
+name=$(basename $name .com)
 
 
 export SCRATCH=${scratch}/NWCHEM-$name-${JOB_ID}
@@ -21,17 +21,28 @@ mkdir -p ${SCRATCH}
 echo "NODE  $node" > job.log.${JOB_ID}
 echo "SCRATCH  $SCRATCH" >> job.log.${JOB_ID}
 
+function clean_scrdir {
+   /bin/rm -rf core
+   /bin/rm -rf $SCRATCH
+   exit 1
+}
+# The following should trap signal sent by qdel SGE command
+# when submitted with qsub -notify option
+trap clean_scrdir SIGUSR2
+
 cd ${WORKDIR}
 echo "scratch_dir $SCRATCH" > $INPFILE
 grep -v "scratch_dir" $input >> $INPFILE
 
+mv $INPFILE $SCRATCH/
+
 if [[ "$nproc" -gt 1 ]];then
 
-   $MPIRUN -np $nproc $NWCHEMEXE $INPFILE 2>&1 > $INPFILE.out 
+   $MPIRUN -np $nproc $NWCHEMEXE $SCRATCH/$INPFILE 2>&1 > $input.out 
 
 else
 
-   $NWCHEMEXE $INPFILE 2>&1 > $INPFILE.out 
+   $NWCHEMEXE $SCRATCH/$INPFILE 2>&1 > $input.out 
 
 fi
 
