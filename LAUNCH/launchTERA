@@ -4,15 +4,16 @@
 # First, determine where we are. 
 node=$(uname -a | awk '{print $2}' )
 if [[ "$node" =~ ^s[0-9]+$|as67-1 ]];then
-   echo "This cluster does not have any GPUs! Exiting..."
-   exit 1
+   cluster=as67
 elif [[ "$node" =~ ^a[0-9]+$|403-a324-01 ]];then
    cluster=a324
 elif [[ "$node" =~ ^n[0-9]+$|403-as67-01  ]];then
    cluster=as67gpu
+elif [[ "$node" =~ ^cn[0-9]+$|^login[0-9]  ]];then
+   cluster=anselm
 else
-   echo "I did not recognize any of the GPU PHOTOX clusters."
-   echo "Exiting..."
+   echo "I did not recognize any of the PHOTOX clusters. Please check the script launchTERA"
+   echo "node=$node"
    exit 1
 fi
 
@@ -21,12 +22,18 @@ function PrintHelp {
    echo " "
    echo "This is the launching script for TeraChem jobs on PHOTOX clusters. "
    echo " "
-   echo "SYNTAX: launchTERA input.com queue [-v version]"
-   echo "where queue is:"
+   if [[ $cluster = "anselm" ]];then
+       echo "SYNTAX: launchTERA input.com queue -p PROJECT_ID [-v version]"
+   else
+       echo "SYNTAX: launchTERA input.com queue [-v version]"
+   fi
+   echo "where the queue is:"
    if [[ $cluster = "a324" ]];then
       echo " \"m2090\",\"gtx690\", gtx970 or \"titan\"."
    elif [[ $cluster = "as67gpu" ]];then
       echo "nq-gpu"
+   elif [[ $cluster = "anselm" ]];then
+      echo "qnvidia"
    fi
    . SetEnvironment.sh TERACHEM -ver
    exit 1
@@ -43,6 +50,10 @@ do
       ;;
       "-v" )
       version=$2
+      shift 
+      ;;
+      "-p" )
+      PROJECT_ID=$2
       shift 
       ;;
       *)
@@ -69,7 +80,7 @@ if [[ $index -ne $NUMPARAMS ]];then
    PrintHelp
 fi
 
-if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970|gtx980 ]];then
+if [[ ! $queue =~ m2090|gtx690|titan|^nq-gpu|gtx970|gtx980|qnvidia ]];then
    echo "$queue is not a valid GPU queue."
    error=1
 fi
@@ -81,10 +92,9 @@ if [[ "$queue" =~ gtx9[78]0 && "$version" =~ ^1.5 ]];then
 fi
 
 
-
 numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $input)
 
-declare -A file file2 gpumax
+declare -A file file2 gpumax PROJECT_NAME
 gpucards=( m2090 gtx690 gtx970 titan nq-gpu )
 gpumax[aq-gpu-m2090]=2
 gpumax[aq-gpu-gtx690]=4
@@ -92,8 +102,9 @@ gpumax[aq-gpu-gtx970]=2
 gpumax[aq-gpu-gtx980]=2
 gpumax[aq-gpu-titan]=4
 gpumax[nq-gpu]=4
+gpumax[qnvidia]=1
 
-if [[ ! $queue =~ \-gpu ]];then
+if [[ ! $queue =~ \-gpu && $queue = "anselm" ]];then
    queue=aq-gpu-$queue
 fi
 
@@ -152,6 +163,7 @@ name=$(basename $input .inp)
 name=$(basename $name .com)
 name=$(basename $name .in)
 
+if [[ $cluster != "anselm" ]];then
 cat > r.$name << EOF
 #!/bin/bash
 
@@ -164,8 +176,35 @@ cat > r.$name << EOF
 
 TERA $input $version
 EOF
-
-
 echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name"
 qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name
+
+else
+
+   # When using IT4I supercomputer in Ostrava, utilizing PBS queue
+
+   if [[ $PROJECT_ID != "OPEN-11-34" && $PROJECT_ID != "OPEN-10-48" ]];then
+	echo "Invalid PROJECT ID=$PROJECT_ID"
+	exit 1
+   fi
+   PROJECT_NAME["OPEN-11-34"]="Molecular simulations of tin based materials for EUV litography"
+   PROJECT_NAME["OPEN-11-34"]="Molecular simulations of tin based materials for EUV litography"
+   echo "Using PROJECT_ID=$PROJECT_ID"
+   echo "${PROJECT_NAME[$PROJECT_ID]}"
+
+   cat > r.$name << EOF
+#!/bin/bash
+
+#PBS -A $PROJECT_ID
+#PBS -l select=1:ncpus=16,walltime=48:00:00
+#PBS -q $queue
+
+cd \$PBS_O_WORKDIR
+TERA $input $version
+EOF
+
+qsub r.$name
+
+fi
+
 

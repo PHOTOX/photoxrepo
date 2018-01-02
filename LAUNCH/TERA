@@ -1,15 +1,16 @@
 #!/bin/bash
 if [ -z $1 ];then
-	echo "No input file specified. Exiting..."
-	echo "Call as: $0 input.com [version]"
-        . SetEnvironment.sh TERACHEM -ver
-	exit 1
+  echo "No input file specified. Exiting..."
+  echo "Call as: $0 input.com [version]"
+  . SetEnvironment.sh TERACHEM -ver
+  exit 1
 fi
 
 if [[ ! -e "$1" ]];then
    echo "Input file $1 doesn't exist!"
    exit 1
 fi
+
 
 CUR_DIR=$(pwd)
 inp=$1
@@ -47,9 +48,9 @@ done
 # This could all be done more nicely using awk only
 numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $inp)
 if [ -z $numgpus ];then
-	echo "Number of gpus not specified. Exiting..."
-	echo "Set variable "gpus" in $1"
-	exit 1
+  echo "Number of gpus not specified. Exiting..."
+  echo "Set variable "gpus" in $1"
+  exit 1
 fi
 
 
@@ -58,6 +59,7 @@ scrdir=$(awk '{if ($1=="scrdir") {print $2;exit 0}}' $inp)
 #- All clear, let's go.
 
 version=$2
+SCRDIR_BASE=/scratch/$USER/  # determined also in SetEnvironment.sh
 source SetEnvironment.sh TERACHEM $version
 if [[ $? != "0" ]];then
    echo "Error when exporting TeraChem parameters in SetEnvironment.sh"
@@ -72,7 +74,7 @@ if [[ -z $scrdir ]];then
    copyback=true
    input=$(basename $1 .inp)
    input=$(basename $input .com)
-   scrdir="/scratch/$USER/TERA-${input}-${JOB_ID}"
+   scrdir="$SCRDIR_BASE/TERA-${input}-${JOB_ID}"
    echo "SCRATCH  $scrdir" >> job.log.${JOB_ID}
    mkdir $scrdir
    echo "scrdir not specified, using : $scrdir"
