@@ -136,7 +136,7 @@ case "$program" in
       fi
       ;;
    "MOLPRO" )
-      if [[ $cluster = "as67gpu" ]];then
+      if [[ $cluster = "as67gpu" ]] || [[ $cluster = "a324" ]] ;then
          VERSIONS=( 2012 2015 )
       else
          VERSIONS=( 2012 )
