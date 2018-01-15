@@ -433,8 +433,8 @@ case "$program" in
          QCHEM_MPI[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
          #source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
-         QCHEM[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-multicore
-         QCHEM_MPI[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-openmpi
+         QCHEM[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-multicore
+         QCHEM_MPI[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-openmpi
          QCHEM[4.1]=$basedir/qchem/qchem-4.1/arch/x86_64
          QCHEM[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
          QCHEM_MPI[4.3]=$basedir/qchem/qchem-4.3/arch/x86_64
@@ -443,9 +443,15 @@ case "$program" in
          #source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5-settings.sh     
          #source $basedir/openmpi/openmpi-1.6.5/arch/x86_64-gcc_4.4.5-settings.sh
          #source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.4.5-settings.sh     
-         source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-intel_13.1.0.146-settings.sh
          #source /usr/local/programs/common/openmpi/openmpi-1.10.7/arch/x86_64-intel_*-settings.sh
       fi
+      
+      if [[ $cluster = "as67gpu" ]];then
+        source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-intel_13.1.0.146-settings.sh      
+      elif [[ $cluster = "a324" ]] ;then
+        source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-intel_12.0.5.220-settings.sh
+      fi
+      
       set_version
       if [[ $? -ne 0 ]];then
          return 1
