@@ -3,7 +3,7 @@ A Python implementation of BEP model: A simple model for electron impact ionizat
 
 Orbital parameters are read from G09 log files or supplied as parameter on the command line. 
 
-See folder [](SAMPLES/) for example calculations.
+See folder [SAMPLES/](SAMPLES/) for example calculations.
 
 See bep.py for further details about the model.
 
