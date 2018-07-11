@@ -1,6 +1,6 @@
 # Grace project file
 #
-@version 50125
+@version 50122
 @page size 792, 612
 @page scroll 5%
 @page inout 5%
@@ -9,7 +9,6 @@
 @map font 10 to "Courier-Bold", "Courier-Bold"
 @map font 11 to "Courier-BoldOblique", "Courier-BoldOblique"
 @map font 9 to "Courier-Oblique", "Courier-Oblique"
-@map font 14 to "Courier-Regular", "Courier-Regular"
 @map font 15 to "Dingbats-Regular", "Dingbats-Regular"
 @map font 4 to "Helvetica", "Helvetica"
 @map font 6 to "Helvetica-Bold", "Helvetica-Bold"
@@ -50,10 +49,6 @@
 @map font 52 to "URWPalladioL-BoldItalic", "URWPalladioL-BoldItalic"
 @map font 53 to "URWPalladioL-Italic", "URWPalladioL-Italic"
 @map font 54 to "URWPalladioL-Roman", "URWPalladioL-Roman"
-@map font 55 to "Utopia-Bold", "Utopia-Bold"
-@map font 56 to "Utopia-BoldItalic", "Utopia-BoldItalic"
-@map font 57 to "Utopia-Italic", "Utopia-Italic"
-@map font 58 to "Utopia-Regular", "Utopia-Regular"
 @map font 13 to "ZapfDingbats", "ZapfDingbats"
 @map color 0 to (255, 255, 255), "white"
 @map color 1 to (0, 0, 0), "black"
@@ -90,7 +85,7 @@
 @timestamp rot 0
 @timestamp font 0
 @timestamp char size 1.000000
-@timestamp def "Mon Feb 19 03:54:08 2018"
+@timestamp def "Wed Jul 11 16:09:29 2018"
 @r0 off
 @link r0 to g0
 @r0 type above
@@ -141,7 +136,7 @@
 @    stack world 0, 0, 0, 0
 @    znorm 1
 @    view 0.150000, 0.150000, 1.150000, 0.850000
-@    title "EI Photoionization Cross Section"
+@    title "Electron Impact Ionization Cross Section"
 @    title font 0
 @    title size 1.500000
 @    title color 1
