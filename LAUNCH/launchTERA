@@ -104,7 +104,7 @@ gpumax[aq-gpu-titan]=4
 gpumax[nq-gpu]=4
 gpumax[qnvidia]=1
 
-if [[ ! $queue =~ \-gpu && $queue = "anselm" ]];then
+if [[ ! $queue =~ \-gpu && $cluster != "anselm" ]];then
    queue=aq-gpu-$queue
 fi
 
