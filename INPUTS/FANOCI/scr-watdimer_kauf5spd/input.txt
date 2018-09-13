@@ -1,0 +1,26 @@
+$prop
+        prop_type = "el"  ! "el" for ionization (electron propagator), "pol" for excitation (polarization propagator)
+$end
+
+$init
+        hs_in = "4" ! number of the HF orbital associated with the decaying state, always as a string, maybe later I find a better way to do it, in the case of excitation you can have a list of orbitals separated by a space "1 2 3"
+! In this case, the 4-th orbital corresponds to a innter-valence orbital of the donor water molecule
+        ps_in = "0" ! this section should be zero if you do ionization, an orbital number or list of orbitals for excitation "1 2 3"
+$end
+
+$final
+        h_f_min = 5 ! this is the former ov_min section, where you select the orbitals which you use to construct the final 2h1p states
+        h_f_max = 10 ! former ov_max section
+        p_f_min = 11 ! former k_min section
+        p_f_max = 200 ! former k_max section - use 0 if you want to include all virtual orbitals in the calculation
+$end
+
+$control
+        n_occ = 10    ! number of occupied orbitals
+        n_mo = 241    ! total number of orbitals. 
+         This is normally determined automatically from HForbenergy.dat. However, in this case we computed MO intergrals only up to 241, see the TC input and output file.
+        gam = "total" ! for ionization you have "total", "singlet", "triplet"
+        moint = 0     ! whether to reduce the moint file such that it contains only OOOO, OOOV, OOVV, OVOV integrals; if == 1, only the moint calculation will be done and the selected integrals will be written in moint_red.txt file
+        prnt = 0      ! a flag for printing the eigenvalues and eigenvectors for each virtual orbital
+        eig_thresh = 0.1 ! a threshold value for printing the eigenvectors
+$end
