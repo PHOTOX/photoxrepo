@@ -316,6 +316,10 @@ case "$program" in
       elif [[ $version = "1.5" ]];then
          export LD_LIBRARY_PATH=$TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
       fi
+      licencepath="/usr/local/programs/custom/PHOTOX/bin/teralicence"
+      if [ -x $licencepath ]; then
+         $teralicence
+      fi
       ;;
 
    "CP2K" )
