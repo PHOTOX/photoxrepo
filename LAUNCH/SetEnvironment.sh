@@ -318,7 +318,7 @@ case "$program" in
       fi
       licencepath="/usr/local/programs/custom/PHOTOX/bin/teralicence"
       if [ -x $licencepath ]; then
-         $teralicence
+         $licencepath
       fi
       ;;
 
