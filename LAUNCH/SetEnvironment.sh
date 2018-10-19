@@ -21,7 +21,7 @@ function print_help {
    echo "USAGE: source SetEnvironment.sh PROGRAM [VERSION]"
    echo ""
    echo "Available programs are:"
-   echo " " 
+$basedir_custom/mopac/mopac2016/MOPAC2016.exe  echo " " 
    echo "${PROGRAMS[@]}" 
    echo " " 
    echo "To find out all available versions of a given PROGRAM, type:"
@@ -418,18 +418,23 @@ case "$program" in
       ;;
 
    "MOPAC" )
-      VERSIONS=(2012.15.168 2012.older)
+      VERSIONS=(2012.15.168 2012.older 2016)
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
       MOPAC[2012.15.168]=/usr/local/bin/mopac
+      MOPAC[2016]=$basedir_custom/mopac/mopac2016/MOPAC2016.exe
       if [[ $cluster = "as67" ]];then
          #Somewhat older version, but cannot determine which
          export MOPAC_LICENSE=/home/hollas/programes/MOPAC2012-CENTOS5
          export MOPACEXE=/home/hollas/programes/MOPAC2012-CENTOS5/MOPAC2012.exe
       else
-         export MOPACEXE=${MOPAC[2012]}
+         if [[ $version = "2016" ]];then
+	    export MOPAC_LICENSE='/usr/local/programs/custom/mopac/mopac2016'
+            export LD_LIBRARY_PATH=/home/srsen/lib/glibc-2.14/lib:$LD_LIBRARY_PATH
+         fi
+         export MOPACEXE=${MOPAC[$version]}
       fi
       ;;
    "GROMACS" )
