@@ -21,7 +21,7 @@ function print_help {
    echo "USAGE: source SetEnvironment.sh PROGRAM [VERSION]"
    echo ""
    echo "Available programs are:"
-$basedir_custom/mopac/mopac2016/MOPAC2016.exe  echo " " 
+   echo " " 
    echo "${PROGRAMS[@]}" 
    echo " " 
    echo "To find out all available versions of a given PROGRAM, type:"
@@ -418,7 +418,7 @@ case "$program" in
       ;;
 
    "MOPAC" )
-      VERSIONS=(2012.15.168 2012.older 2016)
+      VERSIONS=(2016 2012.15.168 2012.older)
       set_version
       if [[ $? -ne 0 ]];then
          return 1
