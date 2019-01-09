@@ -424,15 +424,14 @@ case "$program" in
          return 1
       fi
       MOPAC[2012.15.168]=/usr/local/bin/mopac
-      MOPAC[2016]=$basedir_custom/mopac/mopac2016/MOPAC2016.exe
+      MOPAC[2016]="$basedir_custom/mopac/mopac2016/lib/ld-linux-x86-64.so.2 --library-path $basedir_custom/mopac/mopac2016/lib $basedir_custom/mopac/mopac2016/MOPAC2016.exe"
       if [[ $cluster = "as67" ]];then
          #Somewhat older version, but cannot determine which
          export MOPAC_LICENSE=/home/hollas/programes/MOPAC2012-CENTOS5
          export MOPACEXE=/home/hollas/programes/MOPAC2012-CENTOS5/MOPAC2012.exe
       else
          if [[ $version = "2016" ]];then
-	    export MOPAC_LICENSE='/usr/local/programs/custom/mopac/mopac2016'
-            export LD_LIBRARY_PATH=/home/srsen/lib/glibc-2.14/lib:$LD_LIBRARY_PATH
+	    export MOPAC_LICENSE="$basedir_custom/mopac/mopac2016"
          fi
          export MOPACEXE=${MOPAC[$version]}
       fi
