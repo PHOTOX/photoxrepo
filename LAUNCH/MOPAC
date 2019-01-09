@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ -z $1 ];then
+  echo "No input file specified. Exiting..."
+  echo "Call as: `basename "$0"` input.com [version]"
+  exit 1
+fi
+
+if [[ ! -e "$1" ]];then
+   echo "Input file $1 doesn't exist!"
+   exit 1
+fi
+
+input=$1
+version=$2
+source SetEnvironment.sh MOPAC $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting MOPAC variables in SetEnvironment.sh"
+   exit 1
+fi
+
+echo "Running MOPAC job $1"
+uname -n
+date
+$MOPACEXE $input
+
