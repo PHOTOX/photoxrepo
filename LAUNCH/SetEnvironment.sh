@@ -317,9 +317,9 @@ case "$program" in
       elif [[ $version = "1.5" ]];then
          export LD_LIBRARY_PATH=$TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
       fi
-      licencepath="/usr/local/programs/custom/PHOTOX/bin/teralicence"
-      if [ -x $licencepath ]; then
-         $licencepath
+      license_daemon="/home/srsen/SCRIPTS/teralic_daemon_launcher.sh"
+      if [ -x $license_daemon ]; then
+         $license_daemon
       fi
       ;;
 
