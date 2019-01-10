@@ -10,7 +10,7 @@ fi
 
 KDE=$(pwd)
 
-echo "Running DFTB+ job $1"
+echo "Running DFTB+ job"
 uname -n
 date
 $DFTBEXE &> $KDE/dftb_${JOB_ID}.out 

@@ -4,7 +4,9 @@ function PrintHelp {
    echo "Launcher for DFTB+ jobs."
    echo "Note that input paramaters have to be in file \"dftb_in.hsd\" "
    echo " "
-   echo "USAGE: 'launchDFTB queue [-n nproc]' "
+   echo "USAGE: 'launchDFTB queue [-n nproc] [-v version]' "
+   echo " "
+   . SetEnvironment.sh DFTB -ver
    exit 1
 }
 
@@ -57,7 +59,7 @@ cat >r.dftb << EOF
 #$ -o .
 #$ -V
 
-DFTB $nproc
+DFTB $nproc $version
 EOF
 
 echo "$nproc proccesors will be used"
