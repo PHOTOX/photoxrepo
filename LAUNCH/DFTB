@@ -8,6 +8,10 @@ if [[ $? != "0" ]];then
    exit 1
 fi
 
+if [ -z "$JOB_ID" ]; then
+   JOB_ID=$$
+fi
+
 KDE=$(pwd)
 
 echo "Running DFTB+ job"
