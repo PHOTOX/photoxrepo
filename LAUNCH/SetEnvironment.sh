@@ -211,7 +211,7 @@ case "$program" in
       ;;
 
    "DFTB" )
-      VERSIONS=( 1.2 18.2 )
+      VERSIONS=( 18.2 1.2 )
       DFTB[1.2]=/home/hollas/bin/dftb+
       DFTB[18.2]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux/bin/dftb+"
       set_version
