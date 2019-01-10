@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #Python script for optimizing molecule under constraints
-#v0.51 GAUSSIAN
+#v0.55 GAUSSIAN
 #MANUAL: https://www.overleaf.com/read/dnvcntdyzxsd
 
 #Using atomic units (bohr radius, hartree)
@@ -12,8 +12,8 @@ import numpy as np
 import os,sys
 import subprocess
 
-#Redirecting output to file (uncomment)
-#sys.stdout=open("output","w+",0)
+#Redirecting output to file
+sys.stdout=open("output","w+",0)
 
 # Some constants
 angtobh = 1.889716
@@ -135,7 +135,7 @@ def main():
     while True:
 	#Compute gradients (input files: GAUSSIAN)
 	file = open("input.com","w+")
- 	file.write("%nprocshared=1 \n")
+ 	file.write("%nprocshared=8 \n")
 	file.write("%chk=calc.chk \n")
 	if flag == 1:
         	file.write("#HF/6-31g* Freq guess=(Read,TCheck) NoSymm \n\n")	#Freq	(nosymm required for correct dipole gradient orientation) #GAUSSIAN INPUT PARAMETERS
@@ -375,21 +375,21 @@ def main():
 			   dipole_new_z = 0
 			   for j in xrange(len(atoms)):			#we dont take into account other constraints, force prediction is inevitably bad 
                       		for k in range(0,3):
-				   dipole_new_x = dipole_new_x + (dipole_grad[j][0][k]) *  alpha * force_grad[j][k] * 0.52917
-                                   dipole_new_y = dipole_new_y + (dipole_grad[j][1][k]) *  alpha * force_grad[j][k] * 0.52917	
-                                   dipole_new_z = dipole_new_z + (dipole_grad[j][2][k]) *  alpha * force_grad[j][k] * 0.52917
+				   dipole_new_x = dipole_new_x + (dipole_grad[j][k][0]) *  alpha * force_grad[j][k] * 0.52917
+                                   dipole_new_y = dipole_new_y + (dipole_grad[j][k][1]) *  alpha * force_grad[j][k] * 0.52917	
+                                   dipole_new_z = dipole_new_z + (dipole_grad[j][k][2]) *  alpha * force_grad[j][k] * 0.52917
                            dipole_new = math.sqrt((dipole_xyz[0]+dipole_new_x/diptoau)**2 + (dipole_xyz[1]+dipole_new_y/diptoau)**2 + (dipole_xyz[2]+dipole_new_z/diptoau)**2)
 
 
 			   for j in xrange(len(atoms)):
                                 for k in range(0,3):
-				   lsum = lsum + (dipgradtoau * ( dipole_xyz[0] * dipole_grad[j][0][k] + dipole_xyz[1] * dipole_grad[j][1][k] +  dipole_xyz[2] * dipole_grad[j][2][k] )/(dipole))**2
+				   lsum = lsum + (dipgradtoau * ( dipole_xyz[0] * dipole_grad[j][k][0] + dipole_xyz[1] * dipole_grad[j][k][1] +  dipole_xyz[2] * dipole_grad[j][k][2] )/(dipole))**2
 			   #lambd = - (deltaDip)/(lsum * alpha)
 			   lambd = - (dipole_new - targetdipole) / (lsum * alpha)			
 
 			   for j in xrange(len(atoms)):
 	                      	for k in range(0,3):
-				   force_grad[j][k] = force_grad[j][k] + lambd * diptoau * (dipgradtoau * ( dipole_xyz[0] * dipole_grad[j][0][k] + dipole_xyz[1] * dipole_grad[j][1][k] + dipole_xyz[2] * dipole_grad[j][2][k] )/(dipole))
+				   force_grad[j][k] = force_grad[j][k] + lambd * diptoau * (dipgradtoau * ( dipole_xyz[0] * dipole_grad[j][k][0] + dipole_xyz[1] * dipole_grad[j][k][1] + dipole_xyz[2] * dipole_grad[j][k][2] )/(dipole))
 				   #dipole_new = dipole_new + ((0.393456 * dipole_xyz[0] * dipole_grad[j][0][k] + 0.393456 * dipole_xyz[1] * dipole_grad[j][1][k] + 0.393456 * dipole_xyz[2] * dipole_grad[j][2][k] )/(0.393456 * dipole)) * alpha * force_grad[j][k]
 			   print dipole_new 
 			  
@@ -403,7 +403,7 @@ def main():
 		# Constraint for approach
 		   for j in xrange(len(atoms)):
 		      for k in range(0,3):
-			force_grad[j][k] = force_grad[j][k] - gamma * deltaDip * diptoau * (dipgradtoau * (dipole_xyz[0] * dipole_grad[j][0][k] +  dipole_xyz[1] * dipole_grad[j][1][k] +  dipole_xyz[2] * dipole_grad[j][2][k] )/( dipole)) 
+			force_grad[j][k] = force_grad[j][k] - gamma * deltaDip * diptoau * (dipgradtoau * (dipole_xyz[0] * dipole_grad[j][k][0] +  dipole_xyz[1] * dipole_grad[j][k][1] +  dipole_xyz[2] * dipole_grad[j][k][2] )/( dipole)) 
 
 		stats.write(str(dipole) + '   ')
 
@@ -455,7 +455,7 @@ def main():
 
 		#Alpha with hessian (step prediction)
                 while True:
-                  if np.max(np.absolute(alpha * alpha_hess)) > (1.0 * angtobh):        #Greater step than 0.15 Ang
+                  if np.max(np.absolute(alpha * alpha_hess)) > (0.75 * angtobh):        #Greater step than 0.15 Ang
                         alpha = alpha * 0.75
                   else:
                         break
@@ -501,7 +501,7 @@ def main():
                         LMgrad = []
                         for j in xrange(len(atoms)):
                                 for k in range(0,3):
-                                        LMgrad.append(2 * dipgradtoau * diptoau *( dipole_xyz[0] * dipole_grad[j][0][k] + dipole_xyz[1] * dipole_grad[j][1][k] +  dipole_xyz[2] * dipole_grad[j][2][k]) )
+                                        LMgrad.append(2 * dipgradtoau * diptoau *( dipole_xyz[0] * dipole_grad[j][k][0] + dipole_xyz[1] * dipole_grad[j][k][1] +  dipole_xyz[2] * dipole_grad[j][k][2]) )
 					#LMgrad.append(1 * dipgradtoau * ( dipole_xyz[0] * dipole_grad[j][0][k] + dipole_xyz[1] * dipole_grad[j][1][k] +  dipole_xyz[2] * dipole_grad[j][2][k] )/(dipole))
                         B.append(LMgrad)
 
@@ -530,9 +530,9 @@ def main():
                         dipole_new_z = 0
                         for j in xrange(len(atoms)):                 
                           for k in range(0,3):
-                              dipole_new_x = dipole_new_x + (dipole_grad[j][0][k]) *  alpha * alpha_hess[j][k] * dipgradtoau
-                              dipole_new_y = dipole_new_y + (dipole_grad[j][1][k]) *  alpha * alpha_hess[j][k] * dipgradtoau
-                              dipole_new_z = dipole_new_z + (dipole_grad[j][2][k]) *  alpha * alpha_hess[j][k] * dipgradtoau
+                              dipole_new_x = dipole_new_x + (dipole_grad[j][k][0]) *  alpha * alpha_hess[j][k] * dipgradtoau
+                              dipole_new_y = dipole_new_y + (dipole_grad[j][k][1]) *  alpha * alpha_hess[j][k] * dipgradtoau
+                              dipole_new_z = dipole_new_z + (dipole_grad[j][k][2]) *  alpha * alpha_hess[j][k] * dipgradtoau
                         dipole_new = math.sqrt((dipole_xyz[0]+dipole_new_x/diptoau)**2 + (dipole_xyz[1]+dipole_new_y/diptoau)**2 + (dipole_xyz[2]+dipole_new_z/diptoau)**2)
 			print dipole_new
 			#print (dipole_new - targetdipole)
@@ -582,12 +582,16 @@ def main():
 		print_xyz(atoms,coordinates_prev,"final.xyz")
 		break
 	 elif (options.con1 is None) and (options.con2 is not None):	#Dipole  constraint
-   	  if (co2_lagrange == 1) and abs(en[-1]-en[-2]) < maxenergydiff and np.max(np.absolute(np.asarray(force_grad))) < maxforce:
+	  if (options.hess is True) and (co2_lagrange == 1) and abs(en[-1]-en[-2]) < 0.000001 and (abs(deltaDip) < 0.05) :
+		print('#FINISHED - optimal geometry with dipole constraint found -')
+		print_xyz(atoms,coordinates_prev,"final.xyz")
+		break
+   	  elif (co2_lagrange == 1) and abs(en[-1]-en[-2]) < maxenergydiff and np.max(np.absolute(np.asarray(force_grad))) < maxforce:
                 print('#FINISHED - optimal geometry with dipole constraint found -')
                 print_xyz(atoms,coordinates_prev,"final.xyz")
                 break
 	 else:
-	  if (options.hess is True) and (co1_lagrange == 1) and (co2_lagrange == 1) and abs(en[-1]-en[-2]) < 0.00001 and (abs(deltaDip) < 0.05) and (abs(deltaLen) < 0.05):
+	  if (options.hess is True) and (co1_lagrange == 1) and (co2_lagrange == 1) and abs(en[-1]-en[-2]) < 0.000001 and (abs(deltaDip) < 0.05) and (abs(deltaLen) < 0.05):
 		print('#FINISHED - optimal geometry with distance and dipole constraint found -')
 		print_xyz(atoms,coordinates_prev,"final.xyz")
 		break
