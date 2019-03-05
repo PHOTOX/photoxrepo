@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ -z $1 ];then
+  echo "No input file specified. Exiting..."
+  echo "Call as: `basename "$0"` input.com [version]"
+  exit 1
+fi
+
+if [[ ! -e "$1" ]];then
+   echo "Input file $1 doesn't exist!"
+   exit 1
+fi
+
+input=$1
+version=$2
+KDE=$(pwd)
+source SetEnvironment.sh MNDO $version
+#MNDOEXE=mndo
+if [[ $? != "0" ]];then
+   echo "Error when exporting MNDO variables in SetEnvironment.sh"
+   exit 1
+fi
+
+echo "Running MNDOEXE job $1"
+uname -n
+date
+$MNDOEXE < $input &> $KDE/$1.out

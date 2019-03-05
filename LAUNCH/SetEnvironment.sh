@@ -82,9 +82,9 @@ fi
 if [[ $cluster = "as67" ]];then
    PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER OCTOPUS)
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC GROMACS AMBER OCTOPUS )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC MNDO GROMACS AMBER OCTOPUS )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC GROMACS AMBER OCTOPUS )
+   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC MNDO GROMACS AMBER OCTOPUS )
 elif [[ $cluster = "anselm" ]];then
    PROGRAMS=(TERACHEM ABIN)
 fi
@@ -116,7 +116,7 @@ if [[ $available = "False" ]];then
 fi
 
 # declaration of associative BASH arrays
-declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC SHARCH QCHEM QCHEM_MPI
+declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC MNDO SHARCH QCHEM QCHEM_MPI
 
 
 case "$program" in
@@ -437,6 +437,17 @@ case "$program" in
          export MOPACEXE=${MOPAC[$version]}
       fi
       ;;
+
+   "MNDO" )
+      VERSIONS=( 7.0 )
+      MNDO[7.0]="$basedir_custom/mndo/mndo99/mndo99"
+      set_version
+      if [[ $? -ne 0 ]];then
+         return 1
+      fi
+      export MNDOEXE=${MNDO[$version]}
+      ;;
+
    "GROMACS" )
       if [[ $cluster = "as67" ]];then
          VERSIONS=( 4.5.5 )
