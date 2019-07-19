@@ -28,13 +28,13 @@ def read_cmd():
 
 
 # Some constants
-EVtoJ = 1.602e-19  # Joul
-EPS = 8.854e-12
-PI  = math.pi
-HPRIME = 6.626e-34/(2*PI)
-C = 299792e3
-DEB = 2.5*3.34e-30
-COEFF = PI * DEB**2 * 1e4 /( 3 * HPRIME * EPS * C )
+EVtoJ = 1.602177e-19  # Joul
+EPS = 8.854188e-12
+PI = math.pi
+HPRIME = 6.626070e-34/(2*PI)
+C = 299792458
+AUtoCm = 8.478354e-30
+COEFF = PI * AUtoCm**2 * 1e4 /(3 * HPRIME * EPS * C)
 
 test = 1 # 1 for Komogorov-Smirnov test, 2 for Kuiper test, 3 for differences sum, 4 for integral differences sum
 
