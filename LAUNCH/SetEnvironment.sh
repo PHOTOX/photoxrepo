@@ -255,7 +255,7 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 1.9-dev 1.9 dev trunk azurin )
+         VERSIONS=( 1.9-dev 1.94 dev trunk azurin )
       elif [[ $node = "a32" || $node = "a33" ]];then
          VERSIONS=( 1.9-dev 1.9 dev trunk )
       elif [[ $cluster = "a324" ]];then
@@ -295,6 +295,7 @@ case "$program" in
       TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
       TERA[1.9]=$basedir_custom/terachem/terachem-1.9/arch/TeraChem
+      TERA[1.94]=$basedir_custom/terachem/terachem-1.94/arch/TeraChem/
       TERA[trunk]=/home/hollas/programes/TeraChem-dev/production/build
       if [[ $version != "1.5K" && $version != "1.5" && $version != "1.9" ]];then
          source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
