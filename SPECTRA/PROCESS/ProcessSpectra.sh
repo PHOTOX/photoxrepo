@@ -36,21 +36,12 @@ jobs_per_core=1         # number o reduction jobs per one core. Only valid with 
 
 # Import grepping functions
 # At least one of these files must be present
-if [[ -f extractMOLPRO.sh ]];then
-   source extractMOLPRO.sh 
-fi
-if [[ -f extractG09.sh ]];then
-   source extractG09.sh 
-fi
-if [[ -f extractORCA.sh ]];then
-   source extractORCA.sh 
-fi
-if [[ -f extractQC.sh ]];then
-   source extractQC.sh 
-fi
-if [[ -f extractTERA.sh ]];then
-   source extractTERA.sh 
-fi
+files=(extractDALTON.sh extractG09.sh extractMNDO.sh extractMOLPRO.sh extractMOPAC.sh extractORCA.sh extractQC.sh extractTERA.sh)
+for file in "${files[@]}";do
+   if [[ -f "$file" ]];then
+      source "$file"
+   fi
+done
 
 i=$istart
 samples=0
