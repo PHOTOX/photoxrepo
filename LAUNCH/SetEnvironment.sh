@@ -373,7 +373,8 @@ case "$program" in
       ;;
 
    "ORCA" )
-      VERSIONS=(4.0.0 3.0.3 3.0.2 3.0.0 )
+      VERSIONS=(4.2.0 4.0.0 3.0.3 3.0.2 3.0.0 )
+      ORCA[4.2.0]=$basedir_custom/orca/orca_4_2_0_linux_x86-64_openmpi314/
       ORCA[4.0.0]=$basedir_custom/orca/orca_4_0_0_linux_x86-64_openmpi_202/
       ORCA[3.0.0]=$basedir_custom/orca/orca_3_0_0_linux_x86-64_openmpi_165/
       ORCA[3.0.2]=$basedir_custom/orca/orca_3_0_2_linux_x86-64_openmpi_165/
@@ -385,7 +386,9 @@ case "$program" in
       orcaroot=${ORCA[$version]}
       export PATH=$orcaroot/:$PATH
       export ORCAEXE=$orcaroot/orca
-      if [[ $cluster = "as67" ]];then
+      if [[ $version = "4.2.0" ]];then
+	 export OPENMPI=$basedir_custom/openmpi/openmpi-4.0.1/build
+      elif [[ $cluster = "as67" ]];then
          export OPENMPI=/usr/local/programs/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2
       else
          if [[ $version = "4.0.0" ]];then
