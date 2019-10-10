@@ -1,0 +1,81 @@
+#!/bin/bash
+function PrintHelp {
+   echo " "
+   echo "USAGE: 'launchDALTON input queue [-n num_cpus] [-v version]' "
+   echo " "
+   . SetEnvironment.sh DALTON -ver
+   exit 1
+}
+NUMPARAMS=2
+nproc=1
+index=0
+while [[ $# > 0 ]]
+do
+   arg="$1"
+   case $arg in
+      "-h" )
+      PrintHelp
+      ;;
+      "-v" )
+      version=$2
+      shift
+      ;;
+      "-n" )
+      nproc=$2
+      shift
+      ;;
+      *)
+      if [[ $index -eq 0 ]];then
+         input=$1
+      elif [[ $index -eq 1 ]];then
+         queue=$1
+      fi
+      let index++
+      ;;
+   esac
+   shift
+done
+
+if [[ $index -ne $NUMPARAMS ]];then
+   echo "Incorrect number of parameters."
+   PrintHelp
+fi
+
+if [[ ! -e "$input.dal" ]];then
+   echo "File $input.dal does not exist. Exiting."
+   PrintHelp
+fi
+if [[ ! -e "$input.mol" ]];then
+   echo "File $input.mol does not exist. Exiting."
+   PrintHelp
+fi
+
+if [ "`echo ${nproc} | grep '^[0-9]*$'`" != ${nproc} ]; then
+    echo "Error: number_of_cpus parameter is not a number!"
+    PrintHelp
+fi
+
+name=$(basename $input .inp)
+name=$(basename $name .com)
+
+cat >r.$name << EOF
+#!/bin/bash
+
+#$ -cwd
+#$ -e .
+#$ -o .
+#$ -V
+#$ -notify
+
+DALTON $input $nproc $version
+EOF
+
+echo "$nproc proccesors will be used"
+if [[ "$nproc" -eq 1 ]];then
+   echo "qsub -cwd -q $queue r.$name"
+   qsub -cwd -q $queue r.$name
+else
+   echo "qsub -cwd -q $queue -pe mpi_alt $nproc r.$name"
+   qsub -cwd -q $queue -pe mpi_alt $nproc r.$name
+fi
+

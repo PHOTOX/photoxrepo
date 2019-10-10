@@ -1,0 +1,32 @@
+#!/bin/bash
+
+input=$1
+nproc=$2
+version=$3
+if [ -z $input ];then
+  echo "No input file specified. Exiting..."
+  echo "Call as: `basename "$0"` input num_cpus [version]"
+  exit 1
+fi
+
+if [[ ! -e "$input.dal" ]];then
+   echo "Input file $1.dal doesn't exist!"
+   exit 1
+fi
+if [[ ! -e "$input.mol" ]];then
+   echo "Input file $1.mol doesn't exist!"
+   exit 1
+fi
+
+export DALTON_TMPDIR="/scratch/$USER"
+source SetEnvironment.sh DALTON $version
+if [[ $? != "0" ]];then
+   echo "Error when exporting DALTON variables in SetEnvironment.sh"
+   exit 1
+fi
+
+echo "Running DALTON job $input"
+uname -n
+date
+$DALTONEXE -noarch -N $nproc $input
+
