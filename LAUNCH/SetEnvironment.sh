@@ -80,13 +80,13 @@ else
 fi
 
 if [[ $cluster = "as67" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA MOPAC GROMACS AMBER OCTOPUS)
+   PROGRAMS=(ABIN AMBER CP2K DFTB GAUSSIAN GROMACS MOLPRO MOPAC OCTOPUS ORCA QCHEM)
 elif [[ $cluster = "a324" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM SHARC MOPAC MNDO GROMACS AMBER OCTOPUS )
+   PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM SHARC TERACHEM )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(ABIN GAUSSIAN QCHEM MOLPRO CP2K DFTB ORCA NWCHEM TERACHEM MOPAC MNDO GROMACS AMBER OCTOPUS )
+   PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM TERACHEM )
 elif [[ $cluster = "anselm" ]];then
-   PROGRAMS=(TERACHEM ABIN)
+   PROGRAMS=(ABIN TERACHEM)
 fi
 
 basedir=/usr/local/programs
@@ -116,7 +116,7 @@ if [[ $available = "False" ]];then
 fi
 
 # declaration of associative BASH arrays
-declare -A ABIN NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC MNDO SHARCH QCHEM QCHEM_MPI
+declare -A ABIN DALTON NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS DFTB TERA MOPAC MNDO SHARCH QCHEM QCHEM_MPI
 
 
 case "$program" in
@@ -450,6 +450,26 @@ case "$program" in
          return 1
       fi
       export MNDOEXE=${MNDO[$version]}
+      ;;
+
+   "DALTON" )
+      VERSIONS=( 2018.2 )
+      DALTON[2018.2]="$basedir_custom/dalton/dalton2018.2/build/dalton"
+      set_version
+      if [[ $? -ne 0 ]];then
+         return 1
+      fi
+      export DALTONEXE=${DALTON[$version]}
+      source /usr/local/programs/common/gcc/gcc-7.3.0/set/settings.sh
+      if [[ $cluster = "as67gpu" ]];then
+	export LD_LIBRARY_PATH=/usr/local/programs/custom/mpich/mpich-3.3/arch/x86_64-gcc_7.3/lib/:$LD_LIBRARY_PATH
+	export MPIRUN=/usr/local/programs/custom/mpich/mpich-3.3/arch/x86_64-gcc_7.3/bin/mpirun
+	export PATH=/usr/local/programs/custom/mpich/mpich-3.3/arch/x86_64-gcc_7.3/bin:$PATH
+      elif [[ $cluster = "a324" ]];then
+	export LD_LIBRARY_PATH=/usr/local/programs/custom/mpich/mpich-3.1.3/arch/x86_64-gcc/lib/:$LD_LIBRARY_PATH
+	export MPIRUN=/usr/local/programs/custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin/mpirun
+	export PATH=/usr/local/programs/custom/mpich/mpich-3.1.3/arch/x86_64-gcc/bin:$PATH
+      fi
       ;;
 
    "GROMACS" )
