@@ -255,14 +255,18 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 1.9-dev 1.94 dev trunk azurin )
-      elif [[ $node = "a32" || $node = "a33" ]];then
-         VERSIONS=( 1.9-dev 1.9 dev trunk )
+         VERSIONS=( 1.9-dev 1.94 dev trunk azurin fanoci )
       elif [[ $cluster = "a324" ]];then
-         VERSIONS=( 1.9-dev 1.9 1.5K dev trunk )
+         VERSIONS=( 1.9-dev 1.9 dev trunk fanoci )
       elif [[ $cluster = "anselm" ]];then
          VERSIONS=( trunk )
       fi
+      # Make sure nginx proxy server is running (needed for network license)
+      license_daemon="/home/srsen/SCRIPTS/teralic_daemon_launcher.sh"
+      if [ -x $license_daemon ]; then
+         $license_daemon
+      fi
+
       if [[ $cluster = "a324" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/:$LD_LIBRARY_PATH
          OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.3.0/arch/x86_64/anaconda3/pkgs/openmm-7.1.1-py36_0/lib/
@@ -287,41 +291,37 @@ case "$program" in
       export LD_LIBRARY_PATH=$OPENMMLIB:$OPENMMLIB/plugins:$LD_LIBRARY_PATH
       export OPENMM_PLUGIN_DIR=$OPENMMLIB/plugins
 
+      TERA[fanoci]=/home/hollas/programes/TeraChem-dev/production-fanoci-merge/build
       TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
       #DH temporary hack
       TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_06092016_7d58b0c7f8b2
       TERA[azurin]=$basedir_custom/terachem/terachem-dev/build_azurin
-      TERA[1.5]=$basedir_custom/terachem/terachem-1.5
-      TERA[1.5K]=$basedir_custom/terachem/terachem-1.5K
       TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
       TERA[1.9]=$basedir_custom/terachem/terachem-1.9/arch/TeraChem
       TERA[1.94]=$basedir_custom/terachem/terachem-1.94/arch/TeraChem/
       TERA[trunk]=/home/hollas/programes/TeraChem-dev/production/build
-      if [[ $version != "1.5K" && $version != "1.5" && $version != "1.9" ]];then
-         source  /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
+
+      # TODO: Put all exports to SetTCVars.sh for all versions
+      if [[ $version = "1.9" || $version = "trunk" || $version = "fanoci" ]];then
+         export TeraChem=${TERA[$version]}
+         . $TeraChem/SetTCVars.sh
+         return 0
+      fi
+
+      if [[ $version != "1.9" && $version != "trunk" ]];then
+         source /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
       fi
       # TODO: Make SetTCVars.sh for each version and do not export things here...
       export TeraChem=${TERA[$version]}
       export TERAEXE=$TeraChem/terachem
       export PATH=$TeraChem/bin:$PATH
       export NBOEXE=$TeraChem/nbo6.exe
-      if [[ $version = "1.9" ]];then
-         . $TeraChem/SetTCVars.sh
-      elif [[ $version != "1.5" && $version != "1.5K" ]];then
-         export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
-         export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
-         export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-         export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
-         export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
-      elif [[ $version = "1.5K" ]];then
-         export LD_LIBRARY_PATH=/usr/local/programs/cuda/cuda-5.0/cuda/lib64/:$LD_LIBRARY_PATH
-      elif [[ $version = "1.5" ]];then
-         export LD_LIBRARY_PATH=$TeraChem/cudav4.0/cuda/lib64:$LD_LIBRARY_PATH
-      fi
-      license_daemon="/home/srsen/SCRIPTS/teralic_daemon_launcher.sh"
-      if [ -x $license_daemon ]; then
-         $license_daemon
-      fi
+      export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
+
+      export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
+      export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
+      export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
+      export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
       ;;
 
    "CP2K" )
