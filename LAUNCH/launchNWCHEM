@@ -63,7 +63,7 @@ cat > r.$name << EOF
 #$ -o .
 #$ -V -notify
 
-NWCHEM $input $nproc $version
+NWCHEM $input $version
 EOF
 
 if [[ "nproc" -gt 1 ]];then

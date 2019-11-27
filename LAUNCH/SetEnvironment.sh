@@ -542,12 +542,13 @@ case "$program" in
 
    "NWCHEM" )
       if [[ $cluster = "as67gpu" ]];then
-        VERSIONS=(6.6-beta)
+        VERSIONS=( 6.6-beta 6.8.1 )
       elif [[ $cluster = "a324" ]];then
-        VERSIONS=( 6.6 )
+        VERSIONS=( 6.6 6.8.1 )
       fi
       NWCHEM[6.6-beta]=$basedir_custom/nwchem/nwchem-6.6beta/src
       NWCHEM[6.6]=$basedir_custom/nwchem/nwchem-6.6/src
+      NWCHEM[6.8.1]=$basedir_custom/nwchem/nwchem-6.8.1/src
 
       set_version
       if [[ $? -ne 0 ]];then

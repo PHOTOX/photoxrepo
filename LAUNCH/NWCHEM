@@ -2,7 +2,7 @@
 input=$1
 version=$2
 nproc=${NSLOTS}
-source SetEnvironment.sh NWCHEM
+source SetEnvironment.sh NWCHEM $version
 
 scratch=/scratch/${USER}
 
