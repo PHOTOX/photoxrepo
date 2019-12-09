@@ -237,8 +237,8 @@ case "$program" in
       elif [[ $cluster = "a324" ]];then
          VERSIONS=( 12 12-MPI )
       else
-         # Version 14 is only AmberTools15 (Containing Sander)
-         VERSIONS=( 12 12-MPI 14 14-MPI)
+         # Version 14 and higher is only AmberTools (i.e Sander, no PMEMD)
+         VERSIONS=( 12 12-MPI 14 14-MPI 18 18-MPI)
       fi
       AMBER[11]=$basedir/amber/amber11/sub/amber_sp_env.sh
       AMBER[11-MPI]=$basedir/amber/amber11/sub/amber_mp_env.sh
@@ -246,6 +246,8 @@ case "$program" in
       AMBER[12-MPI]=$basedir_custom/amber/amber12/sub/amber_mp_env.sh
       AMBER[14]=$basedir_custom/amber/amber14/arch/intel2015-mpich3.1.3/amber14/amber.sh
       AMBER[14-MPI]=${AMBER[14]}
+      AMBER[18]=$basedir_custom/amber/amber18/arch/gcc-mpich3.1.3/amber18/amber.sh
+      AMBER[18-MPI]=${AMBER[18]}
       set_version
       if [[ $? -ne 0 ]];then
          return 1
