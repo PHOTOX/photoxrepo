@@ -255,12 +255,20 @@ case "$program" in
 
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
-         VERSIONS=( 1.9-dev 1.94 dev trunk azurin fanoci )
+         VERSIONS=(1.9-dev-2019.12 1.9-dev-2017.10 1.94 trunk fanoci )
       elif [[ $cluster = "a324" ]];then
-         VERSIONS=( 1.9-dev 1.9 dev trunk fanoci )
+         VERSIONS=(1.9-dev-2019.12 1.9-dev-2017.10 1.9-dev-2019.12-turing trunk fanoci )
       elif [[ $cluster = "anselm" ]];then
          VERSIONS=( trunk )
       fi
+      if [[ $node = 'a29' ]];then
+         version=1.9-dev-2019.12-turing
+      fi
+      set_version
+      if [[ $? -ne 0 ]];then
+         return 1
+      fi
+
       # Make sure nginx proxy server is running (needed for network license)
       license_daemon="/home/srsen/SCRIPTS/teralic_daemon_launcher.sh"
       if [ -x $license_daemon ]; then
@@ -269,10 +277,8 @@ case "$program" in
 
       if [[ $cluster = "a324" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/:$LD_LIBRARY_PATH
-         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.3.0/arch/x86_64/anaconda3/pkgs/openmm-7.1.1-py36_0/lib/
       elif [[ $cluster = "as67gpu" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.1.1/arch/x86_64/pkgs/openmm-7.0.1-py35_0/lib/
       elif [[ $cluster = "anselm" ]];then
          module load  intel/2016a
          module load  CUDA/8.0.44
@@ -282,46 +288,16 @@ case "$program" in
          export TERAEXE=terachem
          return 0
       fi
-      set_version
-      if [[ $? -ne 0 ]];then
-         return 1
-      fi
 
-      # OpenMM library for QM/MM in development version of TC
-      export LD_LIBRARY_PATH=$OPENMMLIB:$OPENMMLIB/plugins:$LD_LIBRARY_PATH
-      export OPENMM_PLUGIN_DIR=$OPENMMLIB/plugins
-
-      TERA[fanoci]=/home/hollas/programes/TeraChem-dev/production-fanoci-merge/build
-      TERA[dev]=$basedir_custom/terachem/terachem-dev/build_mpich
-      #DH temporary hack
-      TERA[dev]=$basedir_custom/terachem/terachem-1.9dev/build_06092016_7d58b0c7f8b2
-      TERA[azurin]=$basedir_custom/terachem/terachem-dev/build_azurin
-      TERA[1.9-dev]=$basedir_custom/terachem/terachem-1.9dev/build
-      TERA[1.9]=$basedir_custom/terachem/terachem-1.9/arch/TeraChem
-      TERA[1.94]=$basedir_custom/terachem/terachem-1.94/arch/TeraChem/
+      TERA[1.9-dev-2019.12-turing]=$basedir_custom/terachem/terachem-1.9dev/build_2019.12_turing_037285e329b7
+      TERA[1.9-dev-2019.12]=$basedir_custom/terachem/terachem-1.9dev/build_2019.12_037285e329b7
       TERA[trunk]=/home/hollas/programes/TeraChem-dev/production/build
+      TERA[fanoci]=/home/hollas/programes/TeraChem-dev/production-fanoci-merge/build
+      TERA[1.9-dev-2017.10]=$basedir_custom/terachem/terachem-1.9dev/build_24102017_95e7944ca4e4
+      TERA[1.94]=$basedir_custom/terachem/terachem-1.94/arch/TeraChem/
 
-      # TODO: Put all exports to SetTCVars.sh for all versions
-      if [[ $version = "1.9" || $version = "trunk" || $version = "fanoci" ]];then
-         export TeraChem=${TERA[$version]}
-         . $TeraChem/SetTCVars.sh
-         return 0
-      fi
-
-      if [[ $version != "1.9" && $version != "trunk" ]];then
-         source /home/hollas/programes/intel/parallel_studio_2015_update5/composerxe/bin/compilervars.sh intel64
-      fi
-      # TODO: Make SetTCVars.sh for each version and do not export things here...
       export TeraChem=${TERA[$version]}
-      export TERAEXE=$TeraChem/terachem
-      export PATH=$TeraChem/bin:$PATH
-      export NBOEXE=$TeraChem/nbo6.exe
-      export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-
-      export LD_LIBRARY_PATH=/home/hollas/programes/intel/parallel_studio_2015_update5/composer_xe_2015.5.223/compiler/lib/intel64/:$LD_LIBRARY_PATH
-      export PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/:$PATH
-      export LD_LIBRARY_PATH=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/lib/:$LD_LIBRARY_PATH
-      export MPIRUN=$basedir_custom/mpich/mpich-3.1.3/arch/x86_64-intel-2015-update5/bin/mpirun
+      . $TeraChem/SetTCVars.sh
       ;;
 
    "CP2K" )
@@ -376,8 +352,6 @@ case "$program" in
       VERSIONS=(4.2.0 4.0.0 3.0.3 3.0.2 3.0.0 )
       ORCA[4.2.0]=$basedir_custom/orca/orca_4_2_0_linux_x86-64_openmpi314/
       ORCA[4.0.0]=$basedir_custom/orca/orca_4_0_0_linux_x86-64_openmpi_202/
-      ORCA[3.0.0]=$basedir_custom/orca/orca_3_0_0_linux_x86-64_openmpi_165/
-      ORCA[3.0.2]=$basedir_custom/orca/orca_3_0_2_linux_x86-64_openmpi_165/
       ORCA[3.0.3]=$basedir_custom/orca/orca_3_0_3_linux_x86-64_openmpi_165/
       set_version
       if [[ $? -ne 0 ]];then
