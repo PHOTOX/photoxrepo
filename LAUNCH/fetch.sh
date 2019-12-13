@@ -11,11 +11,6 @@ function PrintHelp {
 	exit 1
 }
 
-if [ "$#" -ne 1 ]; then
-       echo "Illegal number of parameters!"
-       PrintHelp
-fi
-
 if [[ $1 = "-h" || $1 = "--help" ]];then
    PrintHelp
 fi
