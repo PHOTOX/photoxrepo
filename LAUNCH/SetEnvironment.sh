@@ -258,8 +258,11 @@ case "$program" in
    "TERACHEM" )
       if [[ $cluster = "as67gpu" ]];then
          VERSIONS=(1.9-dev-2019.12 1.9-dev-2017.10 1.94 trunk fanoci )
+         # DO NOT CHANGE THIS! "OPENMMLIB" is hardwired in TC
+         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.1.1/arch/x86_64/pkgs/openmm-7.0.1-py35_0/lib/
       elif [[ $cluster = "a324" ]];then
          VERSIONS=(1.9-dev-2019.12 1.9-dev-2017.10 1.9-dev-2019.12-turing trunk fanoci )
+         OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.3.0/arch/x86_64/anaconda3/pkgs/openmm-7.1.1-py36_0/lib/
       elif [[ $cluster = "anselm" ]];then
          VERSIONS=( trunk )
       fi
@@ -297,6 +300,10 @@ case "$program" in
       TERA[fanoci]=/home/hollas/programes/TeraChem-dev/production-fanoci-merge/build
       TERA[1.9-dev-2017.10]=$basedir_custom/terachem/terachem-1.9dev/build_24102017_95e7944ca4e4
       TERA[1.94]=$basedir_custom/terachem/terachem-1.94/arch/TeraChem/
+
+      # OPENMM stuff for QM/MM (DO NOT CHANGE THE NAME OF THESE VARS)
+      export LD_LIBRARY_PATH=$OPENMMLIB:$OPENMMLIB/plugins:$LD_LIBRARY_PATH
+      export OPENMM_PLUGIN_DIR=$OPENMMLIB/plugins
 
       export TeraChem=${TERA[$version]}
       . $TeraChem/SetTCVars.sh
