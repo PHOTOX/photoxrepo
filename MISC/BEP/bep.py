@@ -26,13 +26,14 @@ def read_cmd():
    parser = argparse.ArgumentParser(description=desc)
    parser.add_argument("-i", "--input_file", dest="inp_file", help="Gaussian output file with MO parameters.")
    parser.add_argument("-m", "--model", dest="model",default="bep", help="Which model? (bep|talukder).")
-   parser.add_argument("-U", dest="U", help="electron orbital kinetic energy [ev]")
-   parser.add_argument("--Tmax", dest="Tmax",default=1000, help="maximum kin. energy of ionizing electron [ev]")
-   parser.add_argument("-T", dest="T", help="kinetic energy [ev] of the ionizing electron")
-   parser.add_argument("-B", dest="B", help="electron binding energy [ev]")
-   parser.add_argument("-N", dest="N", default=2, help="number of eletrons in the orbital")
-   parser.add_argument("-n", dest="n", help="Talukder model, principal quantum number")
-   parser.add_argument("-l", dest="l", help="Talukder model, azimuthal quantum number")
+   parser.add_argument("-U", dest="U", type=float, help="electron orbital kinetic energy [ev]")
+   parser.add_argument("--Tmax", dest="Tmax", type=float, default=1000., help="maximum kin. energy of ionizing electron [ev]")
+   parser.add_argument("-T", dest="T",type=float, help="kinetic energy [ev] of the ionizing electron")
+   parser.add_argument("-B", dest="B",type=float, help="electron binding energy [ev]")
+   parser.add_argument("-N", dest="N",type=int, default=2, help="number of eletrons in the orbital")
+   parser.add_argument("-n", dest="n",type=int, help="Talukder model, principal quantum number")
+   parser.add_argument("-l", dest="l",type=int, help="Talukder model, azimuthal quantum number")
+   parser.add_argument("-c", "--charge", dest="charge",type=int, default=0, help="Charge")
    return parser.parse_args()
 
 def bep_cross_section(T, B, U, N, charge):
@@ -184,15 +185,17 @@ if __name__ == "__main__":
    if opts.inp_file:
       parse_gaussian(opts.inp_file, Eorb, Ekin)
    else:
-      Eorb.append(float(opts.B) / AU2EV)
-      Ekin.append(float(opts.U) / AU2EV)
+      Eorb.append(opts.B / AU2EV)
+      Ekin.append(opts.U / AU2EV)
 
-   N = int(opts.N)
-   charge = 0
+   N = opts.N
+   if opts.charge != 0 and opts.charge != 1:
+      print("ERROR: Charge must be 0 or 1, other values are not supported!")
+      sys.exit(1)
 
    Ts = []  # Calculate cross sections for these incident kinetic energies
    if opts.T:
-      Ts.append(float(opts.T) / AU2EV)
+      Ts.append(opts.T / AU2EV)
    else:
       Ts = [x/AU2EV for x in range(int(Eorb[-1]*AU2EV), int(opts.Tmax) ) ]
 
@@ -212,7 +215,7 @@ if __name__ == "__main__":
       for i in range(len(Eorb)):
          if Eorb[i] <= t:
             if opts.model == "bep":
-               s = bep_cross_section(t, Eorb[i], Ekin[i], N, charge)
+               s = bep_cross_section(t, Eorb[i], Ekin[i], N, opts.charge)
             elif opts.model == "talukder":
                s = talukder_cross_section(t, Eorb[i], n, l, N)
             else:
