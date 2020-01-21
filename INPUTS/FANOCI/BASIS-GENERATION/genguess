@@ -1,0 +1,196 @@
+#!/bin/bash
+
+#$ -cwd -V
+#$ -q nq-gpu
+
+. SetEnvironment.sh TERACHEM fanoci
+
+# Uncomment this if your basis is in $PWD/basis
+# Ideally, you'd have your TC licence here as well
+export TeraChem=$PWD
+
+if [ $# -ne 1 -a $# -ne 2 ]; then
+  echo "Usage $0 <basis name> <optional: gpuid>"
+  exit 
+fi
+
+BASISNAME=$1
+BASISFILE=$TeraChem/basis/$BASISNAME
+if [ ! -e $BASISFILE ]; then
+  echo "FILE $BASISFILE DOES NOT EXIST"
+  exit
+fi
+echo ""
+echo "GENERATING WF GUESS ATOMIC ORBITALS FOR BASIS SET $(echo $BASISNAME | awk '{print toupper($0)}')..."
+echo ""
+echo "PROCESSING FILE $BASISFILE"
+echo ""
+
+BIN=terachem
+$BIN -v 2> /dev/null
+RET=$?
+if [ $RET -ne 0 ]; then
+  echo "CANNOT RUN TERACHEM. MAKE SURE 'terachem' IS IN YOUR \$PATH ENVIRONMENT VARIABLE"
+  echo "OR MODIFY 'BIN' VARIABLE IN THIS SCRIPT"
+  exit
+fi
+echo ""
+GPUID=$2
+if [ $# -eq 1 ]; then
+  GPUID=0
+fi
+
+ATOMLIST=( \
+H                                                                                            He \
+Li Be                                                                         B  C  N  O  F  Ne \
+Na Mg                                                                         Al Si P  S  Cl Ar \
+K  Ca                                           Sc Ti V  Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr \
+Rb Sr                                           Y  Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I  Xe \
+Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W  Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn \
+Fr Ra Ac Th Pa U  Np Pu )
+CORELIST=( \
+0                                                                                            0  \
+1  1                                                                          1  1  1  1  1  1  \
+5  5                                                                          5  5  5  5  5  5  \
+9  9                                            9  9  9  9  9  9  9  9  9  9  9  9  9  9  9  9  \
+18 18                                           18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 \
+27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 \
+43 43 43 43 43 43 43 43 )
+VALELIST=( \
+1                                                                                            1  \
+1  1                                                                          4  4  4  4  4  4  \
+1  1                                                                          4  4  4  4  4  4  \
+1  1                                            6  6  6  6  6  6  6  6  6  6  9  9  9  9  9  9  \
+1  1                                            6  6  6  6  6  6  6  6  6  6  9  9  9  9  9  9  \
+1  1  13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 16 16 16 16 16 16 \
+1  1  13 13 13 13 13 13 )
+
+if [ -e $BASISNAME.ao ]; then
+  echo "DELETING EXISTING FILE $BASISNAME.ao"
+  rm $BASISNAME.ao
+fi
+echo "#ATOMIC ORBITALS FOR $(echo $BASISNAME | awk '{print toupper($0)}')" > $BASISNAME.ao
+echo "" > log.$BASISNAME
+if [ ! -e log.$BASISNAME ]; then
+  echo "CANNOT CREATE FILES IN $(pwd). FIX PERMISSIONS"
+  exit
+fi
+
+AINDEX=0
+for ATOM in ${ATOMLIST[@]}; do
+  # DH: Skip atoms not present in the basis set
+  if [[ ! `egrep "ATOM ${ATOM}$" $BASISFILE` ]];then
+     let AINDEX=AINDEX+1
+     continue
+  fi
+
+  if [ $(expr $AINDEX % 2) -eq 0 ]; then
+    METHOD=rohf
+    SPIN=2
+  else
+    METHOD=rhf
+    SPIN=1
+  fi
+
+  FON=yes
+  if [ "$ATOM" == "H"  -o \
+       "$ATOM" == "He" ]; then
+    VECSIZE=1
+  else
+    VECSIZE=10
+  fi
+
+  DOCOMPUTE=1
+  while [ $DOCOMPUTE -eq 1 ]; do
+
+    cat > start$GPUID << EOF
+scrdir          scr$GPUID
+basis           $BASISNAME
+coordinates     xyz$GPUID
+method          $METHOD
+spinmult        $SPIN
+charge          0
+gpus            1 $GPUID
+guess           hcore
+precision       double 
+maxit           1000
+fock            conventional
+fon             $FON
+active          1000
+fon_temperature 0.001
+diismaxvecs     $VECSIZE
+convthre        0.0001
+threall         1.0e-15
+textorbitals
+end
+EOF
+
+    cat > xyz$GPUID << EOF
+1
+
+$ATOM 0.0 0.0 0.0
+EOF
+
+    $BIN start$GPUID > tlog$GPUID 2>/dev/null
+
+    if [ $(grep "dgetrf" tlog$GPUID | wc -l) -ne 0 ]; then
+         VECSIZE=1
+       elif [ $(grep "Incorrect number of frozen orbitals in FOMO SCF" tlog$GPUID | wc -l) -ne 0 -o \
+              $(grep "Temperature set too high" tlog$GPUID | wc -l) -ne 0 ]; then
+         FON=no
+       else
+         DOCOMPUTE=0
+       fi
+
+  done
+
+  cat tlog$GPUID >> log.$BASISNAME 2>/dev/null
+
+  FAILED=0
+  if [ $(grep "Unable to find atom" tlog$GPUID | wc -l) -ne 0 ]; then
+    echo "ATOM $ATOM NOT FOUND IN $BASISNAME. $ATOM SKIPPED"
+    FAILED=1
+  fi
+  if [ $(grep "SCF did not converge" tlog$GPUID | wc -l) -ne 0 ]; then
+    echo "PROBLEMS WITH SCF FOR ATOM $ATOM IN $BASISNAME. $ATOM SKIPPED"
+    FAILED=1
+  fi
+  if [ $(grep "Unexpected character read: 72" tlog$GPUID | wc -l) -ne 0 -o \
+       $(grep "Unexpected character read: 73" tlog$GPUID | wc -l) -ne 0 -o \
+       $(grep "Unexpected character read: 75" tlog$GPUID | wc -l) -ne 0 -o \
+       $(grep "are not supported in this version" tlog$GPUID | wc -l) -ne 0 ]; then
+    echo "BASIS FUNCTION WITH UNSUPPORTED ANG MOMENTUM FOR $ATOM IN $BASISNAME. $ATOM SKIPPED"
+    FAILED=1
+  fi
+  if [ $(grep "too big ECP MAXL" tlog$GPUID | wc -l) -ne 0 ]; then
+    echo "BASIS FUNCTION WITH UNSUPPORTED ECP ANG MOMENTUM FOR $ATOM IN $BASISNAME. $ATOM SKIPPED"
+    FAILED=1
+  fi
+ 
+  if [ $FAILED -eq 0 -a $(grep "Job terminated" tlog$GPUID | wc -l) -ne 0 ]; then
+    echo "GENERAL PROBLEM WITH ATOM $ATOM IN $BASISNAME. $ATOM SKIPPED"
+    FAILED=1
+  fi
+
+  if [ $FAILED -eq 0 ]; then
+    printf "%-2s OK!\n" $ATOM
+    echo "$ATOM ${CORELIST[$AINDEX]} ${VALELIST[$AINDEX]}" >> $BASISNAME.ao 2>/dev/null
+    cat   scr$GPUID/mo.text                                >> $BASISNAME.ao 2>/dev/null
+    echo ""                                                >> $BASISNAME.ao 2>/dev/null
+  fi
+  rm -rf tlog$GPUID xyz$GPUID start$GPUID  # scr$GPUID # DHmod
+
+  AINDEX=$(expr $AINDEX + 1)
+done
+echo ""
+echo "*****************************************************"
+NL=$(awk '{ if(NF==3) print }' $BASISNAME.ao | wc -l)
+if [ $NL -gt 0 ]; then 
+  echo "            $NL ATOMS HAVE BEEN PROCESSED"
+  echo "  NOW COPY THE .AO FILE TO YOUR BASIS SET DIRECTORY  "
+else
+  echo "           NO ATOMS HAVE BEEN PROCESSED"
+  echo "            CHECK log.$BASISNAME"
+fi
+echo "*****************************************************"
+echo ""
