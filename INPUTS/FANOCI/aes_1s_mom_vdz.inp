@@ -1,0 +1,53 @@
+# AES intensities based on Mulliken Pop. Analysis
+run            auger
+aes_pop        yes
+
+# These are zero-based
+# Index of core-ionized atom
+# (order from XYZ coordinates)
+core_atom      0
+
+# Index of core ionized MO
+core_mo        0
+
+# Core ionized dublet state
+method         rohf
+charge         1
+spinmult       2
+
+coordinates    water_b3lyp_vdz.xyz
+
+gpus           1
+
+# We're relying on Mulliken it's better
+# to have smaller basis set without diffuse functions
+basis          cc-pvdz
+scrdir         scr-aes-1s-mom-vdz
+
+precision      double
+threall        1.0e-20
+convthre       1.0e-7
+
+##### CASCI code param ############3
+# Note that the code automatically substracts one electron
+# to get the final 2h 2+ state
+casci         yes
+cassinglets   10
+castriplets   6
+
+# The active space must be set to span only 2h final states!
+# If neutral molecule had n electrons, the final states have
+# (n-2) electrons in (n/2) orbitals
+closed        1
+active        4
+
+mom           yes
+# Need to precompute neutral WF for MOM
+guess    scr-aes-1s-neutral-vdz/c0 scr-aes-1s-neutral-vdz/c0
+end
+
+# Core-ionized MOM WF
+$excitations
+beta 1 5
+$end
+
