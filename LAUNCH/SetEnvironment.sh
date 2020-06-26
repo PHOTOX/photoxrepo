@@ -211,12 +211,16 @@ case "$program" in
       ;;
 
    "DFTB" )
-      VERSIONS=( 18.2 1.2 )
+      VERSIONS=( 18.2 18.2_D3 1.2 )
       DFTB[1.2]=/home/hollas/bin/dftb+
       DFTB[18.2]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux/bin/dftb+"
+      DFTB[18.2_D3]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux.d3/dftbplus-18.2/_build/prog/dftb+/dftb+"
       set_version
       if [[ $? -ne 0 ]];then
          return 1
+      fi
+      if [[ $version = "18.2_D3" ]]; then
+         source $basedir/common/gcc/gcc-7.3.0/set/settings.sh
       fi
       export DFTBEXE=${DFTB[$version]}
       ;;

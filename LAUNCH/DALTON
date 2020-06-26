@@ -28,5 +28,5 @@ fi
 echo "Running DALTON job $input"
 uname -n
 date
-$DALTONEXE -noarch -N $nproc $input
+$DALTONEXE -noarch -N $nproc -gb 4 $input
 
