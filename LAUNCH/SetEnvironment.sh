@@ -220,7 +220,7 @@ case "$program" in
          return 1
       fi
       if [[ $version = "18.2_D3" ]]; then
-         source $basedir/common/gcc/gcc-7.3.0/set/settings.sh
+         source $basedir/gcc/gcc-7.3.0/set/settings.sh
       fi
       export DFTBEXE=${DFTB[$version]}
       ;;
