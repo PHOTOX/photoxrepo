@@ -211,8 +211,9 @@ case "$program" in
       ;;
 
    "DFTB" )
-      VERSIONS=( 18.2 18.2_D3 1.2 )
+      VERSIONS=( 18.2 18.2_D3 20.1 1.2 )
       DFTB[1.2]=/home/hollas/bin/dftb+
+      DFTB[20.1]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux/bin/dftb+"
       DFTB[18.2]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux/bin/dftb+"
       DFTB[18.2_D3]="$basedir_custom/dftb/dftbplus-18.2.x86_64-linux.d3/dftbplus-18.2/_build/prog/dftb+/dftb+"
       set_version
@@ -484,7 +485,7 @@ case "$program" in
       ;;
 
    "QCHEM" )
-      VERSIONS=( 4.3 5.0 4.1 5.1 )
+      VERSIONS=( 4.3 5.3 5.1 5.0 4.1 )
       # TODO version 5.0 MPI only on NEON so far, path in ARGON is different
       if [[ $cluster = "as67" ]];then
          QCHEM[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-multicore
@@ -496,6 +497,7 @@ case "$program" in
          #source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
          QCHEM[5.1]=$basedir/qchem/qchem-5.1/arch/x86_64-multicore
+         QCHEM[5.3]=$basedir/qchem/qchem-5.3/arch/x86_64-multicore
          QCHEM_MPI[5.1]=$basedir/qchem/qchem-5.1/arch/x86_64-openmpi
          QCHEM[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-multicore
          QCHEM_MPI[5.0]=$basedir/qchem/qchem-5.0/arch/x86_64-openmpi
@@ -519,6 +521,12 @@ case "$program" in
       set_version
       if [[ $? -ne 0 ]];then
          return 1
+      fi
+
+      # Just use what Polach already prepared instead of exporting here:
+      # TODO: Use this for all other versions as well if possible
+      if [[ $version = "5.3" ]];then
+        source ${QCHEM[$version]}/qcenv.sh
       fi
 
       export qcroot=${QCHEM[$version]}
