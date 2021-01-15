@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-# Implementation of BEP model, see:
+# Implementation of BEB model, see: [1]
+# Electron-impact ionization cross sections for polyatomic molecules, radicals, and ions 
+# Yong-Ki Kim and Karl K. Irikura, 2000 
+# https://doi.org/10.1063/1.1336281
+
+# The original paper:
 # Binary-encounter-dipole model for electron-impact ionization
 # Kim, Yong Ki, Rudd, M. Eugene Phys Rev A, 1994, 5, 3954-3967
 
@@ -9,7 +14,7 @@
 
 # WARNING: Currrent implementation works only for closed shell molecules!
 
-# A very simple model valid only for atoms from Talukder et al is alson implemented
+# A very simple model valid only for atoms from Talukder et al is also implemented.
 # Empirical model for electron impact ionization cross sections
 # M.R. Talukder et al The European Physical Journal D 46, 281-287, 2008
 
@@ -25,7 +30,7 @@ def read_cmd():
          electron impact photoionization cross section from first principles"
    parser = argparse.ArgumentParser(description=desc)
    parser.add_argument("-i", "--input_file", dest="inp_file", help="Gaussian output file with MO parameters.")
-   parser.add_argument("-m", "--model", dest="model",default="bep", help="Which model? (bep|talukder).")
+   parser.add_argument("-m", "--model", dest="model",default="beb", help="Which model? (beb|talukder).")
    parser.add_argument("-U", dest="U", type=float, help="electron orbital kinetic energy [ev]")
    parser.add_argument("--Tmax", dest="Tmax", type=float, default=1000., help="maximum kin. energy of ionizing electron [ev]")
    parser.add_argument("-T", dest="T",type=float, help="kinetic energy [ev] of the ionizing electron")
@@ -36,7 +41,12 @@ def read_cmd():
    parser.add_argument("-c", "--charge", dest="charge",type=int, default=0, help="Charge")
    return parser.parse_args()
 
-def bep_cross_section(T, B, U, N, charge):
+# Implementation from:
+# Electron-Impact lonization Cross Sections for Polyatomic Molecules, Radicals, and Ions
+# Kim, Yong-Ki,Irikura, Karl K
+# https://doi.org/10.1063/1.1336281
+# Equation 3
+def beb_cross_section(T, B, U, N, charge):
    """Calculates electron impact ionization cross section for a given MO.
       Input params should be in atomic units!
       T = kinetic energy of ionizing electron
@@ -44,6 +54,8 @@ def bep_cross_section(T, B, U, N, charge):
       U = orbital kinetic energy
       N = electron occupation number of a given orbital"""
 
+   # Definitions from Section 1, pp. 221,
+   # between equations (2) and (3)
    a0 = 1  # Bohr radius [au]
    R = 0.5 # Rydberg energy [au]
    t = T / B
@@ -51,14 +63,13 @@ def bep_cross_section(T, B, U, N, charge):
 
    denom = 1
    if (charge == 1):
-      #modification for singly charged ions, see
-      # Electron-Impact lonization Cross Sections for Polyatomic Molecules, Radicals, and Ions
-      # Kim, Yong-Ki,Irikura, Karl K
+      # modification for singly charged ions, see
       # Section 2.2
       denom = 2
 
    S = 4 * math.pi * a0**2 * N * (R/B)**2
 
+   # BEB Equation (3), page 221
    x1 = S / (t + (u + 1)/denom)
    x2 = math.log(t) / 2 * (1 - 1 / t**2)
    x3 = 1 - 1/t - math.log(t)/(1+t)
@@ -214,8 +225,8 @@ if __name__ == "__main__":
       # Iterate over orbitals
       for i in range(len(Eorb)):
          if Eorb[i] <= t:
-            if opts.model == "bep":
-               s = bep_cross_section(t, Eorb[i], Ekin[i], N, opts.charge)
+            if opts.model == "beb":
+               s = beb_cross_section(t, Eorb[i], Ekin[i], N, opts.charge)
             elif opts.model == "talukder":
                s = talukder_cross_section(t, Eorb[i], n, l, N)
             else:
@@ -240,5 +251,3 @@ if __name__ == "__main__":
              m_l = 0
 
       print(t*AU2EV, total_sigma, " ".join(str(s) for s in sigma))
-
-
