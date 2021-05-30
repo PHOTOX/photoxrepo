@@ -64,20 +64,13 @@ elif [[ "$node" =~ ^a[0-9]+$|403-a324-01 ]];then
    cluster=a324
 elif [[ "$node" =~ ^n[0-9]+$|403-as67-01 ]];then
    cluster=as67gpu
-elif [[ "$node" =~ ^cn[0-9]+$|^login[0-9] ]];then
-   cluster=anselm
 else
    echo "I did not recognize any of the PHOTOX clusters. Please check the script SetEnvironment.sh"
    echo "node=$node"
    return 1
 fi
 
-if [[ $cluster = "anselm" || $cluster = "salomon" ]];then
-   SCRDIR_BASE="/lscratch/$PBS_JOBID/"
-   JOB_ID=$PBS_JOBID
-else
-   SCRDIR_BASE="/scratch/$USER/"
-fi
+SCRDIR_BASE="/scratch/$USER/"
 
 if [[ $cluster = "as67" ]];then
    PROGRAMS=(ABIN AMBER CP2K DFTB GAUSSIAN GROMACS MOLPRO MOPAC OCTOPUS ORCA QCHEM)
@@ -85,8 +78,6 @@ elif [[ $cluster = "a324" ]];then
    PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM SHARC TERACHEM )
 elif [[ $cluster = "as67gpu" ]];then
    PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM TERACHEM FANOCI)
-elif [[ $cluster = "anselm" ]];then
-   PROGRAMS=(ABIN TERACHEM)
 fi
 
 basedir=/usr/local/programs
@@ -121,22 +112,13 @@ declare -A ABIN DALTON NWCHEM OCTOPUS GROMACS ORCA CP2K MOLPRO MOLPRO_MPI GAUSS 
 
 case "$program" in
    "ABIN" )
-      if [[ $cluster = "anselm" ]];then
-         VERSIONS=(dev-mpi mpi)
-         module load  MPICH/3.2-GCC-4.9.3-2.25
-      else
-         VERSIONS=(1.0 1.0-mpi 1.0-cp2k mpi cp2k)
-      fi
+      VERSIONS=(1.0 1.0-mpi 1.0-cp2k mpi cp2k)
       set_version
       if [[ $? -ne 0 ]];then
          return 1
       fi
       if [[ $version = mpi ]];then
-	 if [[ $cluster = anselm ]];then
-	    version=dev-mpi
-	 else
-            version=1.0-mpi
-	 fi
+         version=1.0-mpi
       elif [[ $version = cp2k ]];then
          version=1.0-cp2k
       fi
@@ -283,8 +265,6 @@ case "$program" in
       elif [[ $cluster = "a324" ]];then
          VERSIONS=(1.9-dev-2019.12 1.9-dev-2017.10 1.9-dev-2019.12-turing trunk fanoci )
          OPENMMLIB=/usr/local/programs/custom/anaconda/anaconda-4.3.0/arch/x86_64/anaconda3/pkgs/openmm-7.1.1-py36_0/lib/
-      elif [[ $cluster = "anselm" ]];then
-         VERSIONS=( trunk )
       fi
       if [[ $node = 'a29' ]];then
          version=1.9-dev-2019.12-turing
@@ -304,14 +284,6 @@ case "$program" in
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/:$LD_LIBRARY_PATH
       elif [[ $cluster = "as67gpu" ]];then
          export LD_LIBRARY_PATH=/usr/local/programs/cuda/driver/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-      elif [[ $cluster = "anselm" ]];then
-         module load  intel/2016a
-         module load  CUDA/8.0.44
-         module load  MPICH/3.2-GCC-4.9.3-2.25
-         source /home/danekhollas/programs/TeraChem-dev/production/setenv
-         export LD_LIBRARY_PATH=$CUDA_PATH/lib64/:$LD_LIBRARY_PATH
-         export TERAEXE=terachem
-         return 0
       fi
 
       TERA[1.9-dev-2019.12-turing]=$basedir_custom/terachem/terachem-1.9dev/build_2019.12_turing_037285e329b7
