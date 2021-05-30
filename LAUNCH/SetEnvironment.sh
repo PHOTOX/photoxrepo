@@ -511,8 +511,8 @@ case "$program" in
       fi
 
       # Just use what Polach already prepared instead of exporting here:
-      # TODO: Use this for all other versions as well if possible
-      if [[ $version = "5.3" ]];then
+      # TODO: Use this for all other versions as well if possible?
+      if [[ $version = "5.3" || $version = "5.1" ]];then
         source ${QCHEM[$version]}/qcenv.sh
       fi
 
