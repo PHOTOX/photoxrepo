@@ -30,7 +30,7 @@ for f in ${keyfiles[@]};do
       file2[$f]=""
    fi
    if [[ ! -z ${file[$f]} ]];then
-      if [[ ! -f ${file[$f]} ]];then
+      if [[ ! -f ${file[$f]} && ${file[$f]} != "sad" && ${file[$f]} != "hcore" ]];then
          echo "ERROR: Could not found file ${file[$f]}"
          exit 1
       fi

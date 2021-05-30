@@ -95,12 +95,12 @@ fi
 numgpus=$(awk '{if ($1=="gpus") {print $2;exit 0}}' $input)
 
 declare -A file file2 gpumax PROJECT_NAME
-gpucards=( m2090 gtx690 gtx970 titan nq-gpu )
 gpumax[aq-gpu-m2090]=2
 gpumax[aq-gpu-gtx690]=4
 gpumax[aq-gpu-gtx970]=2
 gpumax[aq-gpu-gtx980]=2
 gpumax[aq-gpu-titan]=4
+gpumax[nq-gpu-rtx]=2
 gpumax[nq-gpu]=4
 gpumax[qnvidia]=1
 
@@ -109,14 +109,14 @@ if [[ ! $queue =~ \-gpu && $cluster != "anselm" ]];then
 fi
 
 # Remove specific node, if specified
-q=${queue%%@*}
+qname=${queue%%@*}
 
 if [[ -z $numgpus ]];then
    echo "Number of gpus not specified. Exiting..."
    echo "Please, set variable \"gpus\" in $1 ."
    error=1
-elif [[ "$numgpus" -gt ${gpumax[$q]} ]];then
-   echo "Maximum number of gpus for queue $q is ${gpumax[$q]}."
+elif [[ "$numgpus" -gt ${gpumax[$qname]} ]];then
+   echo "Maximum number of gpus for queue $q is ${gpumax[$qname]}."
    echo "Please, adjust variable gpu in your input file."
    echo "Job not submitted."
    error=1
@@ -129,15 +129,15 @@ keyfiles=( coordinates qmmm guess plumedfile pcm_read fon_guess \
 # Check for presence of input files
 for f in ${keyfiles[@]};do
    file[$f]=$(awk -v file="$f" '{if ($1==file) {print $2;exit 0}}' $input)
-   # this one  is neccessary for unrestricted guesses
+   # this one is neccessary for unrestricted guesses
    file2[$f]=$(awk -v file="$f" '{if ($1==file) {print $3;exit 0}}' $input)
    # Allow comments at the end of input line
    if [[ ${file2[$f]} =~ ^# ]];then
       file2[$f]=""
    fi
    if [[ ! -z ${file[$f]} ]];then
-      if [[ ! -f ${file[$f]} ]];then
-         echo "ERROR: Could not found file ${file[$f]}"
+      if [[ ! -f ${file[$f]} && ${file[$f]} != "sad" && ${file[$f]} != "hcore" ]];then
+         echo "ERROR: Could not found file \"${file[$f]}\""
          error=1
       fi
    fi
@@ -164,30 +164,33 @@ name=$(basename $name .com)
 name=$(basename $name .in)
 
 if [[ $cluster != "anselm" ]];then
-cat > r.$name << EOF
+   if [[ $queue == "nq-gpu-rtx" ]];then
+      gpu_resource="-l num_gpu_job=$numgpus"
+   else
+      gpu_resource="-l num_gpu=1 -pe shm $numgpus"
+   fi
+   cat > r.$name << EOF
 #!/bin/bash
 
 #$ -cwd 
 #$ -e . 
 #$ -o .
-#$ -V
-#$ -l num_gpu=1
-#$ -pe shm $numgpus
+#$ -V -cwd
+#$ -q $queue
+#$ $gpu_resource
 
 TERA $input $version
 EOF
-echo "qsub -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name"
-qsub  -V -cwd -q $queue -l num_gpu=1 -pe shm $numgpus r.$name
+
+   qsub  r.$name
 
 else
 
    # When using IT4I supercomputer in Ostrava, utilizing PBS queue
-
    if [[ $PROJECT_ID != "OPEN-11-34" && $PROJECT_ID != "OPEN-10-48" ]];then
 	echo "Invalid PROJECT ID=$PROJECT_ID"
 	exit 1
    fi
-   PROJECT_NAME["OPEN-11-34"]="Molecular simulations of tin based materials for EUV litography"
    PROJECT_NAME["OPEN-11-34"]="Molecular simulations of tin based materials for EUV litography"
    echo "Using PROJECT_ID=$PROJECT_ID"
    echo "${PROJECT_NAME[$PROJECT_ID]}"

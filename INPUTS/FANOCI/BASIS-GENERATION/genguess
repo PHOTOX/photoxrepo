@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #$ -cwd -V
-#$ -q nq-gpu
+#$ -q nq-gpu -l num_gpu=1
 
 . SetEnvironment.sh TERACHEM fanoci
 
