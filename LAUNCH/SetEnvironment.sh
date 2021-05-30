@@ -84,7 +84,7 @@ if [[ $cluster = "as67" ]];then
 elif [[ $cluster = "a324" ]];then
    PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM SHARC TERACHEM )
 elif [[ $cluster = "as67gpu" ]];then
-   PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM TERACHEM )
+   PROGRAMS=(ABIN AMBER CP2K DALTON DFTB GAUSSIAN GROMACS MNDO MOLPRO MOPAC NWCHEM OCTOPUS ORCA QCHEM TERACHEM FANOCI)
 elif [[ $cluster = "anselm" ]];then
    PROGRAMS=(ABIN TERACHEM)
 fi
@@ -155,6 +155,21 @@ case "$program" in
          source /usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2-settings.sh
          export MPIRUN=/usr/local/programs/common/openmpi/openmpi-2.0.2/arch/x86_64-gcc_4.7.2/bin/mpirun
       fi
+      ;;
+   "FANOCI" )
+      VERSIONS=(dev)
+      # Compiled on NEON with default ifort on NEON, intel-2013
+      # /usr/local/programs/common/intel/compiler/2013.2.146/composer_xe_2013.2.146/bin/intel64/
+      # TODO: Compile with newer Intel, do not rely on default
+      FANOCI[dev]=/home/hollas/programes
+      set_version
+      if [[ $? -ne 0 ]];then
+         return 1
+      fi
+      # Export fanoci and stieljes binaries to PATH
+      intel=/usr/local/programs/common/intel/compiler/2013.2.146/composer_xe_2013.2.146/
+      export LD_LIBRARY_PATH=$intel/compiler/lib/intel64:$intel/mkl/lib/intel64:$LD_LIBRARY_PATH
+      export PATH=${FANOCI[$version]}/stieltjes_code/bin/:${FANOCI[$version]}/fanoci_code/bin/:$PATH
       ;;
    "MOLPRO" )
       if [[ $cluster = "as67gpu" ]] || [[ $cluster = "a324" ]] ;then
