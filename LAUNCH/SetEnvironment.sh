@@ -472,7 +472,7 @@ case "$program" in
       ;;
 
    "QCHEM" )
-      VERSIONS=( 4.3 5.3 5.1 5.0 4.1 )
+      VERSIONS=( 4.3 5.3 5.1 5.0 4.1 5.4 )
       # TODO version 5.0 MPI only on NEON so far, path in ARGON is different
       if [[ $cluster = "as67" ]];then
          QCHEM[5.0]=$basedir/common/qchem/qchem-5.0/arch/x86_64-multicore
@@ -483,6 +483,7 @@ case "$program" in
          QCHEM_MPI[4.1]=$basedir/common/qchem/qchem-4.1/arch/x86_64-openmpi_1.6.5
          #source $basedir/common/openmpi/openmpi-1.6.5/arch/amd64-gcc_4.3.2-settings.sh
       else
+         QCHEM[5.4]=$basedir/qchem/qchem-5.4/arch/x86_64-multicore
          QCHEM[5.1]=$basedir/qchem/qchem-5.1/arch/x86_64-multicore
          QCHEM[5.3]=$basedir/qchem/qchem-5.3/arch/x86_64-multicore
          QCHEM_MPI[5.1]=$basedir/qchem/qchem-5.1/arch/x86_64-openmpi
@@ -512,7 +513,7 @@ case "$program" in
 
       # Just use what Polach already prepared instead of exporting here:
       # TODO: Use this for all other versions as well if possible?
-      if [[ $version = "5.3" || $version = "5.1" ]];then
+      if [[ $version = "5.4" || $version = "5.3" || $version = "5.1" ]];then
         source ${QCHEM[$version]}/qcenv.sh
       fi
 
