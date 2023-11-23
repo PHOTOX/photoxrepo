@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# This script is based on a script from the PHOTOX repository (https://github.com/PHOTOX/photoxrepo, Copyright (c) 2014 PHOTOX)
-# to maintain compatibility with other tools there
-
 # Extracts excitation energies and transition dipole moments from a set of calculations.
 
 # REQUIRED FILES:
