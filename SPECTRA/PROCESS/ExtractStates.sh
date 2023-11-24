@@ -9,7 +9,7 @@
 name=trans-azobenzene	#basename of the processed files
 states=7	# number of excited states (ground state does not count)
 istart=1	# Starting index
-imax=1000	# number of calculations
+imax=1000	# Last index to process
 indices=	# file with indices of geometries to use (one index per line).
 		# leave empty or commented for using all geometries from istart to imax.
 grep_function="grep_G09_TDDFT"	# this function parses the outputs of the calculations
