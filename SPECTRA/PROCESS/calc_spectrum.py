@@ -386,7 +386,7 @@ class Spectrum(object):
       xunits = [ "ev", "nm", "cm"]
       toprint = message
       for un in xunits:
-         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".cross."+str(self.pid)+".dat"
+         outfile="absspec."+name+".n"+str(self.nsample)+"."+str(self.pid)+'.'+un+".cross.dat"
          toprint += "\n\tPrinting spectrum in units [ "+un+", "+yunits+"] to "+outfile
          self.writeout(un, outfile)
 
@@ -395,7 +395,7 @@ class Spectrum(object):
       self.cross2eps()
       yunits="dm^3*mol^-1*cm^-1"
       for un in xunits:
-         outfile="absspec."+name+"."+un+"."+str(self.nsample)+".molar."+str(self.pid)+".dat"
+         outfile="absspec."+name+".n"+str(self.nsample)+'.'+str(self.pid)+"."+un+".molar.dat"
          toprint += "\n\tPrinting spectrum in units [ "+un+", "+yunits+"] to "+outfile
          self.writeout(un, outfile)
       print(toprint)
@@ -403,7 +403,7 @@ class Spectrum(object):
 
    def writegeoms(self,infile):
       name = infile.split(".")[0]
-      outfile = name+"."+str(self.nsample)+"."+str(self.pid)+".geoms"
+      outfile = name+".n"+str(self.nsample)+"."+str(self.pid)+".geoms"
       print(str(self.pid)+":\tPrinting geometries of reduced spectrum to "+outfile)
       f = open(outfile, "w")
       for i in self.subsamples:
