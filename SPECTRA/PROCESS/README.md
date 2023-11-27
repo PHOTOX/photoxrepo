@@ -41,7 +41,7 @@ The last step is to use the extracted data about electronic transitions to model
 
 #### EXAMPLE 1 (continuation)
 
-So now we have extracted data from 10 excited-state calculations and we want to create the spectrum. Change the SETUP part in `ProcessSpectra.sh` just like this:
+So now we have extracted data from 10 excited-state calculations and we want to create the spectrum. Change the SETUP part in `CalcSpectrum.sh` just like this:
 
 ```
 ##### SETUP FOR SPECTRA MODELLING ###################################
