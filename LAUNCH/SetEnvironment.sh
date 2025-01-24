@@ -275,7 +275,7 @@ case "$program" in
       fi
 
       # Make sure nginx proxy server is running (needed for network license)
-      license_daemon="/home/srsen/SCRIPTS/teralic_daemon_launcher.sh"
+      license_daemon="/usr/local/programs/custom/PHOTOX/LAUNCH/TERA_LICENSE/teralic_daemon_launcher.sh"
       if [ -x $license_daemon ]; then
          $license_daemon
       fi
